@@ -4,11 +4,12 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="中华传统色演示、色卡浏览与颜色知识科普开源项目。">
-    <meta name="theme-color" content="#24262d">
+    <meta name="theme-color" content="#f7f7f4">
     <title>中国传统配色 - 中华传统色色卡资料馆</title>
     <link rel="stylesheet" href="assets/css/styles.css">
   </head>
   <body>
+    <a class="skip-link" href="#gallery">跳到色卡列表</a>
     <svg class="svg-sprite" aria-hidden="true">
       <symbol id="icon-download" viewBox="0 0 24 24">
         <path d="M12 3v11m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
@@ -37,6 +38,7 @@
       </a>
       <nav class="site-nav" aria-label="主导航">
         <a href="#gallery">色卡</a>
+        <a href="#audit">审计</a>
         <a href="#knowledge">知识</a>
         <a href="#download">下载</a>
         <a href="#open-source">开源</a>
@@ -56,9 +58,9 @@
               <svg><use href="#icon-gallery"></use></svg>
               浏览色卡
             </a>
-            <a class="button button-secondary" href="#download">
+            <a class="button button-secondary" href="https://github.com/nevertoday/zhongguo-traditional-colors/releases/latest/download/zhongguo-traditional-colors-images.zip">
               <svg><use href="#icon-download"></use></svg>
-              打包下载
+              下载 ZIP
             </a>
           </div>
           <dl class="hero-stats">
@@ -72,7 +74,7 @@
             </div>
             <div>
               <dt>700+</dt>
-              <dd>持续扩展目标</dd>
+              <dd>原始清单</dd>
             </div>
           </dl>
         </div>
@@ -125,6 +127,38 @@
             <svg><use href="#icon-arrow"></use></svg>
             加载更多
           </button>
+        </div>
+      </section>
+
+      <section class="audit-section" id="audit" aria-labelledby="audit-title">
+        <div class="section-heading">
+          <span class="section-kicker">Audit</span>
+          <h2 id="audit-title">清单覆盖审计</h2>
+          <p>原始清单包含 742 个颜色。当前图片全部可识别，但只覆盖 497 个唯一颜色，仍缺失 245 个。</p>
+        </div>
+
+        <div class="audit-grid" aria-label="颜色清单审计摘要">
+          <article>
+            <strong>742</strong>
+            <span>原始颜色</span>
+          </article>
+          <article>
+            <strong>538</strong>
+            <span>当前图片</span>
+          </article>
+          <article>
+            <strong>497</strong>
+            <span>唯一覆盖</span>
+          </article>
+          <article>
+            <strong>245</strong>
+            <span>缺失颜色</span>
+          </article>
+        </div>
+
+        <div class="audit-actions">
+          <a class="text-link" href="docs/chinese-color-master-list.md">查看原始 742 色清单</a>
+          <a class="text-link" href="docs/missing-colors.md">查看缺失颜色报告</a>
         </div>
       </section>
 
@@ -204,6 +238,20 @@
             <span>
               <strong>贡献指南</strong>
               <small>新增色卡、命名规范和提交检查</small>
+            </span>
+          </a>
+          <a class="open-link" href="docs/chinese-color-master-list.md">
+            <svg><use href="#icon-book"></use></svg>
+            <span>
+              <strong>原始色彩清单</strong>
+              <small>发布 742 个中国色 AI 主色名和 HEX</small>
+            </span>
+          </a>
+          <a class="open-link" href="docs/missing-colors.md">
+            <svg><use href="#icon-gallery"></use></svg>
+            <span>
+              <strong>缺失颜色报告</strong>
+              <small>对比图片与原始清单后的 245 个缺失项</small>
             </span>
           </a>
           <a class="open-link" href="docs/image-packaging.md">

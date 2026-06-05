@@ -7,6 +7,8 @@
 - [下载全部高清图片 ZIP](https://github.com/nevertoday/zhongguo-traditional-colors/releases/latest/download/zhongguo-traditional-colors-images.zip)
 - [在线浏览色卡](https://nevertoday.github.io/zhongguo-traditional-colors/)
 - [完整图片包 Release 下载](https://github.com/nevertoday/zhongguo-traditional-colors/releases/tag/v0.1.0)
+- [原始 742 色清单](docs/chinese-color-master-list.md)
+- [缺失颜色报告](docs/missing-colors.md)
 - [作者 X 主页](https://x.com/xiaoxiaodong01)
 
 > 原图约 708MB，ZIP 文件作为 GitHub Release 附件提供，不直接提交进仓库。单张高清图可点击下方任意缩略图打开。
