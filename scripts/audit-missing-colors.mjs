@@ -106,7 +106,7 @@ ${rows}
 }
 
 function renderMissingReport({ masterPath, total, matched, uniqueMatched, missing, duplicates, methodCounts }) {
-  const missingRows = missing.map((item) => `${item.index}. ${item.name} ${item.hex}`).join("\n");
+  const missingRows = missing.map((item) => `${item.index}. ${item.name} ${item.hex}`).join("\n") || "无";
   const duplicateRows = duplicates
     .map((entry) => {
       const [name, hex] = entry.key.split("\t");
