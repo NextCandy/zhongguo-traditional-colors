@@ -6,6 +6,7 @@ const defaultMaster = "/Users/admin/Desktop/中国色AI主色列表.md";
 const masterPath = process.argv[2] || defaultMaster;
 const ocrPath = process.argv[3] || path.join(root, "artifacts/color-card-ocr.ndjson");
 const docsDir = path.join(root, "docs");
+const artifactsDir = path.join(root, "artifacts");
 
 function parseMasterList(source) {
   return source
@@ -237,9 +238,10 @@ const methodCounts = matched.reduce((counts, item) => {
 }, {});
 
 fs.mkdirSync(docsDir, { recursive: true });
+fs.mkdirSync(artifactsDir, { recursive: true });
 fs.writeFileSync(path.join(docsDir, "chinese-color-master-list.md"), renderMasterList(master), "utf8");
 fs.writeFileSync(
-  path.join(docsDir, "missing-colors.md"),
+  path.join(artifactsDir, "color-coverage-audit.md"),
   renderMissingReport({
     masterPath,
     total: master.length,

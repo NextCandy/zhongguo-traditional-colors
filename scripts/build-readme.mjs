@@ -53,7 +53,6 @@ README 下方完整展示全部缩略图，点击任意色卡可以打开高清 
 - [下载全部高清图片 ZIP](https://github.com/nevertoday/zhongguo-traditional-colors/releases/latest/download/${project.archiveName})
 - [完整图片包 Release 下载](https://github.com/nevertoday/zhongguo-traditional-colors/releases/tag/v0.1.0)
 - [原始 742 色清单](docs/chinese-color-master-list.md)
-- [缺失颜色报告](docs/missing-colors.md)
 - [作者 X 主页](https://x.com/xiaoxiaodong01)
 
 ## 当前状态
@@ -63,8 +62,7 @@ README 下方完整展示全部缩略图，点击任意色卡可以打开高清 
 | 原始颜色清单 | 742 |
 | 已展示高清色卡 | ${project.count} |
 | README 缩略图 | ${project.count} |
-| 缺失颜色 | 0 |
-| 重复覆盖 | 0 |
+| 清单覆盖 | 完整 |
 
 原图约 ${totalMb} MB。ZIP 文件作为 GitHub Release 附件提供，不直接提交进仓库。
 
@@ -88,7 +86,7 @@ ${galleryRows(images)}
 
 ## 数据说明
 
-图片文件统一按 \`NNN-颜色名.png\` 命名，编号与 [原始 742 色清单](docs/chinese-color-master-list.md) 保持一致。当前审计结果为 742 张图片、742 个唯一颜色、0 个缺失、0 个重复，详细记录见 [缺失颜色报告](docs/missing-colors.md)。
+图片文件统一按 \`NNN-颜色名.png\` 命名，编号与 [原始 742 色清单](docs/chinese-color-master-list.md) 保持一致。当前图片与清单一一对应，共 742 张高清 PNG 色卡。
 
 ## 项目结构
 
