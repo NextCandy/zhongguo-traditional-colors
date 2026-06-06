@@ -32,11 +32,15 @@ function rgbToHex(r, g, b) {
 }
 
 function pickHex(texts) {
+  const candidates = [];
   for (const box of texts || []) {
-    const match = box.text.toUpperCase().replace(/\s+/g, "").match(/#[0-9A-F]{6}/);
-    if (match) return match[0];
+    const normalized = box.text.toUpperCase().replace(/\s+/g, "").replace(/O/g, "0");
+    const match = normalized.match(/#[0-9A-F]{6}/);
+    if (match) candidates.push({ hex: match[0], y: box.y, x: box.x });
   }
-  return "";
+
+  return candidates
+    .sort((a, b) => b.y - a.y || Math.abs(a.x - 0.25) - Math.abs(b.x - 0.25))[0]?.hex || "";
 }
 
 function pickRgbHex(texts) {
