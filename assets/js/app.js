@@ -35,6 +35,14 @@ let visibleCount = 24;
 let currentItems = [...images];
 let shuffled = false;
 let currentHue = 'all';
+let selectedColorValueType = getSavedColorValueType();
+
+const COLOR_VALUE_TYPES = [
+  { value: 'hex', label: 'HEX' },
+  { value: 'rgb', label: 'RGB' },
+  { value: 'hsl', label: 'HSL' },
+  { value: 'cmyk', label: 'CMYK' },
+];
 
 function formatBytes(bytes) {
   const units = ['B', 'KB', 'MB', 'GB'];
@@ -69,16 +77,111 @@ function normalize(value) {
   return value.trim().toLowerCase();
 }
 
+function getSavedColorValueType() {
+  try {
+    const value = localStorage.getItem('colorValueType');
+    return ['hex', 'rgb', 'hsl', 'cmyk'].includes(value) ? value : 'hex';
+  } catch (error) {
+    return 'hex';
+  }
+}
+
+function saveColorValueType(type) {
+  selectedColorValueType = ['hex', 'rgb', 'hsl', 'cmyk'].includes(type) ? type : 'hex';
+  try {
+    localStorage.setItem('colorValueType', selectedColorValueType);
+  } catch (error) {
+    // The current selection still applies if storage is unavailable.
+  }
+}
+
+function rgbFromHex(hex) {
+  const match = hex?.match(/^#?([0-9a-f]{6})$/i);
+  if (!match) return null;
+
+  const value = match[1];
+  return {
+    r: Number.parseInt(value.slice(0, 2), 16),
+    g: Number.parseInt(value.slice(2, 4), 16),
+    b: Number.parseInt(value.slice(4, 6), 16),
+  };
+}
+
+function hslFromRgb({ r, g, b }) {
+  const red = r / 255;
+  const green = g / 255;
+  const blue = b / 255;
+  const max = Math.max(red, green, blue);
+  const min = Math.min(red, green, blue);
+  const delta = max - min;
+  let hue = 0;
+  let saturation = 0;
+  const lightness = (max + min) / 2;
+
+  if (delta !== 0) {
+    saturation = delta / (1 - Math.abs(2 * lightness - 1));
+    if (max === red) hue = ((green - blue) / delta) % 6;
+    if (max === green) hue = (blue - red) / delta + 2;
+    if (max === blue) hue = (red - green) / delta + 4;
+    hue *= 60;
+    if (hue < 0) hue += 360;
+  }
+
+  return {
+    h: Math.round(hue),
+    s: Math.round(saturation * 100),
+    l: Math.round(lightness * 100),
+  };
+}
+
+function cmykFromRgb({ r, g, b }) {
+  const red = r / 255;
+  const green = g / 255;
+  const blue = b / 255;
+  const k = 1 - Math.max(red, green, blue);
+
+  if (k === 1) {
+    return { c: 0, m: 0, y: 0, k: 100 };
+  }
+
+  return {
+    c: Math.round(((1 - red - k) / (1 - k)) * 100),
+    m: Math.round(((1 - green - k) / (1 - k)) * 100),
+    y: Math.round(((1 - blue - k) / (1 - k)) * 100),
+    k: Math.round(k * 100),
+  };
+}
+
+function colorValue(image, type = selectedColorValueType) {
+  const hex = image.hex || '';
+  const rgb = rgbFromHex(hex);
+  if (!rgb) return hex;
+
+  if (type === 'rgb') return `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
+  if (type === 'hsl') {
+    const hsl = hslFromRgb(rgb);
+    return `hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`;
+  }
+  if (type === 'cmyk') {
+    const cmyk = cmykFromRgb(rgb);
+    return `cmyk(${cmyk.c}%, ${cmyk.m}%, ${cmyk.y}%, ${cmyk.k}%)`;
+  }
+  return hex;
+}
+
+function colorValueLabel(type = selectedColorValueType) {
+  return COLOR_VALUE_TYPES.find((item) => item.value === type)?.label || 'HEX';
+}
+
 function hueFromHex(hex) {
   if (!hex) return 'neutral';
 
-  const match = hex.match(/^#?([0-9a-f]{6})$/i);
-  if (!match) return 'neutral';
+  const rgb = rgbFromHex(hex);
+  if (!rgb) return 'neutral';
 
-  const value = match[1];
-  const red = Number.parseInt(value.slice(0, 2), 16) / 255;
-  const green = Number.parseInt(value.slice(2, 4), 16) / 255;
-  const blue = Number.parseInt(value.slice(4, 6), 16) / 255;
+  const red = rgb.r / 255;
+  const green = rgb.g / 255;
+  const blue = rgb.b / 255;
   const max = Math.max(red, green, blue);
   const min = Math.min(red, green, blue);
   const delta = max - min;
@@ -175,6 +278,10 @@ function cardMarkup(image) {
   const title = colorTitle(image);
   const hex = image.hex || '';
   const displayTitle = hex ? `${title} · ${hex}` : title;
+  const copyValue = colorValue(image);
+  const formatOptions = COLOR_VALUE_TYPES.map((type) => (
+    `<option value="${type.value}"${type.value === selectedColorValueType ? ' selected' : ''}>${type.label}</option>`
+  )).join('');
 
   return `
     <article class="color-card">
@@ -182,7 +289,15 @@ function cardMarkup(image) {
         <iconify-icon icon="lucide:eye" aria-hidden="true"></iconify-icon>
       </button>
       <img src="${previewUrl}" alt="中国传统色色卡 ${title}" loading="lazy">
-      ${hex ? `<button class="copy-hex" type="button" data-copy-hex="${hex}" aria-label="复制 ${colorName(image)} 色值 ${hex}">复制 ${hex}</button>` : ''}
+      ${hex ? `<div class="copy-color-control">
+        <button class="copy-color-button" type="button" data-copy-color="${image.id}" aria-label="复制 ${colorName(image)} ${colorValueLabel()} 色值 ${copyValue}">复制 <span data-copy-value>${copyValue}</span></button>
+        <label class="copy-format">
+          <span class="sr-only">选择复制色值类型</span>
+          <select data-copy-format aria-label="复制色值类型">
+            ${formatOptions}
+          </select>
+        </label>
+      </div>` : ''}
       <div class="card-meta">
         <span>
           <strong>${displayTitle}</strong>
@@ -285,11 +400,36 @@ function setTemporaryLabel(node, label, duration = 1200) {
 }
 
 async function copyHex(button) {
-  const hex = button.dataset.copyHex;
-  if (!hex) return;
+  const image = images.find((item) => item.id === button.dataset.copyColor);
+  if (!image) return;
 
-  await writeClipboard(hex);
-  setTemporaryLabel(button, '已复制');
+  await writeClipboard(colorValue(image));
+  button.textContent = '已复制';
+  button.dataset.copied = 'true';
+  window.setTimeout(() => {
+    const value = colorValue(image);
+    button.innerHTML = `复制 <span data-copy-value>${value}</span>`;
+    delete button.dataset.copied;
+  }, 1200);
+}
+
+function updateCopyControls() {
+  document.querySelectorAll('[data-copy-format]').forEach((select) => {
+    select.value = selectedColorValueType;
+  });
+
+  document.querySelectorAll('[data-copy-color]').forEach((button) => {
+    const image = images.find((item) => item.id === button.dataset.copyColor);
+    if (!image) return;
+
+    const value = colorValue(image);
+    const valueNode = button.querySelector('[data-copy-value]');
+    if (valueNode) valueNode.textContent = value;
+    button.setAttribute('aria-label', `复制 ${colorName(image)} ${colorValueLabel()} 色值 ${value}`);
+    if (!button.dataset.copied) {
+      button.innerHTML = `复制 <span data-copy-value>${value}</span>`;
+    }
+  });
 }
 
 function masterListText() {
@@ -523,7 +663,7 @@ loadMoreButton?.addEventListener('click', () => {
 });
 
 gallery?.addEventListener('click', (event) => {
-  const copyButton = event.target.closest('[data-copy-hex]');
+  const copyButton = event.target.closest('[data-copy-color]');
   if (copyButton) {
     copyHex(copyButton);
     return;
@@ -531,6 +671,13 @@ gallery?.addEventListener('click', (event) => {
 
   const button = event.target.closest('[data-preview]');
   if (button) openPreview(button.dataset.preview);
+});
+gallery?.addEventListener('change', (event) => {
+  const select = event.target.closest('[data-copy-format]');
+  if (!select) return;
+
+  saveColorValueType(select.value);
+  updateCopyControls();
 });
 
 closePreview?.addEventListener('click', () => previewDialog?.close());

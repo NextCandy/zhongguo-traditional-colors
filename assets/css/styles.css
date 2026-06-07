@@ -386,7 +386,8 @@ input:focus-visible,
 select:focus-visible,
 .open-link:focus-visible,
 .card-button:focus-visible,
-.copy-hex:focus-visible,
+.copy-color-button:focus-visible,
+.copy-format select:focus-visible,
 .text-link:focus-visible,
 .nav-icon-link:focus-visible,
 .theme-toggle:focus-visible {
@@ -819,38 +820,76 @@ select:focus-visible,
   transform: translateY(-1px);
 }
 
-.copy-hex {
+.copy-color-control {
   position: absolute;
   top: 10px;
   left: 10px;
+  right: 54px;
   z-index: 2;
-  min-height: 34px;
-  padding: 7px 11px;
-  color: var(--hover-text);
-  background: var(--hover-bg);
-  border: 1px solid var(--hover-bg);
-  cursor: pointer;
-  font-size: 0.8rem;
-  font-weight: 600;
+  display: flex;
+  align-items: stretch;
+  min-width: 0;
   opacity: 0;
   transform: translateY(4px);
-  transition: opacity 180ms ease, transform 180ms var(--ease-out-quart), background 180ms ease, color 180ms ease, border-color 180ms ease;
+  transition: opacity 180ms ease, transform 180ms var(--ease-out-quart);
 }
 
-.color-card:hover .copy-hex,
-.color-card:focus-within .copy-hex {
+.color-card:hover .copy-color-control,
+.color-card:focus-within .copy-color-control {
   opacity: 1;
   transform: translateY(0);
 }
 
-.copy-hex:hover,
-.copy-hex[data-copied="true"] {
-  color: var(--hover-bg);
-  background: var(--hover-text);
+.copy-color-button,
+.copy-format select {
+  min-height: 34px;
+  color: var(--hover-text);
+  background: var(--hover-bg);
+  border: 1px solid var(--hover-bg);
+  cursor: pointer;
+  font-size: 0.78rem;
+  font-weight: 600;
+  transition: background 180ms ease, color 180ms ease, border-color 180ms ease;
+}
+
+.copy-color-button {
+  display: inline-flex;
+  min-width: 0;
+  flex: 1 1 auto;
+  align-items: center;
+  gap: 4px;
+  overflow: hidden;
+  padding: 7px 9px;
+  white-space: nowrap;
+}
+
+.copy-color-button span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.copy-format {
+  display: block;
+  flex: 0 0 72px;
+}
+
+.copy-format select {
+  width: 100%;
+  padding: 7px 8px;
+  border-left-color: color-mix(in srgb, var(--hover-text) 28%, transparent);
+}
+
+.copy-color-button:hover,
+.copy-color-button[data-copied="true"],
+.copy-format select:hover {
+  color: var(--hover-text);
+  background: var(--hover-bg);
   border-color: var(--hover-text);
 }
 
-.copy-hex[data-copied="true"] {
+.copy-color-button[data-copied="true"] {
   animation: copy-confirm 420ms var(--ease-out-quint);
 }
 
