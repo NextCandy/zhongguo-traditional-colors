@@ -1298,10 +1298,12 @@ select:focus-visible,
 }
 
 .open-link {
-  display: flex;
-  gap: 16px;
-  min-height: 136px;
-  padding: 22px;
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 18px 16px;
+  min-height: 178px;
+  padding: 24px 24px 26px;
   text-decoration: none;
   background: var(--panel);
   border: 1px solid var(--line);
@@ -1316,6 +1318,7 @@ select:focus-visible,
   transform: translateY(-1px);
 }
 
+.open-link:hover .open-index,
 .open-link:hover iconify-icon,
 .open-link:hover small {
   color: color-mix(in srgb, var(--hover-text) 74%, transparent);
@@ -1326,9 +1329,24 @@ select:focus-visible,
 }
 
 .open-link iconify-icon {
-  width: 24px;
-  height: 24px;
+  grid-row: 2;
+  width: 22px;
+  height: 22px;
   color: var(--ink);
+}
+
+.open-link > span:last-child {
+  grid-column: 2;
+  grid-row: 2;
+  min-width: 0;
+}
+
+.open-index {
+  grid-column: 1 / -1;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  font-size: 0.8rem;
+  font-weight: 600;
 }
 
 .open-link strong,
@@ -1337,11 +1355,13 @@ select:focus-visible,
 }
 
 .open-link strong {
+  font-size: 1.08rem;
   font-weight: 600;
 }
 
 .open-link small {
-  margin-top: 8px;
+  max-width: 320px;
+  margin-top: 10px;
   color: var(--muted);
   line-height: 1.65;
 }
