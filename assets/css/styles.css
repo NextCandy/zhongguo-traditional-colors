@@ -225,6 +225,12 @@ code {
   font-size: 0.82rem;
 }
 
+.hero-proof span:first-child {
+  color: var(--ink);
+  background: #ffffff;
+  border-color: var(--line-strong);
+}
+
 .hero-actions,
 .gallery-footer,
 .dialog-meta,
@@ -367,6 +373,8 @@ input:focus-visible,
   aspect-ratio: 3 / 4;
   object-fit: cover;
   border-radius: 5px;
+  background: var(--panel-soft);
+  box-shadow: 0 1px 0 rgba(17, 17, 17, 0.08);
 }
 
 .mosaic img:nth-child(2n) {
@@ -507,14 +515,22 @@ input:focus-visible,
   border-top: 1px solid var(--line);
 }
 
+.card-meta span {
+  min-width: 0;
+}
+
 .card-meta strong,
 .card-meta small {
   display: block;
 }
 
 .card-meta strong {
+  overflow: hidden;
   font-size: 0.88rem;
   font-weight: 600;
+  line-height: 1.45;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .card-meta small {
@@ -567,6 +583,29 @@ input:focus-visible,
   margin: 0;
   color: var(--muted);
   text-align: center;
+}
+
+.empty-state {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 8px;
+  min-height: 220px;
+  place-content: center;
+  padding: 42px 24px;
+  color: var(--muted);
+  text-align: center;
+  background: #ffffff;
+  border: 1px dashed var(--line-strong);
+  border-radius: 8px;
+}
+
+.empty-state strong {
+  color: var(--ink);
+  font-size: 1.1rem;
+}
+
+.empty-state span {
+  line-height: 1.75;
 }
 
 .audit-section {
@@ -697,6 +736,21 @@ input:focus-visible,
   background: #ffffff;
 }
 
+.download-direct {
+  display: block;
+  margin-top: 14px;
+  color: #d8d8d3;
+  font-size: 0.9rem;
+  line-height: 1.65;
+  text-align: center;
+  text-underline-offset: 5px;
+}
+
+.download-direct:hover,
+.download-direct:focus-visible {
+  color: var(--inverse);
+}
+
 .progress {
   height: 8px;
   margin-top: 18px;
@@ -745,6 +799,13 @@ input:focus-visible,
 .author-copy p {
   max-width: 680px;
   color: var(--ink-soft);
+}
+
+.author-handle {
+  margin: 18px 0 0;
+  color: var(--ink);
+  font-size: 0.95rem;
+  font-weight: 600;
 }
 
 .author-actions {
@@ -984,6 +1045,10 @@ input:focus-visible,
   }
 
   .tool-button {
+    width: 100%;
+  }
+
+  .search-box {
     width: 100%;
   }
 

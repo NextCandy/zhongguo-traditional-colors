@@ -42,6 +42,14 @@ function encodedPath(path) {
   return path.split('/').map(encodeURIComponent).join('/');
 }
 
+function thumbnailPath(image) {
+  return `thumbnails/color-card-${image.id}.jpg`;
+}
+
+function colorTitle(image) {
+  return image.file.replace(/\.[^.]+$/, '');
+}
+
 function normalize(value) {
   return value.trim().toLowerCase();
 }
@@ -58,26 +66,31 @@ function updateStats() {
 function buildHero() {
   if (!heroMosaic) return;
 
-  const featured = images.slice(0, 20);
+  const featured = Array.from({ length: 20 }, (_, index) => {
+    const sourceIndex = Math.round(index * ((images.length - 1) / 19));
+    return images[sourceIndex];
+  }).filter(Boolean);
+
   heroMosaic.innerHTML = featured.map((image) => (
-    `<img src="${encodedPath(image.path)}" alt="中国传统色色卡 ${image.id}" loading="eager">`
+    `<img src="${encodedPath(thumbnailPath(image))}" alt="中国传统色色卡 ${colorTitle(image)}" loading="eager">`
   )).join('');
 }
 
 function cardMarkup(image) {
   const url = encodedPath(image.path);
-  const title = `色卡 ${image.id}`;
+  const previewUrl = encodedPath(thumbnailPath(image));
+  const title = colorTitle(image);
 
   return `
     <article class="color-card">
       <button class="card-button" type="button" data-preview="${image.id}" aria-label="预览 ${title}">
         <svg aria-hidden="true"><use href="#icon-gallery"></use></svg>
       </button>
-      <img src="${url}" alt="中国传统色色卡 ${image.id}" loading="lazy">
+      <img src="${previewUrl}" alt="中国传统色色卡 ${title}" loading="lazy">
       <div class="card-meta">
         <span>
           <strong>${title}</strong>
-          <small>${formatBytes(image.size)}</small>
+          <small>原图 ${formatBytes(image.size)}</small>
         </span>
         <a class="card-button" href="${url}" download aria-label="下载 ${title}">
           <svg aria-hidden="true"><use href="#icon-download"></use></svg>
@@ -91,7 +104,9 @@ function renderGallery() {
   if (!gallery) return;
 
   const visible = currentItems.slice(0, visibleCount);
-  gallery.innerHTML = visible.map(cardMarkup).join('');
+  gallery.innerHTML = visible.length
+    ? visible.map(cardMarkup).join('')
+    : '<div class="empty-state"><strong>没有找到对应色卡</strong><span>换一个色名、编号或文件名试试，例如「黛」「001」「天青」。</span></div>';
 
   if (galleryStatus) {
     galleryStatus.textContent = `已显示 ${visible.length.toLocaleString('zh-CN')} / ${currentItems.length.toLocaleString('zh-CN')} 张`;
@@ -138,8 +153,8 @@ function openPreview(id) {
 
   const url = encodedPath(image.path);
   previewImage.src = url;
-  previewImage.alt = `中国传统色色卡 ${image.id}`;
-  previewTitle.textContent = `色卡 ${image.id} · ${formatBytes(image.size)}`;
+  previewImage.alt = `中国传统色色卡 ${colorTitle(image)}`;
+  previewTitle.textContent = `${colorTitle(image)} · ${formatBytes(image.size)}`;
   previewDownload.href = url;
   previewDownload.setAttribute('download', image.file);
 
