@@ -912,6 +912,11 @@ input:focus-visible,
 }
 
 .site-footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 28px;
+  align-items: center;
+  justify-content: space-between;
   padding: 34px max(24px, calc((100vw - var(--content)) / 2));
   color: #c9c9c4;
   background: var(--ink);
