@@ -20,6 +20,10 @@ const previewImage = document.querySelector('[data-preview-image]');
 const previewTitle = document.querySelector('[data-preview-title]');
 const previewDownload = document.querySelector('[data-preview-download]');
 const closePreview = document.querySelector('[data-close-preview]');
+const themeToggle = document.querySelector('[data-theme-toggle]');
+const themeToggleIcon = document.querySelector('[data-theme-icon]');
+const themeToggleLabel = document.querySelector('[data-theme-label]');
+const themeColorMeta = document.querySelector('[data-theme-color]');
 
 let visibleCount = 24;
 let currentItems = [...images];
@@ -54,6 +58,35 @@ function normalize(value) {
   return value.trim().toLowerCase();
 }
 
+function currentTheme() {
+  return document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
+}
+
+function setTheme(theme) {
+  const nextTheme = theme === 'dark' ? 'dark' : 'light';
+  document.documentElement.dataset.theme = nextTheme;
+  try {
+    localStorage.setItem('theme', nextTheme);
+  } catch (error) {
+    // Theme still applies for the current page if storage is unavailable.
+  }
+
+  if (themeToggle) {
+    themeToggle.setAttribute('aria-pressed', String(nextTheme === 'dark'));
+    themeToggle.setAttribute('aria-label', nextTheme === 'dark' ? '切换到亮色版本' : '切换到暗色版本');
+  }
+  if (themeToggleLabel) {
+    themeToggleLabel.textContent = nextTheme === 'dark' ? '亮色' : '暗色';
+  }
+  if (themeToggleIcon) {
+    themeToggleIcon.setAttribute('href', nextTheme === 'dark' ? '#icon-sun' : '#icon-moon');
+  }
+
+  if (themeColorMeta) {
+    themeColorMeta.setAttribute('content', nextTheme === 'dark' ? '#11100e' : '#f7f7f4');
+  }
+}
+
 function updateStats() {
   document.querySelectorAll('[data-count]').forEach((node) => {
     node.textContent = project.count.toLocaleString('zh-CN');
@@ -84,7 +117,7 @@ function cardMarkup(image) {
   return `
     <article class="color-card">
       <button class="card-button" type="button" data-preview="${image.id}" aria-label="预览 ${title}">
-        <svg aria-hidden="true"><use href="#icon-gallery"></use></svg>
+        <svg aria-hidden="true"><use href="#icon-eye"></use></svg>
       </button>
       <img src="${previewUrl}" alt="中国传统色色卡 ${title}" loading="lazy">
       <div class="card-meta">
@@ -343,9 +376,13 @@ async function downloadZip() {
 }
 
 updateStats();
+setTheme(currentTheme());
 buildHero();
 renderGallery();
 
+themeToggle?.addEventListener('click', () => {
+  setTheme(currentTheme() === 'dark' ? 'light' : 'dark');
+});
 searchInput?.addEventListener('input', applySearch);
 shuffleButton?.addEventListener('click', shuffleItems);
 resetButton?.addEventListener('click', resetGallery);
