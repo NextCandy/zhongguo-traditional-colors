@@ -10,6 +10,7 @@ const repoUrl = "https://github.com/nevertoday/zhongguo-traditional-colors";
 const releaseUrl = `${repoUrl}/releases/tag/v0.1.0`;
 const masterListPath = "docs/chinese-color-master-list.md";
 const harmonyCsvPath = "docs/chinese-color-harmony.csv";
+const harmonyMarkdownPath = "docs/chinese-color-harmony.md";
 const authorUrl = "https://x.com/xiaoxiaodong01";
 
 async function loadManifest() {
@@ -75,6 +76,7 @@ ${languageSwitch("zh")}
 - [直接下载完整 ZIP](${zipUrl})
 - [查看 Release](${releaseUrl})
 - [原始 742 色清单](${masterListPath})
+- [742 色配色方案 Markdown](${harmonyMarkdownPath})
 - [742 色配色关系 CSV](${harmonyCsvPath})
 - [作者 X 主页](${authorUrl})
 
@@ -197,6 +199,7 @@ It contains ${project.count} high-resolution Chinese traditional color cards, al
 - [Download the complete ZIP](${zipUrl})
 - [View the Release](${releaseUrl})
 - [Original 742-color list](${masterListPath})
+- [742-color harmony Markdown](${harmonyMarkdownPath})
 - [742-color harmony CSV](${harmonyCsvPath})
 - [Author on X](${authorUrl})
 
@@ -279,6 +282,7 @@ ${project.count} 枚の高解像度カラーカードを収録し、元の 742 �
 - [完全 ZIP をダウンロード](${zipUrl})
 - [Release を見る](${releaseUrl})
 - [元の 742 色リスト](${masterListPath})
+- [742 色配色 Markdown](${harmonyMarkdownPath})
 - [742 色配色 CSV](${harmonyCsvPath})
 - [作者の X](${authorUrl})
 

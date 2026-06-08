@@ -12,6 +12,7 @@
 - [直接下载完整 ZIP](https://github.com/nevertoday/zhongguo-traditional-colors/releases/latest/download/zhongguo-traditional-colors-images.zip)
 - [查看 Release](https://github.com/nevertoday/zhongguo-traditional-colors/releases/tag/v0.1.0)
 - [原始 742 色清单](docs/chinese-color-master-list.md)
+- [742 色配色方案 Markdown](docs/chinese-color-harmony.md)
 - [742 色配色关系 CSV](docs/chinese-color-harmony.csv)
 - [作者 X 主页](https://x.com/xiaoxiaodong01)
 

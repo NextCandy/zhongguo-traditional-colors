@@ -4,7 +4,8 @@ import vm from "node:vm";
 
 const root = process.cwd();
 const manifestPath = path.join(root, "assets/data/images.js");
-const outPath = path.join(root, "docs/chinese-color-harmony.csv");
+const csvOutPath = path.join(root, "docs/chinese-color-harmony.csv");
+const markdownOutPath = path.join(root, "docs/chinese-color-harmony.md");
 
 function loadManifestSource(source) {
   const sandbox = { window: {} };
@@ -300,6 +301,78 @@ function csvRow(values) {
   return values.map(csvCell).join(",");
 }
 
+function markdownCell(value) {
+  return String(value ?? "")
+    .replaceAll(" | ", "<br>")
+    .replaceAll("|", "\\|")
+    .replaceAll("\n", "<br>");
+}
+
+function markdownTable(rows) {
+  return [
+    "| 配色逻辑 | 推荐传统色 |",
+    "| --- | --- |",
+    ...rows.map(([label, value]) => `| ${markdownCell(label)} | ${markdownCell(value)} |`),
+  ].join("\n");
+}
+
+function markdownForHarmonies(harmonies) {
+  const lines = [
+    "# 中国传统色配色方案",
+    "",
+    "这份 Markdown 由 `scripts/build-color-harmonies.mjs` 自动生成，和 `chinese-color-harmony.csv` 使用同一套数据。",
+    "",
+    "每个颜色都只从当前 742 个中国传统色中推导搭配关系；算法按 HSL 色相角度建立关系，再用 Lab 感知距离、明度与饱和度排序，中性色按低饱和逻辑处理。",
+    "",
+    "## 快速说明",
+    "",
+    "- 同类色：色相接近或低饱和中性色相近的颜色。",
+    "- 邻近色：色相角约在左右 30 度附近的颜色。",
+    "- 互补色：色相角约 180 度的对照颜色。",
+    "- 分裂互补：互补色左右两侧的颜色。",
+    "- 三角色：色相角约 120 度、240 度的颜色。",
+    "- 四角色：色相角约 90 度、180 度、270 度的颜色。",
+    "- 冷暖、明暗、灰调、中性色：分别按色温、明度、低饱和灰调和中性色逻辑筛选。",
+    "- 主辅点缀：以当前色为主色，给出更适合组合使用的辅助色和点缀色。",
+    "",
+    "## 颜色索引",
+    "",
+    harmonies.map((item) => `- [${item.id} ${item.name} ${item.hex}](#${item.anchor})`).join("\n"),
+    "",
+  ];
+
+  for (const item of harmonies) {
+    lines.push(
+      `## ${item.id} ${item.name} ${item.hex}`,
+      "",
+      `- 色相：H ${item.hsl.h} / S ${item.hsl.s} / L ${item.hsl.l}`,
+      `- 分类：${item.hueFamily}`,
+      `- 冷暖：${item.temperature}`,
+      "",
+      markdownTable([
+        ["同类色", item.same],
+        ["邻近色", item.analogous],
+        ["互补色", item.complementary],
+        ["分裂互补", item.splitComplementary],
+        ["三角色", item.triadic],
+        ["四角色", item.tetradic],
+        ["冷暖对照", item.temperatureContrast],
+        ["明色搭配", item.lighter],
+        ["暗色搭配", item.darker],
+        ["灰调搭配", item.grayTone],
+        ["中性色搭配", item.neutral],
+        ["主色", item.main],
+        ["辅色", item.secondary],
+        ["点缀色", item.accent],
+        ["主辅点缀方案", item.rolePlan],
+      ]),
+      "",
+    );
+  }
+
+  return `${lines.join("\n")}\n`;
+}
+
 const manifest = await fs.readFile(manifestPath, "utf8");
 const images = loadManifestSource(manifest);
 const colors = images
@@ -347,6 +420,7 @@ const headers = [
 ];
 
 const rows = [csvRow(headers)];
+const harmonies = [];
 
 for (const base of colors) {
   const groups = {
@@ -366,34 +440,61 @@ for (const base of colors) {
   const main = labelColor(base);
   const secondary = listLabels(roles.secondary);
   const accent = listLabels(roles.accent);
-
-  rows.push(csvRow([
-    base.id,
-    base.name,
-    base.hex,
-    base.hsl.h,
-    base.hsl.s,
-    base.hsl.l,
-    hueFamily(base.hsl),
-    temperature(base.hsl),
-    listLabels(groups.same),
-    listLabels(groups.analogous),
-    listLabels(groups.complementary),
-    listLabels(groups.splitComplementary),
-    listLabels(groups.triadic),
-    listLabels(groups.tetradic),
-    listLabels(groups.temperatureContrast),
-    listLabels(groups.lighter),
-    listLabels(groups.darker),
-    listLabels(groups.grayTone),
-    listLabels(groups.neutral),
+  const item = {
+    id: base.id,
+    name: base.name,
+    hex: base.hex,
+    hsl: base.hsl,
+    hueFamily: hueFamily(base.hsl),
+    temperature: temperature(base.hsl),
+    same: listLabels(groups.same),
+    analogous: listLabels(groups.analogous),
+    complementary: listLabels(groups.complementary),
+    splitComplementary: listLabels(groups.splitComplementary),
+    triadic: listLabels(groups.triadic),
+    tetradic: listLabels(groups.tetradic),
+    temperatureContrast: listLabels(groups.temperatureContrast),
+    lighter: listLabels(groups.lighter),
+    darker: listLabels(groups.darker),
+    grayTone: listLabels(groups.grayTone),
+    neutral: listLabels(groups.neutral),
     main,
     secondary,
     accent,
-    `主色：${main}；辅色：${secondary}；点缀色：${accent}`,
-    "基于真实 742 色库；按 HSL 色相角度推导关系，再用 Lab 感知距离、明度与饱和度排序；中性色按低饱和逻辑处理",
+    rolePlan: `主色：${main}；辅色：${secondary}；点缀色：${accent}`,
+    note: "基于真实 742 色库；按 HSL 色相角度推导关系，再用 Lab 感知距离、明度与饱和度排序；中性色按低饱和逻辑处理",
+    anchor: `${base.id}-${base.name.toLowerCase()}-${base.hex.replace("#", "").toLowerCase()}`,
+  };
+  harmonies.push(item);
+
+  rows.push(csvRow([
+    item.id,
+    item.name,
+    item.hex,
+    item.hsl.h,
+    item.hsl.s,
+    item.hsl.l,
+    item.hueFamily,
+    item.temperature,
+    item.same,
+    item.analogous,
+    item.complementary,
+    item.splitComplementary,
+    item.triadic,
+    item.tetradic,
+    item.temperatureContrast,
+    item.lighter,
+    item.darker,
+    item.grayTone,
+    item.neutral,
+    item.main,
+    item.secondary,
+    item.accent,
+    item.rolePlan,
+    item.note,
   ]));
 }
 
-await fs.writeFile(outPath, `${rows.join("\n")}\n`, "utf8");
-console.log(`Wrote ${colors.length} harmony rows to ${path.relative(root, outPath)}`);
+await fs.writeFile(csvOutPath, `${rows.join("\n")}\n`, "utf8");
+await fs.writeFile(markdownOutPath, markdownForHarmonies(harmonies), "utf8");
+console.log(`Wrote ${colors.length} harmony rows to ${path.relative(root, csvOutPath)} and ${path.relative(root, markdownOutPath)}`);
