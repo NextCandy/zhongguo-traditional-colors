@@ -65,7 +65,7 @@ window.TRADITIONAL_COLOR_PROJECT = ${JSON.stringify({
   count: payload.length,
   totalBytes,
   generatedAt,
-  archiveName: 'chinese-traditional-colors-images.zip',
+  archiveName: 'zhongguo-traditional-colors-images.zip',
 }, null, 2)};
 
 window.TRADITIONAL_COLOR_IMAGES = ${JSON.stringify(payload, null, 2)};

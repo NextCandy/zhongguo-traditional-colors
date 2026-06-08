@@ -2,7 +2,7 @@ const images = window.TRADITIONAL_COLOR_IMAGES || [];
 const project = window.TRADITIONAL_COLOR_PROJECT || {
   count: images.length,
   totalBytes: images.reduce((total, image) => total + image.size, 0),
-  archiveName: 'chinese-traditional-colors-images.zip',
+  archiveName: 'zhongguo-traditional-colors-images.zip',
 };
 
 const gallery = document.querySelector('[data-gallery]');

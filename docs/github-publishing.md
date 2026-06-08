@@ -19,13 +19,13 @@ git commit -m "Create open traditional colors archive"
 在 GitHub 创建一个空仓库，例如：
 
 ```text
-chinese-traditional-colors
+zhongguo-traditional-colors
 ```
 
 然后关联远程仓库：
 
 ```bash
-git remote add origin git@github.com:<your-name>/chinese-traditional-colors.git
+git remote add origin git@github.com:<your-name>/zhongguo-traditional-colors.git
 git branch -M main
 git push -u origin main
 ```
@@ -67,7 +67,7 @@ Releases -> Draft a new release
 上传：
 
 ```text
-downloads/chinese-traditional-colors-images.zip
+downloads/zhongguo-traditional-colors-images.zip
 ```
 
 建议 Release 标题：

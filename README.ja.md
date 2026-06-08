@@ -8,9 +8,9 @@
 
 ## クイックリンク
 
-- [オンラインギャラリーを見る](https://nevertoday.github.io/chinese-traditional-colors/)
-- [完全 ZIP をダウンロード](https://github.com/nevertoday/chinese-traditional-colors/releases/latest/download/chinese-traditional-colors-images.zip)
-- [Release を見る](https://github.com/nevertoday/chinese-traditional-colors/releases/tag/v0.1.0)
+- [オンラインギャラリーを見る](https://nevertoday.github.io/zhongguo-traditional-colors/)
+- [完全 ZIP をダウンロード](https://github.com/nevertoday/zhongguo-traditional-colors/releases/latest/download/zhongguo-traditional-colors-images.zip)
+- [Release を見る](https://github.com/nevertoday/zhongguo-traditional-colors/releases/tag/v0.1.0)
 - [元の 742 色リスト](docs/chinese-color-master-list.md)
 - [作者の X](https://x.com/xiaoxiaodong01)
 

@@ -7,7 +7,7 @@
 完整图片包已经由维护者打包为 GitHub Release 附件。访问页面的“下载素材”区域，点击“直接下载 ZIP”即可获得：
 
 ```text
-chinese-traditional-colors-images.zip
+zhongguo-traditional-colors-images.zip
 ```
 
 这种方式是公开页面的推荐下载路径，不需要等待浏览器读取和重新打包全部图片。
@@ -33,7 +33,7 @@ npm run package:images
 输出位置：
 
 ```text
-downloads/chinese-traditional-colors-images.zip
+downloads/zhongguo-traditional-colors-images.zip
 ```
 
 然后把 ZIP 上传为 GitHub Release 附件。这样访问者可以直接从 Release 下载完整图片包。

@@ -8,9 +8,9 @@
 
 ## 快速入口
 
-- [在线浏览色卡](https://nevertoday.github.io/chinese-traditional-colors/)
-- [直接下载完整 ZIP](https://github.com/nevertoday/chinese-traditional-colors/releases/latest/download/chinese-traditional-colors-images.zip)
-- [查看 Release](https://github.com/nevertoday/chinese-traditional-colors/releases/tag/v0.1.0)
+- [在线浏览色卡](https://nevertoday.github.io/zhongguo-traditional-colors/)
+- [直接下载完整 ZIP](https://github.com/nevertoday/zhongguo-traditional-colors/releases/latest/download/zhongguo-traditional-colors-images.zip)
+- [查看 Release](https://github.com/nevertoday/zhongguo-traditional-colors/releases/tag/v0.1.0)
 - [原始 742 色清单](docs/chinese-color-master-list.md)
 - [作者 X 主页](https://x.com/xiaoxiaodong01)
 

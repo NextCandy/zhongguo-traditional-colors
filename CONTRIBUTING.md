@@ -43,7 +43,7 @@ ZIP 下载包不建议直接提交到仓库。维护者可以运行：
 npm run package:images
 ```
 
-然后把 `downloads/chinese-traditional-colors-images.zip` 上传为 GitHub Release 附件。
+然后把 `downloads/zhongguo-traditional-colors-images.zip` 上传为 GitHub Release 附件。
 
 ## 提交前检查
 

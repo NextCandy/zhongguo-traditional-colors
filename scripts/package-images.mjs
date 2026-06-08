@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const IMAGE_DIR = path.join(ROOT, 'images');
 const OUT_DIR = path.join(ROOT, 'downloads');
-const OUT_FILE = path.join(OUT_DIR, 'chinese-traditional-colors-images.zip');
+const OUT_FILE = path.join(OUT_DIR, 'zhongguo-traditional-colors-images.zip');
 const IMAGE_EXTENSIONS = new Set(['.png', '.jpg', '.jpeg', '.webp']);
 const UTF8_FLAG = 0x0800;
 const STORE_METHOD = 0;
