@@ -84,17 +84,17 @@ const COLOR_VALUE_TYPES = [
 ];
 
 const HARMONY_RELATION_TYPES = [
-  { key: 'same', label: '同类', note: '保留相近色相和明度，适合做安静、统一的底色系统。' },
-  { key: 'analogous', label: '邻近', note: '向左右相邻色相展开，适合做柔和渐变、插画和分区。' },
-  { key: 'complementary', label: '互补', note: '拉开色相距离，适合用作强调、按钮、标题或视觉焦点。' },
-  { key: 'splitComplementary', label: '分裂互补', note: '比直接互补更稳，适合需要对比但不想刺眼的界面。' },
-  { key: 'triadic', label: '三角', note: '三方向建立节奏，适合主题扩展、图表和系列视觉。' },
-  { key: 'tetradic', label: '四角', note: '给出更完整的冷暖和明暗跨度，适合复杂页面配色。' },
-  { key: 'temperatureContrast', label: '冷暖', note: '用冷暖差建立情绪变化，适合前景与背景的气质对照。' },
-  { key: 'lighter', label: '明色', note: '同一语气里更轻的颜色，适合背景、留白和轻提示。' },
-  { key: 'darker', label: '暗色', note: '同一语气里更沉的颜色，适合文字、边界和压重点。' },
-  { key: 'grayTone', label: '灰调', note: '降低饱和度后更耐看，适合大面积和长时间阅读场景。' },
-  { key: 'neutral', label: '中性', note: '作为结构和呼吸空间，帮助主色保持克制。' },
+  { key: 'same', intent: '统一', label: '同类', note: '需要安静、统一、低风险的页面时，先看这一组。适合背景、模块底色和同一品牌语气的延展。', method: '同类色优先选择色相接近或低饱和相近的颜色，再按 Lab 感知距离、明度和饱和度排序。' },
+  { key: 'analogous', intent: '柔和', label: '邻近', note: '需要有一点变化但不想跳脱时使用。适合渐变、插画、章节分区和柔和的视觉层次。', method: '邻近色以当前色左右约 30 度色相为目标，在 742 色库中寻找视觉上更接近的传统色。' },
+  { key: 'complementary', intent: '强调', label: '互补', note: '需要按钮、标题、重点数据或视觉焦点时使用。面积要克制，通常少量点缀比大面积铺开更稳。', method: '互补色以约 180 度色相差为目标，再用明度、饱和度和 Lab 距离控制可用性。' },
+  { key: 'splitComplementary', intent: '稳对比', label: '分裂互补', note: '需要对比但不希望互补色过于直接时使用。适合界面强调色、封面辅助色和内容重点。', method: '分裂互补以互补色两侧约 150 度、210 度方向为目标，通常比直接互补更柔和。' },
+  { key: 'triadic', intent: '系列感', label: '三角', note: '需要做多张海报、一组图表或系列主题时使用。适合建立多色节奏，但要控制主次面积。', method: '三角色以约 120 度、240 度方向为目标，保留更大的色相跨度。' },
+  { key: 'tetradic', intent: '多层级', label: '四角', note: '需要复杂页面、多个信息层级或多状态系统时使用。建议先选 2 到 3 个颜色试，不必全部使用。', method: '四角色参考约 90 度、180 度、270 度方向，提供更宽的冷暖和明暗跨度。' },
+  { key: 'temperatureContrast', intent: '冷暖差', label: '冷暖', note: '需要明显情绪转折时使用，例如温暖主体配冷色信息，或冷静界面加暖色提示。', method: '冷暖对照按色相温度分组，优先选择与当前色温相反且明度接近的颜色。' },
+  { key: 'lighter', intent: '浅背景', label: '明色', note: '需要背景、留白、轻提示或弱分隔时使用。文字放在上面时仍要单独检查对比度。', method: '明色搭配优先选择比当前色更亮、色相仍相关的传统色。' },
+  { key: 'darker', intent: '深文字', label: '暗色', note: '需要正文、标题、边界或压重点时使用。尤其适合从浅色主色中找可读的深色搭配。', method: '暗色搭配优先选择比当前色更暗、色相仍相关的传统色。' },
+  { key: 'grayTone', intent: '降噪', label: '灰调', note: '需要大面积耐看、降低情绪噪声时使用。适合后台界面、长文阅读和中性信息区。', method: '灰调搭配优先选择低饱和颜色，并用明度和感知距离排序。' },
+  { key: 'neutral', intent: '留白', label: '中性', note: '需要留白、分隔、背景或结构色时使用。它帮助主色更突出，而不是抢走注意力。', method: '中性色按低饱和逻辑筛选，再根据当前色明度寻找更合适的承接色。' },
 ];
 
 function formatBytes(bytes) {
@@ -468,14 +468,15 @@ function renderHarmonyRoles(image, harmony) {
     hex: image.hex,
   };
   const roles = [
-    { label: '主色', colors: [main] },
-    { label: '辅色', colors: harmony.secondary || [] },
-    { label: '点缀', colors: harmony.accent || [] },
+    { label: '主色', hint: '大面积 / 视觉语气', colors: [main] },
+    { label: '辅色', hint: '承接 / 次级模块', colors: harmony.secondary || [] },
+    { label: '点缀', hint: '按钮 / 强调 / 焦点', colors: harmony.accent || [] },
   ];
 
   heroPreviewRoleMap.innerHTML = roles.map((role) => `
     <section class="harmony-role">
       <span>${role.label}</span>
+      <small>${role.hint}</small>
       <div>
         ${role.colors.map((color) => harmonyColorMarkup(color)).join('')}
       </div>
@@ -493,7 +494,8 @@ function renderHarmonyTabs(harmony) {
 
   harmonyTabs.innerHTML = availableTypes.map((type) => `
     <button class="harmony-tab" type="button" role="tab" data-harmony-key="${type.key}" aria-selected="${type.key === currentHarmonyKey ? 'true' : 'false'}">
-      ${type.label}
+      <strong>${type.intent}</strong>
+      <span>${type.label}</span>
     </button>
   `).join('');
 }
@@ -505,9 +507,13 @@ function renderHarmonyPanel(harmony) {
   const colors = harmony[currentHarmonyKey] || [];
   harmonyPanel.innerHTML = `
     <div class="harmony-panel-copy">
-      <strong>${relation.label}</strong>
+      <div>
+        <strong>${relation.intent}</strong>
+        <span>${relation.label}</span>
+      </div>
       <p>${relation.note}</p>
     </div>
+    <p class="harmony-panel-method"><strong>依据</strong>${relation.method}</p>
     <div class="harmony-color-grid">
       ${colors.map((color) => harmonyColorMarkup(color)).join('')}
     </div>
@@ -526,7 +532,9 @@ function renderHeroPreviewHarmony(image) {
     heroPreviewHue.textContent = `${harmony.hueFamily} · ${harmony.temperature} · H${harmony.hsl.h} S${harmony.hsl.s} L${harmony.hsl.l}`;
   }
   if (heroPreviewHarmony) heroPreviewHarmony.hidden = false;
-  if (heroPreviewHarmonyNote) heroPreviewHarmonyNote.textContent = harmony.note;
+  if (heroPreviewHarmonyNote) {
+    heroPreviewHarmonyNote.textContent = '把当前色当主色，先用辅色承接版面，再用点缀色处理按钮、标题或重点。点击任意色块会复制当前选择的色值格式。';
+  }
 
   renderHarmonyRoles(image, harmony);
   renderHarmonyTabs(harmony);
