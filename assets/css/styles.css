@@ -146,41 +146,41 @@ h1,
 h2,
 h3 {
   position: relative;
+  isolation: isolate;
   font-family: var(--font-title);
   transition: color 280ms var(--ease-out-quart), text-shadow 220ms ease;
 }
 
+h1::before,
+h2::before,
+h3::before {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: block;
+  overflow: hidden;
+  width: 100%;
+  color: var(--title-hover-color, currentColor);
+  font: inherit;
+  line-height: inherit;
+  letter-spacing: inherit;
+  pointer-events: none;
+  content: attr(data-title-text);
+  clip-path: inset(0 100% 0 0);
+  text-wrap: inherit;
+  transition: clip-path 520ms var(--ease-out-expo), color 180ms ease;
+}
+
 .title-color-active {
-  color: var(--title-hover-color);
+  color: var(--title-base-color, currentColor);
 }
 
-:root[data-theme="dark"] .title-color-active {
+.title-color-active::before {
+  clip-path: inset(0 0 0 0);
+}
+
+:root[data-theme="dark"] .title-color-active::before {
   text-shadow: 0 0 10px color-mix(in srgb, var(--title-hover-color) 12%, transparent);
-}
-
-@supports ((background-clip: text) or (-webkit-background-clip: text)) {
-  h1,
-  h2,
-  h3 {
-    background:
-      linear-gradient(
-        90deg,
-        var(--title-hover-color, currentColor) 0 50%,
-        var(--title-base-color, currentColor) 50% 100%
-      );
-    background-repeat: no-repeat;
-    background-position: 100% 0;
-    background-size: 200% 100%;
-    -webkit-background-clip: text;
-    background-clip: text;
-    transition: background-position 520ms var(--ease-out-expo), text-shadow 220ms ease;
-  }
-
-  .title-color-active {
-    color: transparent;
-    -webkit-text-fill-color: transparent;
-    background-position: 0 0;
-  }
 }
 
 p {
@@ -2395,6 +2395,11 @@ select:focus-visible,
     padding-top: 58px;
   }
 
+  .intro-grid,
+  .download-section {
+    gap: 48px;
+  }
+
   .mosaic,
   .film-strip {
     max-height: 420px;
@@ -2485,14 +2490,15 @@ select:focus-visible,
     grid-column: 1 / -1;
     grid-row: 2;
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 1px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0;
     width: 100%;
     max-height: 0;
     padding-top: 0;
     overflow: hidden;
-    background: var(--line);
+    background: transparent;
     border-top: 0 solid transparent;
+    border-bottom: 0 solid transparent;
     opacity: 0;
     pointer-events: none;
     transform: translateY(-4px);
@@ -2500,10 +2506,12 @@ select:focus-visible,
   }
 
   .site-header[data-nav-open="true"] .site-nav {
-    max-height: 220px;
+    max-height: 160px;
     padding-top: 12px;
     border-top-width: 1px;
     border-top-color: var(--line);
+    border-bottom-width: 1px;
+    border-bottom-color: var(--line);
     opacity: 1;
     pointer-events: auto;
     transform: translateY(0);
@@ -2511,11 +2519,16 @@ select:focus-visible,
 
   .site-nav a {
     min-height: 46px;
-    justify-content: flex-start;
-    padding: 12px 14px;
+    justify-content: center;
+    padding: 12px 8px;
     color: var(--ink);
-    background: var(--solid);
+    background: transparent;
+    border-bottom: 1px solid color-mix(in srgb, var(--line) 70%, transparent);
     font-weight: 600;
+  }
+
+  .site-nav a:nth-last-child(-n + 3) {
+    border-bottom: 0;
   }
 
   .header-tools {
@@ -2549,20 +2562,59 @@ select:focus-visible,
   }
 
   .hero-section {
-    padding-top: 42px;
-    padding-bottom: 56px;
+    gap: 30px;
+    padding-top: 34px;
+    padding-bottom: 48px;
+  }
+
+  .intro-band {
+    padding-top: 56px;
+    padding-bottom: 58px;
+  }
+
+  .section-shell,
+  .knowledge-section,
+  .open-section,
+  .audit-section {
+    padding-top: 64px;
+    padding-bottom: 68px;
+  }
+
+  .download-section,
+  .author-section {
+    gap: 34px;
+    padding-top: 68px;
+    padding-bottom: 72px;
   }
 
   h1 {
-    font-size: clamp(2.45rem, 13vw, 2.8rem);
+    font-size: 2.8rem;
   }
 
   h2 {
     font-size: 1.75rem;
   }
 
+  .section-heading {
+    margin-bottom: 30px;
+  }
+
+  .intro-grid {
+    gap: 22px;
+  }
+
+  .toolbar {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .search-box {
+    grid-column: 1 / -1;
+  }
+
   .hero-stats {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin-top: 34px;
   }
 
   .audit-grid {
@@ -2601,12 +2653,17 @@ select:focus-visible,
 
   .hero-stats div,
   .hero-stats div + div {
-    padding: 18px 0;
+    padding: 16px 10px;
     border-left: 0;
   }
 
   .hero-stats div + div {
-    border-top: 1px solid var(--line);
+    border-top: 0;
+    border-left: 1px solid var(--line);
+  }
+
+  .hero-stats dt {
+    font-size: 1.35rem;
   }
 
   .mosaic {
@@ -2651,10 +2708,6 @@ select:focus-visible,
     grid-template-columns: 1fr;
   }
 
-  .toolbar {
-    grid-template-columns: 1fr;
-  }
-
   .tool-button {
     width: 100%;
   }
@@ -2671,10 +2724,28 @@ select:focus-visible,
     width: 100%;
   }
 
-  .gallery-grid,
+  .gallery-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+
   .knowledge-layout,
   .open-grid {
     grid-template-columns: 1fr;
+  }
+
+  .knowledge-note {
+    min-height: 0;
+    padding: 24px 22px 26px;
+  }
+
+  .knowledge-note span {
+    margin-bottom: 28px;
+  }
+
+  .open-link {
+    min-height: 184px;
+    padding: 24px 22px;
   }
 
   .master-list-dialog {
@@ -2754,17 +2825,42 @@ select:focus-visible,
     font-size: 1.02rem;
   }
 
+  h1 {
+    font-size: 2.45rem;
+  }
+
+  .hero-section {
+    padding-top: 28px;
+    padding-bottom: 42px;
+  }
+
+  .section-shell,
+  .knowledge-section,
+  .open-section,
+  .audit-section {
+    padding-top: 56px;
+    padding-bottom: 60px;
+  }
+
+  .download-section,
+  .author-section {
+    padding-top: 60px;
+    padding-bottom: 64px;
+  }
+
   .hero-actions {
     display: grid;
     grid-template-columns: 1fr;
   }
 
   .hero-proof {
-    gap: 8px 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px 12px;
   }
 
   .hero-proof span {
-    width: 100%;
+    width: auto;
   }
 
   .hero-proof span + span::before {
@@ -2781,7 +2877,7 @@ select:focus-visible,
   }
 
   .gallery-grid {
-    gap: 16px;
+    gap: 14px;
   }
 
   .copy-color-control {
@@ -2794,7 +2890,7 @@ select:focus-visible,
   }
 
   .archive-trigger {
-    min-height: 280px;
+    min-height: 220px;
   }
 
   .site-footer {

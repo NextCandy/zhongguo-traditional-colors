@@ -462,6 +462,7 @@ function titleColorPalette(title) {
 }
 
 function activateTitleColor(title) {
+  title.dataset.titleText = title.textContent.trim();
   const palette = titleColorPalette(title);
   if (!palette.length) return;
 
@@ -483,6 +484,7 @@ function clearTitleColor(title) {
 
 function bindTitleColorHover() {
   titleHoverElements.forEach((title) => {
+    title.dataset.titleText = title.textContent.trim();
     title.addEventListener('pointerenter', () => activateTitleColor(title));
     title.addEventListener('pointerleave', () => clearTitleColor(title));
     title.addEventListener('focus', () => activateTitleColor(title));
