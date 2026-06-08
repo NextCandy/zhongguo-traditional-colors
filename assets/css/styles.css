@@ -904,7 +904,7 @@ select:focus-visible,
   display: flex;
   align-items: stretch;
   min-width: 0;
-  padding: 8px;
+  padding: 8px 12px;
   background: color-mix(in srgb, var(--hover-bg) 76%, transparent);
   border-top: 1px solid color-mix(in srgb, var(--hover-text) 18%, transparent);
   backdrop-filter: blur(10px);
