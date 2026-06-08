@@ -28,6 +28,10 @@
 
 原图约 998 MB。ZIP 文件作为 GitHub Release 附件提供，不直接提交进仓库。
 
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=nevertoday/zhongguo-traditional-colors&type=Date)](https://www.star-history.com/#nevertoday/zhongguo-traditional-colors&Date)
+
 ## 全部色卡
 
 下面是完整 742 色预览，点击任意一张可以打开高清 PNG 原图。

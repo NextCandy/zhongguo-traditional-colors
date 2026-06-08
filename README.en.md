@@ -28,6 +28,10 @@ It contains 742 high-resolution Chinese traditional color cards, aligned with th
 
 The original image set is about 998 MB. The ZIP is distributed as a GitHub Release asset instead of being committed to the repository.
 
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=nevertoday/zhongguo-traditional-colors&type=Date)](https://www.star-history.com/#nevertoday/zhongguo-traditional-colors&Date)
+
 ## Full Gallery
 
 The preview below includes all 742 colors. Click any card to open the high-resolution PNG.
