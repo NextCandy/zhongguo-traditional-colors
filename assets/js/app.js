@@ -26,6 +26,8 @@ const themeToggle = document.querySelector('[data-theme-toggle]');
 const themeToggleIcon = document.querySelector('[data-theme-icon]');
 const themeToggleLabel = document.querySelector('[data-theme-label]');
 const themeColorMeta = document.querySelector('[data-theme-color]');
+const footerColorButtons = document.querySelectorAll('[data-footer-color]');
+const footerCopyStatus = document.querySelector('[data-footer-copy-status]');
 
 let visibleCount = 24;
 let currentItems = [...images];
@@ -238,6 +240,47 @@ function updateStats() {
   });
   document.querySelectorAll('[data-total-size]').forEach((node) => {
     node.textContent = formatBytes(project.totalBytes);
+  });
+}
+
+function randomInt(max) {
+  if (max <= 0) return 0;
+  if (window.crypto?.getRandomValues) {
+    const value = new Uint32Array(1);
+    const limit = Math.floor(0x100000000 / max) * max;
+    do {
+      window.crypto.getRandomValues(value);
+    } while (value[0] >= limit);
+    return value[0] % max;
+  }
+  return Math.floor(Math.random() * max);
+}
+
+function randomColorItems(count) {
+  const pool = images.filter((image) => image.hex);
+  for (let index = pool.length - 1; index > 0; index -= 1) {
+    const swapIndex = randomInt(index + 1);
+    [pool[index], pool[swapIndex]] = [pool[swapIndex], pool[index]];
+  }
+  return pool.slice(0, count);
+}
+
+function buildFooterSpectrum() {
+  if (!footerColorButtons.length) return;
+
+  const colors = randomColorItems(footerColorButtons.length);
+  footerColorButtons.forEach((button, index) => {
+    const image = colors[index];
+    if (!image) return;
+
+    const name = colorName(image);
+    const hex = image.hex;
+    const copyText = `${name} ${hex}`;
+    button.style.setProperty('--spectrum-color', hex);
+    button.style.setProperty('--spectrum-index', String(randomInt(9) + 1));
+    button.dataset.footerCopyValue = copyText;
+    button.title = `复制 ${copyText}`;
+    button.setAttribute('aria-label', `复制 ${name} 色值 ${hex}`);
   });
 }
 
@@ -662,6 +705,7 @@ async function downloadZip() {
 updateStats();
 setTheme(currentTheme());
 buildHero();
+buildFooterSpectrum();
 renderGallery();
 
 themeToggle?.addEventListener('click', () => {
@@ -708,5 +752,20 @@ copyMasterListButton?.addEventListener('click', async () => {
   if (masterListStatus) {
     setTemporaryLabel(masterListStatus, '已复制完整清单', 1600);
   }
+});
+footerColorButtons.forEach((button) => {
+  button.addEventListener('click', async () => {
+    const copyText = button.dataset.footerCopyValue;
+    if (!copyText) return;
+
+    await writeClipboard(copyText);
+    button.dataset.copied = 'true';
+    if (footerCopyStatus) {
+      footerCopyStatus.textContent = `已复制 ${copyText}`;
+    }
+    window.setTimeout(() => {
+      delete button.dataset.copied;
+    }, 1000);
+  });
 });
 zipButton?.addEventListener('click', downloadZip);

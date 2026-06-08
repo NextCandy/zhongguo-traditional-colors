@@ -57,7 +57,6 @@
 
 * {
   box-sizing: border-box;
-  border-radius: 0 !important;
 }
 
 html {
@@ -954,7 +953,6 @@ select:focus-visible,
   background:
     linear-gradient(135deg, color-mix(in srgb, var(--solid) 92%, var(--paper)), color-mix(in srgb, var(--paper) 82%, var(--panel-soft)));
   border: 0;
-  border-radius: 32px !important;
   box-shadow:
     inset 0 0 0 1px var(--line),
     0 26px 72px color-mix(in srgb, var(--ink) 8%, transparent);
@@ -972,7 +970,6 @@ select:focus-visible,
   padding: 24px;
   background: color-mix(in srgb, var(--panel) 76%, var(--paper));
   border: 1px solid var(--line);
-  border-radius: 22px !important;
   transition: background 180ms ease, border-color 180ms ease, color 180ms ease, transform 180ms var(--ease-out-quart);
 }
 
@@ -1024,7 +1021,6 @@ select:focus-visible,
     linear-gradient(180deg, color-mix(in srgb, var(--feature-text) 10%, transparent), transparent 56%),
     var(--feature-bg);
   border: 0;
-  border-radius: 30px !important;
   cursor: pointer;
   box-shadow:
     inset 0 0 0 1px color-mix(in srgb, var(--feature-text) 16%, transparent),
@@ -1146,7 +1142,6 @@ select:focus-visible,
   min-width: 0;
   background: var(--chip);
   border: 1px solid color-mix(in srgb, var(--feature-text) 26%, transparent);
-  border-radius: 12px !important;
   transition: transform 180ms var(--ease-out-quart), border-color 180ms ease;
 }
 
@@ -1166,7 +1161,6 @@ select:focus-visible,
   color: var(--feature-bg);
   background: var(--feature-text);
   border: 1px solid transparent;
-  border-radius: 18px !important;
   font-size: 0.92rem;
   font-weight: 700;
   letter-spacing: 0.02em;
@@ -1764,79 +1758,33 @@ select:focus-visible,
   border-bottom: 1px solid color-mix(in srgb, var(--feature-text) 22%, transparent);
 }
 
-.footer-spectrum span {
+.footer-spectrum button {
+  appearance: none;
   display: block;
   min-width: 0;
+  width: 100%;
   height: calc(10px + var(--spectrum-index, 0) * 2px);
+  padding: 0;
   background: var(--spectrum-color);
+  border: 0;
   opacity: 0.84;
   transform-origin: bottom;
-  transition: opacity 180ms ease, transform 180ms var(--ease-out-quart);
+  cursor: pointer;
+  transition: opacity 180ms ease, outline-color 180ms ease, transform 180ms var(--ease-out-quart);
 }
 
-.footer-spectrum span:nth-child(1) {
-  --spectrum-index: 1;
-  --spectrum-color: #f9f4dc;
-}
-
-.footer-spectrum span:nth-child(2) {
-  --spectrum-index: 5;
-  --spectrum-color: #f8df70;
-}
-
-.footer-spectrum span:nth-child(3) {
-  --spectrum-index: 2;
-  --spectrum-color: #f7c173;
-}
-
-.footer-spectrum span:nth-child(4) {
-  --spectrum-index: 8;
-  --spectrum-color: #c02c38;
-}
-
-.footer-spectrum span:nth-child(5) {
-  --spectrum-index: 4;
-  --spectrum-color: #70c8a4;
-}
-
-.footer-spectrum span:nth-child(6) {
-  --spectrum-index: 7;
-  --spectrum-color: #2f90b9;
-}
-
-.footer-spectrum span:nth-child(7) {
-  --spectrum-index: 3;
-  --spectrum-color: #1f2040;
-}
-
-.footer-spectrum span:nth-child(8) {
-  --spectrum-index: 6;
-  --spectrum-color: #8a6913;
-}
-
-.footer-spectrum span:nth-child(9) {
-  --spectrum-index: 2;
-  --spectrum-color: #d8e3e7;
-}
-
-.footer-spectrum span:nth-child(10) {
-  --spectrum-index: 9;
-  --spectrum-color: #7e1671;
-}
-
-.footer-spectrum span:nth-child(11) {
-  --spectrum-index: 4;
-  --spectrum-color: #5dbe8a;
-}
-
-.footer-spectrum span:nth-child(12) {
-  --spectrum-index: 6;
-  --spectrum-color: #e0c8d1;
-}
-
-.site-footer:hover .footer-spectrum span {
+.footer-spectrum button:hover,
+.footer-spectrum button:focus-visible {
   opacity: 1;
+  outline: 1px solid var(--feature-text);
+  outline-offset: -1px;
   transform: scaleY(1.08);
+}
+
+.footer-spectrum button[data-copied="true"] {
+  opacity: 1;
+  outline: 2px solid var(--feature-text);
+  outline-offset: -2px;
 }
 
 .footer-meta {
@@ -2263,14 +2211,12 @@ select:focus-visible,
   .audit-workspace {
     gap: 12px;
     padding: 12px;
-    border-radius: 22px !important;
   }
 
   .archive-trigger {
     order: -1;
     min-height: 300px;
     padding: 22px;
-    border-radius: 24px !important;
   }
 
   .archive-trigger::after {
