@@ -51,7 +51,16 @@ let selectedColorValueType = getSavedColorValueType();
 let footerCopyTimer;
 let scrollControlFrame;
 let currentHeroPreviewImage;
-const titleColorTimers = new WeakMap();
+
+const TITLE_TONE_MAP = [
+  { match: ['hero', 'top'], hues: ['red', 'orange', 'yellow'] },
+  { match: ['gallery', '色卡', '图库', '筛选'], hues: ['blue', 'cyan', 'green'] },
+  { match: ['audit', '清单', '索引', '覆盖'], hues: ['blue', 'green', 'neutral'] },
+  { match: ['knowledge', '知识', '提示', '秩序'], hues: ['yellow', 'green', 'blue'] },
+  { match: ['download', '下载', 'zip', '素材'], hues: ['orange', 'red', 'yellow'] },
+  { match: ['author', '作者', '小小东', '支持'], hues: ['red', 'purple', 'orange'] },
+  { match: ['open', '开放', 'github', '贡献'], hues: ['green', 'cyan', 'blue'] },
+];
 
 const COLOR_VALUE_TYPES = [
   { value: 'hex', label: 'HEX' },
@@ -326,65 +335,103 @@ function contrastRatio(first, second) {
   return (lighter + 0.05) / (darker + 0.05);
 }
 
-function readableColorsForTitle(title) {
+function hashString(value) {
+  let hash = 0;
+  for (let index = 0; index < value.length; index += 1) {
+    hash = ((hash << 5) - hash) + value.charCodeAt(index);
+    hash |= 0;
+  }
+
+  return Math.abs(hash);
+}
+
+function titleContextText(title) {
+  const section = title.closest('section, header, footer, main, article');
+  return [
+    title.id,
+    title.textContent,
+    section?.id,
+    section?.className,
+    title.closest('[aria-labelledby]')?.getAttribute('aria-labelledby'),
+  ]
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase();
+}
+
+function titlePreferredHues(title) {
+  const context = titleContextText(title);
+  const tone = TITLE_TONE_MAP.find((item) => item.match.some((keyword) => context.includes(keyword)));
+  return tone?.hues || ['red', 'orange', 'yellow', 'green', 'cyan', 'blue', 'purple'];
+}
+
+function scoredTitleColors(title) {
   const background = nearestBackgroundRgb(title);
-  const scored = images
+  const preferredHues = titlePreferredHues(title);
+
+  return images
     .filter((image) => image.hex)
     .map((image) => {
       const rgb = rgbFromHex(image.hex);
-      return rgb ? { image, ratio: contrastRatio(rgb, background) } : null;
+      if (!rgb) return null;
+
+      const ratio = contrastRatio(rgb, background);
+      const hue = hueFromHex(image.hex);
+      const hsl = hslFromRgb(rgb);
+      const hueIndex = preferredHues.indexOf(hue);
+      const hueScore = hueIndex === -1 ? 0 : 80 - (hueIndex * 12);
+      const contrastScore = Math.min(ratio, 12) * 10;
+      const saturationScore = hue === 'neutral' ? 3 : Math.min(hsl.s, 72) / 3;
+      const lightnessBalance = currentTheme() === 'dark'
+        ? 100 - Math.abs(hsl.l - 68)
+        : 100 - Math.abs(hsl.l - 34);
+
+      return {
+        image,
+        hue,
+        ratio,
+        score: hueScore + contrastScore + saturationScore + (lightnessBalance / 5),
+      };
     })
     .filter(Boolean)
-    .filter((item) => item.ratio >= 4.5);
-
-  const pool = scored.length
-    ? scored
-    : images
-      .filter((image) => image.hex)
-      .map((image) => {
-        const rgb = rgbFromHex(image.hex);
-        return rgb ? { image, ratio: contrastRatio(rgb, background) } : null;
-      })
-      .filter(Boolean)
-      .sort((first, second) => second.ratio - first.ratio)
-      .slice(0, 64);
-
-  return pool.map((item) => item.image);
+    .filter((item) => item.ratio >= 4.5)
+    .sort((first, second) => second.score - first.score);
 }
 
-function readableColorForTitle(title) {
-  const pool = readableColorsForTitle(title);
-  return pool[randomInt(pool.length)];
+function titleColorPalette(title) {
+  const preferredHues = titlePreferredHues(title);
+  const scored = scoredTitleColors(title);
+  const semantic = scored.filter((item) => preferredHues.includes(item.hue));
+  const source = semantic.length >= 4 ? semantic : scored;
+  const seed = hashString(`${titleContextText(title)} ${currentTheme()}`);
+  const palette = [];
+  const used = new Set();
+
+  for (let offset = 0; offset < source.length && palette.length < 5; offset += 1) {
+    const item = source[(seed + (offset * 17)) % source.length];
+    if (!item || used.has(item.image.hex)) continue;
+    used.add(item.image.hex);
+    palette.push(item.image);
+  }
+
+  return palette;
 }
 
 function activateTitleColor(title) {
-  window.clearTimeout(titleColorTimers.get(title));
+  const palette = titleColorPalette(title);
+  if (!palette.length) return;
 
-  const pool = readableColorsForTitle(title);
-  if (!pool.length) return;
+  const previousIndex = Number.parseInt(title.dataset.titleHoverIndex || '-1', 10);
+  const nextIndex = Number.isNaN(previousIndex) ? 0 : (previousIndex + 1) % palette.length;
+  const color = palette[nextIndex];
 
-  const steps = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 1 : 4;
-  let index = 0;
-
-  const applyNextColor = () => {
-    const color = pool[randomInt(pool.length)];
-    if (!color) return;
-
-    title.style.setProperty('--title-hover-color', color.hex);
-    title.dataset.titleHoverColor = `${colorName(color)} ${color.hex}`;
-    title.classList.add('title-color-active');
-    index += 1;
-
-    if (index < steps && title.matches(':hover, :focus')) {
-      titleColorTimers.set(title, window.setTimeout(applyNextColor, 95));
-    }
-  };
-
-  applyNextColor();
+  title.dataset.titleHoverIndex = String(nextIndex);
+  title.style.setProperty('--title-hover-color', color.hex);
+  title.dataset.titleHoverColor = `${colorName(color)} ${color.hex}`;
+  title.classList.add('title-color-active');
 }
 
 function clearTitleColor(title) {
-  window.clearTimeout(titleColorTimers.get(title));
   title.classList.remove('title-color-active');
 }
 
