@@ -38,6 +38,7 @@
         <button type="button" data-open-master-list aria-label="打开完整色值清单">完整清单</button>
         <a href="#download">下载 ZIP</a>
         <a href="#knowledge">怎么用</a>
+        <a href="#skills">Skills</a>
         <a href="#author">支持作者</a>
       </nav>
       <div class="header-tools" aria-label="站点工具">
@@ -264,6 +265,274 @@
               <div>
                 <h3>要协作或交付时，带走图片包和清单</h3>
                 <p>下载 ZIP 可以一次拿走全部原图；完整清单适合给同事、开发或印刷方对照，减少来回解释。</p>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="skills-section" id="skills" aria-labelledby="skills-title">
+        <div class="section-heading">
+          <span class="section-kicker">10 个实战 Skills</span>
+          <h2 id="skills-title">把 742 个传统色变成可执行的设计工作流</h2>
+          <p>这些 skill 不再把配色关系停留在表格里，而是面向设计师真实任务：定方向、选色、落位、交付 token、检查可读性、做品牌规范和包装印刷。</p>
+        </div>
+
+        <div class="skills-stage">
+          <div class="skills-brief" aria-label="Skills 使用方式">
+            <span>Slash 触发</span>
+            <strong>/xxd-*</strong>
+            <p>在支持 slash skill 的环境里输入对应命令，再补充项目场景、目标人群、已有色值或截图。每个 skill 都要求推荐色可追溯到当前 742 色库。</p>
+          </div>
+
+          <div class="skills-list" aria-label="中国传统色实战 skills">
+            <article class="skill-item" data-open="false">
+              <div class="skill-index">01</div>
+              <div class="skill-body">
+                <div class="skill-head">
+                  <iconify-icon icon="lucide:compass" aria-hidden="true"></iconify-icon>
+                  <div>
+                    <h3>xxd-color-brief</h3>
+                    <p>把模糊视觉方向翻译成配色约束。</p>
+                  </div>
+                </div>
+                <button class="skill-toggle" type="button" data-skill-toggle aria-expanded="false" aria-controls="skill-detail-brief">
+                  <span data-skill-toggle-label>展开说明</span>
+                  <iconify-icon icon="lucide:plus" aria-hidden="true"></iconify-icon>
+                </button>
+                <div class="skill-detail" id="skill-detail-brief">
+                  <div>
+                    <strong>适合什么时候用</strong>
+                    <p>当需求只有“高级、东方、年轻、克制、科技感”这类形容词时，先用它把情绪转成明度、饱和度、冷暖、对比和避坑方向。</p>
+                    <strong>怎么用</strong>
+                    <p>输入 `/xxd-color-brief`，补充项目类型、受众、想要避免的气质。输出会给起始色、禁用方向和下一步该调用的 skill。</p>
+                  </div>
+                </div>
+              </div>
+            </article>
+
+            <article class="skill-item" data-open="false">
+              <div class="skill-index">02</div>
+              <div class="skill-body">
+                <div class="skill-head">
+                  <iconify-icon icon="lucide:palette" aria-hidden="true"></iconify-icon>
+                  <div>
+                    <h3>xxd-palette-builder</h3>
+                    <p>从色名、HEX 或场景生成主辅点缀色板。</p>
+                  </div>
+                </div>
+                <button class="skill-toggle" type="button" data-skill-toggle aria-expanded="false" aria-controls="skill-detail-builder">
+                  <span data-skill-toggle-label>展开说明</span>
+                  <iconify-icon icon="lucide:plus" aria-hidden="true"></iconify-icon>
+                </button>
+                <div class="skill-detail" id="skill-detail-builder">
+                  <div>
+                    <strong>适合什么时候用</strong>
+                    <p>当你已经有一个传统色、一个 HEX 或一个品牌/海报/UI 场景，需要快速得到完整可用的配色方案。</p>
+                    <strong>怎么用</strong>
+                    <p>输入 `/xxd-palette-builder`，给出锚点色或项目语境。输出会按角色给主色、辅色、背景色、强调色、使用比例和风险提示。</p>
+                  </div>
+                </div>
+              </div>
+            </article>
+
+            <article class="skill-item" data-open="false">
+              <div class="skill-index">03</div>
+              <div class="skill-body">
+                <div class="skill-head">
+                  <iconify-icon icon="lucide:layout-template" aria-hidden="true"></iconify-icon>
+                  <div>
+                    <h3>xxd-palette-applier</h3>
+                    <p>告诉你每个颜色应该放在画面哪里。</p>
+                  </div>
+                </div>
+                <button class="skill-toggle" type="button" data-skill-toggle aria-expanded="false" aria-controls="skill-detail-applier">
+                  <span data-skill-toggle-label>展开说明</span>
+                  <iconify-icon icon="lucide:plus" aria-hidden="true"></iconify-icon>
+                </button>
+                <div class="skill-detail" id="skill-detail-applier">
+                  <div>
+                    <strong>适合什么时候用</strong>
+                    <p>当你有了一组颜色，但不知道谁做背景、谁做标题、谁做按钮、谁只适合少量装饰时。</p>
+                    <strong>怎么用</strong>
+                    <p>输入 `/xxd-palette-applier`，提供色板和载体。输出会给背景、内容、行动、节奏、细节五类角色和具体面积比例。</p>
+                  </div>
+                </div>
+              </div>
+            </article>
+
+            <article class="skill-item" data-open="false">
+              <div class="skill-index">04</div>
+              <div class="skill-body">
+                <div class="skill-head">
+                  <iconify-icon icon="lucide:code-2" aria-hidden="true"></iconify-icon>
+                  <div>
+                    <h3>xxd-ui-token</h3>
+                    <p>把传统色转成 UI token 和浅深色模式。</p>
+                  </div>
+                </div>
+                <button class="skill-toggle" type="button" data-skill-toggle aria-expanded="false" aria-controls="skill-detail-token">
+                  <span data-skill-toggle-label>展开说明</span>
+                  <iconify-icon icon="lucide:plus" aria-hidden="true"></iconify-icon>
+                </button>
+                <div class="skill-detail" id="skill-detail-token">
+                  <div>
+                    <strong>适合什么时候用</strong>
+                    <p>当传统色要进入网页、App、后台、工具或设计系统，需要变成开发可接入的语义变量。</p>
+                    <strong>怎么用</strong>
+                    <p>输入 `/xxd-ui-token`，说明产品类型和技术输出格式。默认输出 CSS variables，也可以生成 Tailwind 或 Figma token 结构。</p>
+                  </div>
+                </div>
+              </div>
+            </article>
+
+            <article class="skill-item" data-open="false">
+              <div class="skill-index">05</div>
+              <div class="skill-body">
+                <div class="skill-head">
+                  <iconify-icon icon="lucide:shield-check" aria-hidden="true"></iconify-icon>
+                  <div>
+                    <h3>xxd-accessible-color</h3>
+                    <p>检查文字、按钮和图表的可读性。</p>
+                  </div>
+                </div>
+                <button class="skill-toggle" type="button" data-skill-toggle aria-expanded="false" aria-controls="skill-detail-accessible">
+                  <span data-skill-toggle-label>展开说明</span>
+                  <iconify-icon icon="lucide:plus" aria-hidden="true"></iconify-icon>
+                </button>
+                <div class="skill-detail" id="skill-detail-accessible">
+                  <div>
+                    <strong>适合什么时候用</strong>
+                    <p>当某个传统色很好看，但不确定能不能做正文、按钮、状态提示或图表区分时。</p>
+                    <strong>怎么用</strong>
+                    <p>输入 `/xxd-accessible-color`，给出前景色、背景色或一组色板。输出会标注通过、条件可用、失败，并给同库替代色。</p>
+                  </div>
+                </div>
+              </div>
+            </article>
+
+            <article class="skill-item" data-open="false">
+              <div class="skill-index">06</div>
+              <div class="skill-body">
+                <div class="skill-head">
+                  <iconify-icon icon="lucide:badge-check" aria-hidden="true"></iconify-icon>
+                  <div>
+                    <h3>xxd-brand-system</h3>
+                    <p>沉淀品牌级色彩规范和禁用组合。</p>
+                  </div>
+                </div>
+                <button class="skill-toggle" type="button" data-skill-toggle aria-expanded="false" aria-controls="skill-detail-brand">
+                  <span data-skill-toggle-label>展开说明</span>
+                  <iconify-icon icon="lucide:plus" aria-hidden="true"></iconify-icon>
+                </button>
+                <div class="skill-detail" id="skill-detail-brand">
+                  <div>
+                    <strong>适合什么时候用</strong>
+                    <p>当颜色不只是一次海报，而是要支撑官网、社媒、包装、PPT 和长期品牌识别时。</p>
+                    <strong>怎么用</strong>
+                    <p>输入 `/xxd-brand-system`，说明行业、价格带、品牌气质和主要媒介。输出会给品牌锚点色、辅助色、比例、规则和禁用方式。</p>
+                  </div>
+                </div>
+              </div>
+            </article>
+
+            <article class="skill-item" data-open="false">
+              <div class="skill-index">07</div>
+              <div class="skill-body">
+                <div class="skill-head">
+                  <iconify-icon icon="lucide:chart-column" aria-hidden="true"></iconify-icon>
+                  <div>
+                    <h3>xxd-data-viz</h3>
+                    <p>为图表和仪表盘生成传统色方案。</p>
+                  </div>
+                </div>
+                <button class="skill-toggle" type="button" data-skill-toggle aria-expanded="false" aria-controls="skill-detail-data">
+                  <span data-skill-toggle-label>展开说明</span>
+                  <iconify-icon icon="lucide:plus" aria-hidden="true"></iconify-icon>
+                </button>
+                <div class="skill-detail" id="skill-detail-data">
+                  <div>
+                    <strong>适合什么时候用</strong>
+                    <p>当你要做分类图、连续色带、发散图、地图、仪表盘或数据故事，不想直接套普通商业图表色。</p>
+                    <strong>怎么用</strong>
+                    <p>输入 `/xxd-data-viz`，给出图表类型、系列数量、背景模式。输出会给分类色、顺序色带、发散色带或 ECharts/D3 可用数组。</p>
+                  </div>
+                </div>
+              </div>
+            </article>
+
+            <article class="skill-item" data-open="false">
+              <div class="skill-index">08</div>
+              <div class="skill-body">
+                <div class="skill-head">
+                  <iconify-icon icon="lucide:scan-search" aria-hidden="true"></iconify-icon>
+                  <div>
+                    <h3>xxd-existing-design-audit</h3>
+                    <p>诊断已有设计稿并映射到传统色。</p>
+                  </div>
+                </div>
+                <button class="skill-toggle" type="button" data-skill-toggle aria-expanded="false" aria-controls="skill-detail-audit">
+                  <span data-skill-toggle-label>展开说明</span>
+                  <iconify-icon icon="lucide:plus" aria-hidden="true"></iconify-icon>
+                </button>
+                <div class="skill-detail" id="skill-detail-audit">
+                  <div>
+                    <strong>适合什么时候用</strong>
+                    <p>当你不是从零开始，而是要把已有 HEX、截图、CSS 变量或品牌色改造成中国传统色体系。</p>
+                    <strong>怎么用</strong>
+                    <p>输入 `/xxd-existing-design-audit`，贴出现有色值或描述截图。输出会给相近传统色、保留/替换建议和修复后的角色分配。</p>
+                  </div>
+                </div>
+              </div>
+            </article>
+
+            <article class="skill-item" data-open="false">
+              <div class="skill-index">09</div>
+              <div class="skill-body">
+                <div class="skill-head">
+                  <iconify-icon icon="lucide:newspaper" aria-hidden="true"></iconify-icon>
+                  <div>
+                    <h3>xxd-content-series</h3>
+                    <p>为系列内容建立持续可复用的色彩系统。</p>
+                  </div>
+                </div>
+                <button class="skill-toggle" type="button" data-skill-toggle aria-expanded="false" aria-controls="skill-detail-content">
+                  <span data-skill-toggle-label>展开说明</span>
+                  <iconify-icon icon="lucide:plus" aria-hidden="true"></iconify-icon>
+                </button>
+                <div class="skill-detail" id="skill-detail-content">
+                  <div>
+                    <strong>适合什么时候用</strong>
+                    <p>当你要做小红书、公众号、视频封面、课程或长期栏目，需要每期有变化但整体能被认出来。</p>
+                    <strong>怎么用</strong>
+                    <p>输入 `/xxd-content-series`，说明平台、栏目数量和更新节奏。输出会给固定层、变量层、栏目色和轮换规则。</p>
+                  </div>
+                </div>
+              </div>
+            </article>
+
+            <article class="skill-item" data-open="false">
+              <div class="skill-index">10</div>
+              <div class="skill-body">
+                <div class="skill-head">
+                  <iconify-icon icon="lucide:package-check" aria-hidden="true"></iconify-icon>
+                  <div>
+                    <h3>xxd-print-packaging</h3>
+                    <p>面向包装、文创和印刷材料规划用色。</p>
+                  </div>
+                </div>
+                <button class="skill-toggle" type="button" data-skill-toggle aria-expanded="false" aria-controls="skill-detail-print">
+                  <span data-skill-toggle-label>展开说明</span>
+                  <iconify-icon icon="lucide:plus" aria-hidden="true"></iconify-icon>
+                </button>
+                <div class="skill-detail" id="skill-detail-print">
+                  <div>
+                    <strong>适合什么时候用</strong>
+                    <p>当传统色要进入茶、香、书籍、礼盒、文创、标签、实体材质和印刷生产，而不只是屏幕展示。</p>
+                    <strong>怎么用</strong>
+                    <p>输入 `/xxd-print-packaging`，说明品类、材质、价格带和系列数量。输出会给包装面板用色、系列延展和打样检查清单。</p>
+                  </div>
+                </div>
               </div>
             </article>
           </div>

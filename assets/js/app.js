@@ -35,6 +35,7 @@ const footerColorButtons = document.querySelectorAll('[data-footer-color]');
 const footerCopyStatus = document.querySelector('[data-footer-copy-status]');
 const scrollUpButton = document.querySelector('[data-scroll-up]');
 const scrollDownButton = document.querySelector('[data-scroll-down]');
+const skillToggleButtons = document.querySelectorAll('[data-skill-toggle]');
 const titleHoverElements = document.querySelectorAll('h1, h2, h3');
 const heroPreviewDialog = document.querySelector('[data-hero-preview-dialog]');
 const heroPreviewImage = document.querySelector('[data-hero-preview-image]');
@@ -71,6 +72,7 @@ const TITLE_TONE_MAP = [
   { match: ['gallery', '色卡', '图库', '筛选'], hues: ['blue', 'cyan', 'green'] },
   { match: ['audit', '清单', '索引', '覆盖'], hues: ['blue', 'green', 'neutral'] },
   { match: ['knowledge', '知识', '提示', '秩序'], hues: ['yellow', 'green', 'blue'] },
+  { match: ['skills', 'skill', 'xxd', '工作流'], hues: ['purple', 'blue', 'cyan'] },
   { match: ['download', '下载', 'zip', '素材'], hues: ['orange', 'red', 'yellow'] },
   { match: ['author', '作者', '小小东', '支持'], hues: ['red', 'purple', 'orange'] },
   { match: ['open', '开放', 'github', '贡献'], hues: ['green', 'cyan', 'blue'] },
@@ -848,6 +850,25 @@ function updateScrollControls() {
   if (scrollDownButton) scrollDownButton.disabled = current >= max - 8;
 }
 
+function setSkillOpen(item, open) {
+  if (!item) return;
+
+  item.dataset.open = open ? 'true' : 'false';
+  const button = item.querySelector('[data-skill-toggle]');
+  const label = item.querySelector('[data-skill-toggle-label]');
+  const detail = item.querySelector('.skill-detail');
+
+  button?.setAttribute('aria-expanded', String(open));
+  if (label) label.textContent = open ? '收起说明' : '展开说明';
+  detail?.setAttribute('aria-hidden', String(!open));
+}
+
+function closeSkillItems(except) {
+  document.querySelectorAll('.skill-item[data-open="true"]').forEach((item) => {
+    if (item !== except) setSkillOpen(item, false);
+  });
+}
+
 function queueScrollControlsUpdate() {
   if (scrollControlFrame) return;
 
@@ -1323,6 +1344,9 @@ buildHero();
 buildFooterSpectrum();
 renderGallery();
 updateScrollControls();
+skillToggleButtons.forEach((button) => {
+  setSkillOpen(button.closest('.skill-item'), false);
+});
 bindTitleColorHover();
 
 themeToggle?.addEventListener('click', () => {
@@ -1442,6 +1466,14 @@ footerColorButtons.forEach((button) => {
     window.setTimeout(() => {
       delete button.dataset.copied;
     }, 1000);
+  });
+});
+skillToggleButtons.forEach((button) => {
+  button.addEventListener('click', () => {
+    const item = button.closest('.skill-item');
+    const shouldOpen = item?.dataset.open !== 'true';
+    if (shouldOpen) closeSkillItems(item);
+    setSkillOpen(item, shouldOpen);
   });
 });
 scrollUpButton?.addEventListener('click', () => scrollBySection('up'));
