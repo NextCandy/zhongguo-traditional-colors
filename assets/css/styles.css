@@ -2456,8 +2456,8 @@ select:focus-visible,
 
 .harmony-summary {
   display: grid;
-  gap: 8px;
-  padding-top: 18px;
+  gap: 10px;
+  padding-top: 20px;
   border-top: 1px solid var(--line);
 }
 
@@ -2467,50 +2467,74 @@ select:focus-visible,
 
 .harmony-summary h3 {
   margin-bottom: 0;
-  font-size: 1.18rem;
+  font-size: clamp(1.24rem, 2vw, 1.58rem);
+  line-height: 1.25;
 }
 
 .harmony-summary p {
-  max-width: 42em;
+  max-width: 34em;
   margin: 0;
   color: var(--muted);
-  font-size: 0.82rem;
+  font-size: 0.84rem;
   line-height: 1.7;
 }
 
 .harmony-role-strip {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 1px;
-  background: var(--line);
-  border: 1px solid var(--line);
+  gap: 0;
+  background: transparent;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  counter-reset: harmony-role;
 }
 
 .harmony-role {
+  counter-increment: harmony-role;
   display: grid;
-  gap: 10px;
+  gap: 14px;
   min-width: 0;
-  padding: 12px;
-  background: color-mix(in srgb, var(--panel) 86%, var(--solid));
+  padding: 16px;
+  background: transparent;
+  border-left: 1px solid var(--line);
 }
 
-.harmony-role > span {
-  color: var(--muted);
-  font-size: 0.72rem;
-  font-weight: 700;
+.harmony-role:first-child {
+  border-left: 0;
 }
 
-.harmony-role > small {
-  min-height: 2.8em;
-  color: var(--ink-soft);
-  font-size: 0.74rem;
-  font-weight: 600;
-  line-height: 1.4;
-}
-
-.harmony-role > div {
+.harmony-role header {
   display: grid;
   gap: 7px;
+  min-width: 0;
+}
+
+.harmony-role header::before {
+  color: var(--muted);
+  font-size: 0.64rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  content: "0" counter(harmony-role);
+}
+
+.harmony-role header span {
+  color: var(--ink);
+  font-family: var(--font-title);
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.harmony-role header small {
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.harmony-role-colors {
+  display: grid;
+  gap: 8px;
 }
 
 .harmony-method strong,
@@ -2669,15 +2693,15 @@ select:focus-visible,
 
 .harmony-color {
   display: grid;
-  grid-template-columns: 24px minmax(0, 1fr);
-  gap: 9px;
+  grid-template-columns: 30px minmax(0, 1fr);
+  gap: 11px;
   align-items: center;
   width: 100%;
   min-width: 0;
-  padding: 7px;
+  padding: 9px;
   color: var(--ink);
   text-align: left;
-  background: var(--panel);
+  background: color-mix(in srgb, var(--panel) 88%, transparent);
   border: 1px solid var(--line);
   cursor: pointer;
   transition: color 180ms ease, background 180ms ease, border-color 180ms ease, transform 180ms var(--ease-out-quart);
@@ -2694,8 +2718,8 @@ select:focus-visible,
 }
 
 .harmony-color-swatch {
-  width: 24px;
-  height: 34px;
+  width: 30px;
+  height: 42px;
   background: var(--swatch);
   border: 1px solid color-mix(in srgb, var(--ink) 18%, transparent);
 }
@@ -2703,33 +2727,36 @@ select:focus-visible,
 .harmony-color-copy {
   display: grid;
   min-width: 0;
-  gap: 1px;
+  gap: 2px;
 }
 
 .harmony-color-copy em {
   color: var(--muted);
-  font-size: 0.66rem;
+  font-size: 0.68rem;
   font-style: normal;
   font-weight: 700;
+  line-height: 1.2;
 }
 
 .harmony-color-copy strong,
 .harmony-color-copy small {
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow-wrap: anywhere;
+  white-space: normal;
 }
 
 .harmony-color-copy strong {
-  font-size: 0.78rem;
+  font-size: 0.8rem;
   font-weight: 700;
+  line-height: 1.25;
 }
 
 .harmony-color-copy small {
   color: var(--muted);
   font-family: var(--font-rounded);
-  font-size: 0.72rem;
+  font-size: 0.74rem;
   font-weight: 600;
+  line-height: 1.25;
 }
 
 .harmony-color:hover .harmony-color-copy em,
@@ -3360,7 +3387,17 @@ select:focus-visible,
     gap: 6px;
   }
 
-  .harmony-role > small {
+  .harmony-role {
+    padding-inline: 0;
+    border-left: 0;
+    border-top: 1px solid var(--line);
+  }
+
+  .harmony-role:first-child {
+    border-top: 0;
+  }
+
+  .harmony-role header small {
     min-height: 0;
   }
 

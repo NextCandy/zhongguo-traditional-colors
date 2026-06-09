@@ -83,12 +83,12 @@ const COLOR_VALUE_TYPES = [
   { value: 'cmyk', label: 'CMYK' },
 ];
 
-const HARMONY_USAGE_NOTE = '把当前色当主色，先用辅色承接版面，再用点缀色处理按钮、标题或重点。点击任意色块会复制当前选择的色值格式。';
+const HARMONY_USAGE_NOTE = '先看使用场景，再点击色块复制色值；格式会跟随上方选择。';
 
 const HARMONY_ROLE_TYPES = [
-  { key: 'main', label: '主色', hint: '大面积 / 视觉语气' },
-  { key: 'secondary', label: '辅色', hint: '承接 / 次级模块' },
-  { key: 'accent', label: '点缀', hint: '按钮 / 强调 / 焦点' },
+  { key: 'main', label: '背景色', context: '背景 / 大面积', hint: '铺底、主视觉、页面基调' },
+  { key: 'secondary', label: '辅助色', context: '模块 / 辅助信息', hint: '分区、卡片、次级内容' },
+  { key: 'accent', label: '强调色', context: '按钮 / 重点', hint: '按钮、标题、数字或焦点' },
 ];
 
 const HARMONY_RELATION_TYPES = [
@@ -97,77 +97,77 @@ const HARMONY_RELATION_TYPES = [
     intent: '统一',
     label: '同类',
     note: '需要安静、统一、低风险的页面时，先看这一组。适合背景、模块底色和同一品牌语气的延展。',
-    method: '同类色优先选择色相接近或低饱和相近的颜色，再按 Lab 感知距离、明度和饱和度排序。',
+    method: '优先找颜色方向接近、饱和度相近的传统色，再按视觉距离和明暗层次排序。',
   },
   {
     key: 'analogous',
     intent: '柔和',
     label: '邻近',
     note: '需要有一点变化但不想跳脱时使用。适合渐变、插画、章节分区和柔和的视觉层次。',
-    method: '邻近色以当前色左右约 30 度色相为目标，在 742 色库中寻找视觉上更接近的传统色。',
+    method: '从当前色在色环左右相邻的区域中挑选，再优先选择视觉上更接近的传统色。',
   },
   {
     key: 'complementary',
     intent: '强调',
     label: '互补',
     note: '需要按钮、标题、重点数据或视觉焦点时使用。面积要克制，通常少量点缀比大面积铺开更稳。',
-    method: '互补色以约 180 度色相差为目标，再用明度、饱和度和 Lab 距离控制可用性。',
+    method: '从色环对面寻找候选色，再排除明暗和饱和度过于跳脱的组合。',
   },
   {
     key: 'splitComplementary',
     intent: '稳对比',
     label: '分裂互补',
     note: '需要对比但不希望互补色过于直接时使用。适合界面强调色、封面辅助色和内容重点。',
-    method: '分裂互补以互补色两侧约 150 度、210 度方向为目标，通常比直接互补更柔和。',
+    method: '从互补色两侧寻找候选色，保留对比，但比直接互补更柔和。',
   },
   {
     key: 'triadic',
     intent: '系列感',
     label: '三角',
     note: '需要做多张海报、一组图表或系列主题时使用。适合建立多色节奏，但要控制主次面积。',
-    method: '三角色以约 120 度、240 度方向为目标，保留更大的色相跨度。',
+    method: '从色环上相隔较远的三个方向寻找候选色，用来形成系列节奏。',
   },
   {
     key: 'tetradic',
     intent: '多层级',
     label: '四角',
     note: '需要复杂页面、多个信息层级或多状态系统时使用。建议先选 2 到 3 个颜色试，不必全部使用。',
-    method: '四角色参考约 90 度、180 度、270 度方向，提供更宽的冷暖和明暗跨度。',
+    method: '从色环上四个方向寻找候选色，提供更宽的冷暖、明暗和层级选择。',
   },
   {
     key: 'temperatureContrast',
     intent: '冷暖差',
     label: '冷暖',
     note: '需要明显情绪转折时使用，例如温暖主体配冷色信息，或冷静界面加暖色提示。',
-    method: '冷暖对照按色相温度分组，优先选择与当前色温相反且明度接近的颜色。',
+    method: '先判断当前色偏冷或偏暖，再寻找另一侧色温中明暗更接近的传统色。',
   },
   {
     key: 'lighter',
     intent: '浅背景',
     label: '明色',
     note: '需要背景、留白、轻提示或弱分隔时使用。文字放在上面时仍要单独检查对比度。',
-    method: '明色搭配优先选择比当前色更亮、色相仍相关的传统色。',
+    method: '优先找比当前色更亮、同时仍保持相近气质的传统色。',
   },
   {
     key: 'darker',
     intent: '深文字',
     label: '暗色',
     note: '需要正文、标题、边界或压重点时使用。尤其适合从浅色主色中找可读的深色搭配。',
-    method: '暗色搭配优先选择比当前色更暗、色相仍相关的传统色。',
+    method: '优先找比当前色更暗、同时仍保持相近气质的传统色。',
   },
   {
     key: 'grayTone',
     intent: '降噪',
     label: '灰调',
     note: '需要大面积耐看、降低情绪噪声时使用。适合后台界面、长文阅读和中性信息区。',
-    method: '灰调搭配优先选择低饱和颜色，并用明度和感知距离排序。',
+    method: '优先找饱和度更低的传统色，再按明暗层次和视觉接近度排序。',
   },
   {
     key: 'neutral',
     intent: '留白',
     label: '中性',
     note: '需要留白、分隔、背景或结构色时使用。它帮助主色更突出，而不是抢走注意力。',
-    method: '中性色按低饱和逻辑筛选，再根据当前色明度寻找更合适的承接色。',
+    method: '从低饱和传统色中挑选，再按当前色的明暗寻找更合适的承接色。',
   },
 ];
 
@@ -509,15 +509,18 @@ function harmonyRelationType(key) {
   return HARMONY_RELATION_TYPES.find((type) => type.key === key) || HARMONY_RELATION_TYPES[0];
 }
 
-function harmonyColorMarkup(color) {
+function harmonyColorMarkup(color, usageLabel = '') {
   const item = lookupDisplayColor(color);
   const label = `${item.id}-${item.name}`;
   const value = colorValue(item);
+  const usageText = usageLabel || '点击复制';
+  const ariaUsage = usageLabel ? `${usageLabel} ` : '';
 
   return `
-    <button class="harmony-color" type="button" data-harmony-color="${escapeHtml(item.id)}" data-harmony-name="${escapeHtml(item.name)}" data-harmony-hex="${escapeHtml(item.hex)}" style="--swatch: ${item.hex}" aria-label="复制 ${escapeHtml(label)} ${colorValueLabel()} 色值 ${escapeHtml(value)}">
+    <button class="harmony-color" type="button" data-harmony-color="${escapeHtml(item.id)}" data-harmony-name="${escapeHtml(item.name)}" data-harmony-hex="${escapeHtml(item.hex)}" data-harmony-use="${escapeHtml(usageLabel)}" style="--swatch: ${item.hex}" aria-label="复制 ${escapeHtml(ariaUsage)}${escapeHtml(label)} ${colorValueLabel()} 色值 ${escapeHtml(value)}">
       <span class="harmony-color-swatch" aria-hidden="true"></span>
       <span class="harmony-color-copy">
+        <em>${escapeHtml(usageText)}</em>
         <strong>${escapeHtml(label)}</strong>
         <small data-harmony-value>${escapeHtml(value)}</small>
       </span>
@@ -542,10 +545,12 @@ function harmonyRoleMarkup(role, image, harmony) {
   const colors = harmonyRoleColors(role, image, harmony);
   return `
     <section class="harmony-role">
-      <span>${role.label}</span>
-      <small>${role.hint}</small>
-      <div>
-        ${colors.map((color) => harmonyColorMarkup(color)).join('')}
+      <header>
+        <span>${role.context}</span>
+        <small>${role.hint}</small>
+      </header>
+      <div class="harmony-role-colors">
+        ${colors.map((color) => harmonyColorMarkup(color, role.label)).join('')}
       </div>
     </section>
   `;
@@ -639,9 +644,10 @@ function updateHarmonyValues() {
     const color = harmonyColorFromButton(button);
     const value = colorValue(color);
     const label = `${color.id}-${color.name}`;
+    const usage = button.dataset.harmonyUse ? `${button.dataset.harmonyUse} ` : '';
     const valueNode = button.querySelector('[data-harmony-value]');
     if (valueNode && !button.dataset.copied) valueNode.textContent = value;
-    button.setAttribute('aria-label', `复制 ${label} ${colorValueLabel()} 色值 ${value}`);
+    button.setAttribute('aria-label', `复制 ${usage}${label} ${colorValueLabel()} 色值 ${value}`);
   });
 }
 
