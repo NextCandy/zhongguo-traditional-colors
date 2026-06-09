@@ -1,50 +1,56 @@
 ---
 name: xxd-existing-design-audit
-description: Audit an existing design or color list and translate it into Chinese traditional colors. Use when a user provides screenshots, HEX values, brand colors, Figma descriptions, CSS variables, UI themes, posters, or asks what is wrong with a design palette and how to replace or repair it using Chinese traditional colors.
+description: Audit an existing design or color list and translate it into Chinese traditional colors. Use when a user provides screenshots, HEX values, CSS variables, brand colors, Figma styles, UI themes, posters, or asks what is wrong with a current palette and how to repair it using Chinese traditional colors.
 ---
 
 # xxd-existing-design-audit
 
-## Overview
+## Purpose
 
-Diagnose a current palette, find the nearest Chinese traditional color matches, and propose a practical repair path. This is for improving existing work, not creating from a blank page.
+Use this skill when the user is not starting from zero. It should preserve what is working, identify the real color problems, and convert the palette into a cleaner Chinese traditional color system.
 
-## Data Rules
+## Pain Points This Solves
+
+- Existing designs often contain duplicate accents, hardcoded near-matches, and unclear role ownership.
+- A full redesign can destroy brand recognition when a conservative repair would be better.
+- Designers need to know whether to keep, merge, replace, or remove colors, not just see nearest matches.
+
+## Data Contract
 
 - Use only project colors from `docs/chinese-color-master-list.md` and `docs/chinese-color-harmony.csv` for replacements.
-- If the user provides outside HEX values, clearly separate "input color" from "nearest traditional match".
-- Preserve existing brand recognition unless the user asks for a full redesign.
+- Separate user input colors from nearest traditional matches.
+- Preserve brand recognition unless the user asks for a full redesign.
+- For screenshots, only give exact matches when actual sampled HEX values are available; otherwise describe likely issues and request sampling for precision.
 
-## Workflow
+## Audit Workflow
 
 1. Inventory the current palette:
-   - Extract or list HEX values.
+   - Extract HEX values or list provided values.
    - Assign current roles: background, text, CTA, accent, border, status, chart, decoration.
-2. Diagnose problems:
+   - Identify repeated near-colors and orphan colors with no clear role.
+2. Diagnose root causes:
    - Too many accents.
-   - Low contrast.
+   - Low contrast or unclear reading hierarchy.
    - Similar colors doing different jobs.
+   - Same job using different colors.
    - Brand mood mismatch.
-   - Dark/light mode mismatch.
-   - Decorative colors competing with function.
+   - Light/dark mode mismatch.
+   - Decorative color competing with function.
 3. Map each input color to 1 to 3 nearest traditional colors.
-4. Propose repairs:
-   - Conservative: replace only the worst offenders.
-   - Balanced: keep the brand direction, rebuild roles.
-   - Full traditional-color system: when requested.
-5. Recommend follow-up skill:
-   - `xxd-accessible-color` for contrast.
-   - `xxd-ui-token` for product UI.
-   - `xxd-brand-system` for guidelines.
+4. Choose a repair level:
+   - Conservative: only replace failures and near-duplicates.
+   - Balanced: preserve recognition but rebuild roles.
+   - Full system: create a traditional-color system when requested.
+5. Assign actions: keep, merge, replace, remove, or reserve for accent.
+6. Recommend the next skill only after the repair path is clear.
 
-## Output
+## Output Shape
 
-Use this structure:
+- Current diagnosis: specific, non-judgmental, tied to roles.
+- Inventory table: input HEX, current role, problem, nearest traditional color, confidence.
+- Repair plan: keep, merge, replace, remove, or reserve.
+- Final role palette: role, color name, HEX, usage.
+- Migration notes: CSS/Figma/token names if relevant.
+- Next step: `xxd-accessible-color`, `xxd-ui-token`, `xxd-brand-system`, or `xxd-palette-applier`.
 
-- Current palette diagnosis: short, specific, non-judgmental.
-- Match table: input HEX, current role, nearest traditional color name, HEX, confidence.
-- Repair plan: keep, replace, merge, or remove.
-- Final palette: role, color name, HEX, usage.
-- Next implementation step.
-
-When auditing a screenshot, describe visual issues first; only give exact matches when actual sampled HEX values are available.
+Do not recommend a complete rebuild when a focused repair solves the problem.

@@ -32,20 +32,20 @@
 
 ## 実用向け中国色 Skills
 
-これらの skill は、742 色リストと配色 CSV を、デザイン実務で使えるワークフローに変換します。配色ブリーフ、色板作成、配置ルール、UI token、アクセシビリティ、ブランド規定、連載コンテンツ、データ可視化、印刷・包装まで扱います。
+これらの skill は、742 色リストと配色 CSV を、デザイン実務で使えるワークフローに変換します。それぞれが別々の実務上の詰まりを扱います。方向性が曖昧、色板が多すぎる、配置できない、token 連携、可読性、ブランドのぶれ、図表の色分け、既存稿の修正、連載疲れ、印刷の不確実性です。
 
 | Skill | 用途 |
 | --- | --- |
-| [`xxd-color-brief`](skills/xxd-color-brief/SKILL.md) | 抽象的な方向性を配色条件に翻訳 |
-| [`xxd-palette-builder`](skills/xxd-palette-builder/SKILL.md) | 色名、HEX、ムード、用途から主色・補助色・アクセント色を作成 |
-| [`xxd-palette-applier`](skills/xxd-palette-applier/SKILL.md) | 各色を背景、見出し、ボタン、装飾、情報階層に割り当て |
-| [`xxd-ui-token`](skills/xxd-ui-token/SKILL.md) | CSS variables、Tailwind/Figma token、ライト/ダーク対応を出力 |
-| [`xxd-accessible-color`](skills/xxd-accessible-color/SKILL.md) | 文字、ボタン、図表、UI 状態のコントラストを確認して修正 |
-| [`xxd-brand-system`](skills/xxd-brand-system/SKILL.md) | ブランド色の規則、比率、禁止組み合わせを設計 |
-| [`xxd-data-viz`](skills/xxd-data-viz/SKILL.md) | 分類色、連続色、発散色、ダッシュボード色を作成 |
-| [`xxd-existing-design-audit`](skills/xxd-existing-design-audit/SKILL.md) | 既存の HEX やデザインを診断し、中国伝統色に対応付け |
-| [`xxd-content-series`](skills/xxd-content-series/SKILL.md) | SNS、記事、講座、動画シリーズの継続的な色彩システムを作成 |
-| [`xxd-print-packaging`](skills/xxd-print-packaging/SKILL.md) | 包装、文創、印刷、物理素材向けの伝統色運用を計画 |
+| [`xxd-color-brief`](skills/xxd-color-brief/SKILL.md) | 高級、東洋的、若い、抑制的などの曖昧な語を、寒暖、明度、彩度、対比、リスク条件に翻訳 |
+| [`xxd-palette-builder`](skills/xxd-palette-builder/SKILL.md) | アンカー色、HEX、ムード、用途から、役割と比率を持つ少数の実用 palette を選定 |
+| [`xxd-palette-applier`](skills/xxd-palette-applier/SKILL.md) | 背景、タイトル、本文、CTA、構造、装飾として実際のレイアウトに色を配置 |
+| [`xxd-ui-token`](skills/xxd-ui-token/SKILL.md) | 中国伝統色を primitive、semantic、component、mode 対応の UI token に変換 |
+| [`xxd-accessible-color`](skills/xxd-accessible-color/SKILL.md) | 文字、ボタン、状態、図表の組み合わせを WCAG ratio で確認し、同じ色セットから修正 |
+| [`xxd-brand-system`](skills/xxd-brand-system/SKILL.md) | ブランドの基準色、補助色、比率、チャネル規則、禁止組み合わせ、運用境界を設計 |
+| [`xxd-data-viz`](skills/xxd-data-viz/SKILL.md) | ポスター色板ではなく、分類、連続、発散、強調、意味状態に合わせて図表色を作成 |
+| [`xxd-existing-design-audit`](skills/xxd-existing-design-audit/SKILL.md) | 既存スクリーンショット、CSS、Figma styles、HEX リストを棚卸しし、保持、統合、置換、削除を判断 |
+| [`xxd-content-series`](skills/xxd-content-series/SKILL.md) | SNS、記事、講座、動画シリーズ向けに固定層、可変層、テンプレート層、ローテーション規則を作成 |
+| [`xxd-print-packaging`](skills/xxd-print-packaging/SKILL.md) | 包装、書籍、文創、ラベル、物理素材向けに CMYK、素材、校正リスクを含めて計画 |
 
 ## 全カラーギャラリー
 

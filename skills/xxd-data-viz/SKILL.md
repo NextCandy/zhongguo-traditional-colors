@@ -1,48 +1,54 @@
 ---
 name: xxd-data-viz
-description: Create chart and data-visualization palettes from Chinese traditional colors. Use when a user needs categorical colors, sequential scales, diverging scales, ECharts/D3/Chart.js config, dashboard colors, map colors, legend rules, colorblind-aware chart palettes, or data visualization with Chinese traditional color identity.
+description: Create chart and data visualization palettes from Chinese traditional colors. Use when a user needs categorical, sequential, diverging, highlight, dashboard, map, ECharts, D3, Chart.js, or colorblind-aware data palettes with Chinese traditional color identity.
 ---
 
 # xxd-data-viz
 
-## Overview
+## Purpose
 
-Build data visualization palettes that carry Chinese traditional color character without sacrificing legibility, category separation, or chart meaning.
+Use this skill when colors must encode data. It should not turn a poster palette into a chart palette; it must choose colors by data meaning, distinguishability, ordering, and accessibility.
 
-## Data Rules
+## Pain Points This Solves
+
+- Attractive palettes fail charts because categories are not distinct or values are not ordered by lightness.
+- Designers mix categorical, sequential, and diverging color logic in one chart.
+- Chart color often relies on hue alone, which weakens accessibility and makes legends harder to read.
+
+## Data Contract
 
 - Use only colors from `docs/chinese-color-master-list.md` and `docs/chinese-color-harmony.csv`.
-- Do not treat poster palettes as chart palettes. Chart colors need distinctness and semantic ordering.
-- For accessibility, do not rely on hue alone. Add label, order, pattern, stroke, or marker shape guidance when needed.
+- Do not treat all harmony colors as chart-ready; validate distinctness or ordering for the chart mode.
+- Do not rely on hue alone. Add label, order, pattern, stroke, marker shape, direct labeling, or interaction guidance when needed.
 
-## Palette Modes
+## Chart Mode Workflow
 
-- Categorical: unrelated categories, 3 to 12 colors.
-- Sequential: low to high values, ordered by lightness.
-- Diverging: negative to positive, two sides plus neutral midpoint.
-- Highlight: mostly neutral chart with one emphasized series.
-- Dashboard semantic: success, warning, danger, info, neutral, selected.
+1. Identify data meaning before picking colors:
+   - Categorical: unrelated groups.
+   - Sequential: low to high values.
+   - Diverging: two directions around a meaningful midpoint.
+   - Highlight: one or two emphasized series against quiet context.
+   - Dashboard semantic: success, warning, danger, info, selected, neutral.
+2. Choose selection criteria:
+   - Categorical: maximize hue and lightness separation.
+   - Sequential: monotonic lightness is more important than poetic harmony.
+   - Diverging: balance perceived strength on both sides and reserve a neutral midpoint.
+   - Highlight: keep background series quiet and the target unmistakable.
+3. Build the palette from project colors only.
+4. Add chart implementation details:
+   - Background/grid/axis color.
+   - Legend or direct labels.
+   - Hover and selection color.
+   - Missing data and disabled series.
+5. If requested, output ECharts, D3, Chart.js, or CSV arrays.
 
-## Workflow
+## Output Shape
 
-1. Identify chart type and data meaning.
-2. Choose palette mode from the list above.
-3. Select colors for separation or order:
-   - Categorical: avoid neighboring hues with similar lightness.
-   - Sequential: prioritize monotonic lightness.
-   - Diverging: balance perceived strength on both sides.
-   - Highlight: keep non-highlight colors quiet.
-4. Provide implementation output if requested: ECharts, D3 scale array, Chart.js colors, or CSV list.
-5. Add legend and label rules.
+- Data context: chart type, series count, background, data meaning.
+- Mode decision: categorical, sequential, diverging, highlight, or semantic.
+- Palette table: order or series, color name, HEX, role, reason.
+- Usage rules: legend, labels, grid, hover, selection, missing data.
+- Accessibility notes: where labels, markers, strokes, or patterns are required.
+- Optional code in the requested chart format.
 
-## Output
-
-Use this structure:
-
-- Data context: chart type, number of series, background.
-- Palette table: series/order, color name, HEX, role.
-- Usage rules: legend, labels, hover/selection, grid/background.
-- Accessibility notes: where labels, markers, or strokes are needed.
-- Optional code: ECharts/D3/Chart.js when requested.
-
-For charts with more than 12 categories, recommend grouping, sorting, or interaction instead of forcing too many colors.
+For charts with more than 12 categories, recommend grouping, sorting, filtering, or interaction rather than forcing more colors.

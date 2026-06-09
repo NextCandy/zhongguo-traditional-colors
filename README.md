@@ -32,20 +32,20 @@
 
 ## 中国传统色实战 Skills
 
-这些 skill 不是继续解释色彩理论，而是把 742 色清单和配色关系 CSV 转成设计师能直接使用的工作流：选色、落位、Token、无障碍、品牌规范、内容系列、图表和包装。
+这些 skill 不是继续解释色彩理论，而是把 742 色清单和配色关系 CSV 转成设计师能直接使用的工作流。每个 skill 都对应一个真实工作阻塞点：方向太虚、色板太多、落位困难、Token 交付、可读性、品牌治理、图表编码、旧稿迁移、系列内容和印刷生产。
 
 | Skill | 适合解决的问题 |
 | --- | --- |
-| [`xxd-color-brief`](skills/xxd-color-brief/SKILL.md) | 把“高级、东方、年轻、克制”这类模糊方向翻译成配色简报 |
-| [`xxd-palette-builder`](skills/xxd-palette-builder/SKILL.md) | 从色名、HEX、情绪或项目场景生成完整可用的主辅点缀色板 |
-| [`xxd-palette-applier`](skills/xxd-palette-applier/SKILL.md) | 告诉设计师每个颜色应该放在背景、标题、按钮、装饰还是信息层 |
-| [`xxd-ui-token`](skills/xxd-ui-token/SKILL.md) | 输出 CSS variables、Tailwind/Figma token、浅色和深色模式映射 |
-| [`xxd-accessible-color`](skills/xxd-accessible-color/SKILL.md) | 检查文字、按钮、图表和 UI 状态的对比度，并给出替换色 |
-| [`xxd-brand-system`](skills/xxd-brand-system/SKILL.md) | 建立可长期复用的品牌色彩规范、比例和禁用组合 |
-| [`xxd-data-viz`](skills/xxd-data-viz/SKILL.md) | 为分类图、连续色带、发散图和仪表盘生成传统色图表方案 |
-| [`xxd-existing-design-audit`](skills/xxd-existing-design-audit/SKILL.md) | 诊断已有设计稿或 HEX 清单，并映射到最接近的中国传统色 |
-| [`xxd-content-series`](skills/xxd-content-series/SKILL.md) | 为小红书、公众号、课程、视频封面等系列内容建立统一色彩系统 |
-| [`xxd-print-packaging`](skills/xxd-print-packaging/SKILL.md) | 面向包装、文创、印刷和实体材料规划传统色使用方式 |
+| [`xxd-color-brief`](skills/xxd-color-brief/SKILL.md) | 把“高级、东方、年轻、克制”这类模糊方向翻译成冷暖、明度、饱和度、对比和避坑约束 |
+| [`xxd-palette-builder`](skills/xxd-palette-builder/SKILL.md) | 从锚点色、HEX、情绪或场景中筛出少量可执行 palette，并分配主辅点缀和比例 |
+| [`xxd-palette-applier`](skills/xxd-palette-applier/SKILL.md) | 把一组颜色落到真实版面，决定背景、标题、正文、CTA、结构和装饰的位置 |
+| [`xxd-ui-token`](skills/xxd-ui-token/SKILL.md) | 把传统色变成 primitive、semantic、component、mode 四层 UI token 和代码输出 |
+| [`xxd-accessible-color`](skills/xxd-accessible-color/SKILL.md) | 用 WCAG ratio 检查文字、按钮、状态和图表，并用同库颜色修复失败组合 |
+| [`xxd-brand-system`](skills/xxd-brand-system/SKILL.md) | 为长期品牌建立锚点色、支撑色、比例、渠道规则、禁用组合和治理边界 |
+| [`xxd-data-viz`](skills/xxd-data-viz/SKILL.md) | 按分类、顺序、发散、高亮或语义状态生成图表色，而不是套海报色板 |
+| [`xxd-existing-design-audit`](skills/xxd-existing-design-audit/SKILL.md) | 盘点旧稿、CSS、Figma styles 或 HEX 清单，判断保留、合并、替换或移除 |
+| [`xxd-content-series`](skills/xxd-content-series/SKILL.md) | 为小红书、公众号、视频、课程和栏目建立固定层、变量层、模板层和轮换规则 |
+| [`xxd-print-packaging`](skills/xxd-print-packaging/SKILL.md) | 面向包装、书籍、文创、标签和实体材质规划用色，并提示 CMYK、材质和打样风险 |
 
 ## 全部色卡
 

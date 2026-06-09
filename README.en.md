@@ -32,20 +32,20 @@ The original image set is about 998 MB. The ZIP is distributed as a GitHub Relea
 
 ## Practical Chinese Color Skills
 
-These skills turn the 742-color list and harmony CSV into design workflows: briefs, palettes, placement rules, UI tokens, accessibility checks, brand systems, content series, data visualization, and print packaging.
+These skills turn the 742-color list and harmony CSV into practical design workflows. Each skill targets a distinct design blocker: fuzzy direction, too many palette choices, unclear placement, token handoff, readability, brand drift, chart encoding, legacy palette repair, content-series fatigue, and print uncertainty.
 
 | Skill | Use it for |
 | --- | --- |
-| [`xxd-color-brief`](skills/xxd-color-brief/SKILL.md) | Translate fuzzy visual direction into usable color constraints |
-| [`xxd-palette-builder`](skills/xxd-palette-builder/SKILL.md) | Build complete main/support/accent palettes from color names, HEX, mood, or project context |
-| [`xxd-palette-applier`](skills/xxd-palette-applier/SKILL.md) | Decide where each color belongs in a real layout |
-| [`xxd-ui-token`](skills/xxd-ui-token/SKILL.md) | Produce CSS variables, Tailwind/Figma tokens, and light/dark mappings |
-| [`xxd-accessible-color`](skills/xxd-accessible-color/SKILL.md) | Check contrast and repair weak text, button, chart, and UI state pairs |
-| [`xxd-brand-system`](skills/xxd-brand-system/SKILL.md) | Build reusable brand color rules, proportions, and forbidden combinations |
-| [`xxd-data-viz`](skills/xxd-data-viz/SKILL.md) | Create categorical, sequential, diverging, and dashboard chart palettes |
-| [`xxd-existing-design-audit`](skills/xxd-existing-design-audit/SKILL.md) | Audit existing HEX values or design screenshots and map them to Chinese traditional colors |
-| [`xxd-content-series`](skills/xxd-content-series/SKILL.md) | Create repeatable color systems for social, editorial, course, and video series |
-| [`xxd-print-packaging`](skills/xxd-print-packaging/SKILL.md) | Plan traditional color use for packaging, cultural products, and print materials |
+| [`xxd-color-brief`](skills/xxd-color-brief/SKILL.md) | Translate vague terms like premium, Eastern, young, or restrained into temperature, lightness, saturation, contrast, and risk constraints |
+| [`xxd-palette-builder`](skills/xxd-palette-builder/SKILL.md) | Filter anchor colors, HEX values, moods, or contexts into a small role-based palette with ratios |
+| [`xxd-palette-applier`](skills/xxd-palette-applier/SKILL.md) | Place colors into real layouts by deciding background, title, body, CTA, structure, and decoration roles |
+| [`xxd-ui-token`](skills/xxd-ui-token/SKILL.md) | Convert traditional colors into primitive, semantic, component, and mode-aware UI tokens |
+| [`xxd-accessible-color`](skills/xxd-accessible-color/SKILL.md) | Check text, button, state, and chart pairs with WCAG ratios and repair failures from the same color set |
+| [`xxd-brand-system`](skills/xxd-brand-system/SKILL.md) | Build brand anchors, support colors, ratios, channel rules, forbidden combinations, and governance boundaries |
+| [`xxd-data-viz`](skills/xxd-data-viz/SKILL.md) | Create chart colors by categorical, sequential, diverging, highlight, or semantic data meaning instead of poster palettes |
+| [`xxd-existing-design-audit`](skills/xxd-existing-design-audit/SKILL.md) | Inventory legacy screenshots, CSS, Figma styles, or HEX lists and decide what to keep, merge, replace, or remove |
+| [`xxd-content-series`](skills/xxd-content-series/SKILL.md) | Build fixed, variable, template, and rotation layers for social, editorial, course, and video series |
+| [`xxd-print-packaging`](skills/xxd-print-packaging/SKILL.md) | Plan packaging, books, cultural goods, labels, and physical materials with CMYK, substrate, and proofing risks |
 
 ## Full Gallery
 

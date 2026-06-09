@@ -1,52 +1,56 @@
 ---
 name: xxd-palette-builder
-description: Build complete practical palettes from the Chinese traditional color dataset. Use when a user needs a project-ready palette, main/support/accent colors, color ratios, alternate schemes, or wants to turn one Chinese traditional color, HEX, mood, brand, poster, UI, or packaging direction into usable color combinations.
+description: Build complete practical palettes from the Chinese traditional color dataset. Use when a user needs main, support, accent, neutral, ratio, harmony, or role-based palette options from a traditional color, HEX, mood, brand, poster, UI, packaging, or content direction.
 ---
 
 # xxd-palette-builder
 
-## Overview
+## Purpose
 
-Generate complete palettes from the 742-color dataset and harmony CSV. This is for choosing the actual colors, not explaining color theory.
+Use this skill when the problem is choice. The user may like one color, a mood, or a reference, but still needs a small number of usable palettes with clear roles and tradeoffs.
 
-## Data Rules
+## Pain Points This Solves
 
-- Load `docs/chinese-color-harmony.csv` first. Use its `主色`, `辅色`, `点缀色`, `同类色`, `邻近色`, `互补色`, `冷暖对照`, `明色搭配`, `暗色搭配`, `灰调搭配`, and `中性色搭配` columns.
-- Verify every recommended HEX exists in the current 742-color data. Do not invent derived tints.
-- For outside HEX input, map to the nearest listed color and label it as a match.
-- Prefer palette usefulness over showing every harmony type.
+- Designers get too many attractive swatches and still do not know which combination is safest.
+- Harmony tables are useful, but users need role assignment: main, support, neutral, accent, warning, and background.
+- Chinese traditional colors can become decorative quickly unless proportion and surface risk are decided early.
 
-## Palette Types
+## Data Contract
 
-Choose one type based on the user need:
+- Load `docs/chinese-color-harmony.csv` before recommending combinations.
+- Use the harmony columns selectively: `同类色`, `邻近色`, `互补色`, `分裂互补`, `三角色`, `四角色`, `冷暖对照`, `明色搭配`, `暗色搭配`, `灰调搭配`, `中性色搭配`, `主色`, `辅色`, and `点缀色`.
+- Every recommended HEX must exist in the current 742-color data.
+- If the user gives an outside HEX, map it to the nearest project color and say it is a match, not a source color.
+- Prefer one strong recommendation over showing every possible harmony relation.
 
-- Quiet system: neutral background, restrained main color, low-saturation support.
-- Expressive campaign: strong main color, clear accent, controlled contrast.
-- Editorial culture: paper-like background, ink-like text, one poetic accent.
-- Digital product: semantic roles, contrast-safe text/background pairs.
-- Premium packaging: deep base, metallic or warm accent, soft support.
+## Palette Decision Workflow
 
-## Workflow
+1. Classify the anchor:
+   - Existing color or HEX: preserve recognition first.
+   - Mood or adjectives: run a brief-like translation before picking.
+   - Surface: choose by use case, not by beauty alone.
+2. Pick a palette strategy:
+   - Reliability: adjacent, gray-toned, neutral, and high readability.
+   - Identity: one recognizable traditional anchor plus restrained support.
+   - Contrast: complementary or split-complementary only when the design needs energy.
+   - Series: stable neutrals plus rotating accents.
+3. Build 1 to 3 options, each with a job:
+   - Safe option: least likely to break layout or readability.
+   - Character option: strongest Chinese traditional signal.
+   - Contrast option: more memorable, higher risk.
+4. Assign roles before presenting colors. Never output unordered swatches.
+5. Add ratios and a usage warning for each option.
+6. Select one final recommendation unless the user explicitly wants alternatives.
 
-1. Identify the surface and risk: screen, print, social image, data viz, brand system, or packaging.
-2. Select one anchor color from the dataset.
-3. Build 2 or 3 palette options:
-   - Safe option: high usability, lower contrast drama.
-   - Character option: stronger Chinese traditional identity.
-   - Contrast option: more visual energy, only if the task needs it.
-4. Assign roles. Never output a palette as unordered swatches.
-5. Add proportions. Use concrete percentages.
-6. Include a "do not use like this" note for each palette.
+## Output Shape
 
-## Output
+For each palette:
 
-For each palette, provide:
+- Palette name and best use case.
+- Role table: role, color name, HEX, ratio, source relation, reason.
+- Surface notes: background, text, CTA, accent, border, decoration, or packaging panel.
+- Risk note: contrast, dark mode, print drift, over-saturation, cultural cliche, or weak hierarchy.
+- Final pick: one palette with why it wins.
+- Next skill: usually `xxd-palette-applier`, `xxd-ui-token`, `xxd-accessible-color`, or `xxd-print-packaging`.
 
-- Palette name.
-- Best use case.
-- Color table: role, color name, HEX, ratio, why.
-- Usage notes: background, title, body text, controls, accent, decoration.
-- Risk note: contrast, print drift, over-saturation, cultural cliche, or dark-mode issue.
-- Next skill suggestion: usually `xxd-palette-applier`, `xxd-ui-token`, or `xxd-accessible-color`.
-
-Keep the final recommendation to 1 palette unless the user asks for alternatives.
+Do not explain color theory unless it changes the recommendation.

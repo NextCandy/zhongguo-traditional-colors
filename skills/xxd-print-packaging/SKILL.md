@@ -1,49 +1,61 @@
 ---
 name: xxd-print-packaging
-description: Plan Chinese traditional color use for print, packaging, cultural products, and physical materials. Use when a user asks for packaging palettes, CMYK-aware color guidance, product series colors, print risk, material fit, shelf impact, gift boxes, labels, stationery, books, or cultural merchandise using Chinese traditional colors.
+description: Plan Chinese traditional color use for print, packaging, cultural products, and physical materials. Use when a user asks for packaging palettes, CMYK-aware guidance, product series colors, print risk, material fit, shelf impact, gift boxes, labels, stationery, books, or cultural merchandise.
 ---
 
 # xxd-print-packaging
 
-## Overview
+## Purpose
 
-Apply Chinese traditional colors to physical media where screen HEX is not enough. This skill focuses on packaging hierarchy, material behavior, CMYK risk, and series recognition.
+Use this skill when traditional colors must leave the screen. It should plan color for physical hierarchy, material behavior, production risk, and product-series recognition.
 
-## Data Rules
+## Pain Points This Solves
+
+- HEX colors do not guarantee printed results; CMYK conversion, spot color, substrate, coating, and lighting can change the look.
+- Packaging must balance shelf recognition, information hierarchy, variant systems, and small-type readability.
+- Cultural products often overuse "traditional" colors without production rules, making the result either dull or noisy.
+
+## Data Contract
 
 - Use only colors from `docs/chinese-color-master-list.md` and `docs/chinese-color-harmony.csv`.
-- Include HEX for digital reference and CMYK when available from the source color card or project data. If CMYK is unavailable, say it must be production-proofed.
+- Include HEX for digital reference.
+- Include CMYK only when available from the project data or user-provided production specs.
+- If CMYK or spot specifications are unavailable, say the color must be proofed with printer profiles or physical proofs.
 - Do not promise exact print output from HEX alone.
 
-## Workflow
+## Packaging Workflow
 
-1. Identify product context:
+1. Identify production context:
    - Category: food, tea, fragrance, book, cultural product, stationery, gift, apparel, cosmetics.
    - Price position: mass, boutique, premium, ceremonial.
-   - Material: paper, cloth, ceramic, metal, plastic, wood, glass.
+   - Material: uncoated paper, coated paper, cloth, ceramic, metal, plastic, wood, glass, label stock.
+   - Finish: matte, gloss, foil, emboss, deboss, spot UV, ink coverage.
    - Series count and shelf environment.
-2. Build packaging roles:
+2. Build physical color roles:
    - Large base.
    - Product identity color.
    - Information text.
-   - Seal/label/accent.
-   - Series variant color.
-3. Balance shelf impact and traditional restraint. Use vivid colors sparingly unless the category needs immediate attention.
-4. Add print cautions:
-   - Light colors losing contrast.
+   - Seal, label, or ceremonial accent.
+   - Variant or flavor color.
+   - Back/side-panel support.
+3. Balance shelf impact and restraint:
+   - Use vivid traditional colors sparingly unless the category requires fast recognition.
+   - Keep small text on stable, high-contrast pairs.
+   - Reserve high-cost finishes for identity or seal moments.
+4. Add production cautions:
+   - Pale colors losing contrast.
    - Dark colors filling in.
-   - Metallic or coated material shifts.
-   - Small text contrast.
-5. Provide proofing checklist.
+   - Coated and metallic shifts.
+   - Rich color fields showing banding or registration issues.
+   - Small type and barcode contrast.
+5. Provide proofing checklist before production.
 
-## Output
+## Output Shape
 
-Use this structure:
+- Packaging direction: category, price position, shelf strategy.
+- Palette table: role, color name, HEX, ratio, material note, proofing risk.
+- Panel plan: front, back, side, label, seal, variant.
+- Series extension: how variants change while the master identity stays fixed.
+- Production checklist: contrast, small type, material, finish, lighting, printer profile, proof approval.
 
-- Packaging direction: category and shelf strategy.
-- Palette table: role, color name, HEX, suggested ratio, material note.
-- Front/back/side panel usage.
-- Series extension rules.
-- Print proof checklist: contrast, small type, material, finish, lighting.
-
-Always say that final print color must be checked with proofs or printer profiles before production.
+Always state that final print color must be checked through proofs or printer profiles before production.

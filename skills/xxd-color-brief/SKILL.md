@@ -1,46 +1,57 @@
 ---
 name: xxd-color-brief
-description: Turn vague visual direction into a practical Chinese traditional color brief. Use when a user asks for Chinese traditional color direction, mood translation, project color positioning, or help converting words like 高级、东方、年轻、科技感、温柔、克制 into usable palette constraints before choosing colors.
+description: Turn vague visual direction into a practical Chinese traditional color brief. Use when a user has mood words, client feedback, audience positioning, references, or an unclear Chinese traditional color direction that must become palette constraints before choosing colors.
 ---
 
 # xxd-color-brief
 
-## Overview
+## Purpose
 
-Create a decision-ready color brief before generating palettes. The output should help a designer understand what kind of Chinese traditional colors to use, what to avoid, and which palette workflow to run next.
+Use this skill before picking colors. Its job is to turn soft language like "高级", "东方", "年轻", "克制", "松弛", "科技感", or "不要太俗" into a brief that a designer can defend and reuse.
 
-## Data Rules
+## Pain Points This Solves
+
+- Stakeholders use adjectives, references, or dislikes, but the designer needs concrete color constraints.
+- Moodboards create alignment, but they often stop before deciding hue, brightness, saturation, contrast, and usage risk.
+- Teams jump into swatches too early and later argue because the success criteria were never named.
+
+## Data Contract
 
 - Use only colors traceable to `docs/chinese-color-master-list.md` and `docs/chinese-color-harmony.csv`.
-- When recommending a starting color, include color name, HEX, and why it matches the brief.
-- If user input includes a HEX value outside the 742-color set, map it to the closest traditional colors and say it is a mapping, not a new source color.
+- Starting colors must include color name, HEX, and the reason they fit the brief.
+- If the user provides an outside HEX, map it to the nearest project color and label it as a mapping.
+- Do not produce a full palette unless the user explicitly asks; route to the next skill instead.
 
-## Workflow
+## Briefing Workflow
 
-1. Extract the real design job: brand, UI, poster, data, content series, packaging, or audit.
-2. Translate adjectives into constraints: mood, temperature, contrast, saturation, brightness, and risk.
-3. Choose 3 to 5 starting colors from the 742-color set. Prefer colors with enough contrast and clear role potential.
-4. State what not to use. Avoid broad warnings; name the actual color family or usage risk.
-5. Route the user to the next skill:
-   - Palette generation: `xxd-palette-builder`
-   - Placement rules: `xxd-palette-applier`
-   - UI tokens: `xxd-ui-token`
-   - Accessibility: `xxd-accessible-color`
-   - Brand system: `xxd-brand-system`
-   - Data visualization: `xxd-data-viz`
-   - Existing design diagnosis: `xxd-existing-design-audit`
-   - Content series: `xxd-content-series`
-   - Print and packaging: `xxd-print-packaging`
+1. Identify the job behind the words: brand, UI, poster, data visualization, content series, packaging, or audit.
+2. Translate each adjective into observable constraints:
+   - Temperature: warm, cool, neutral, or controlled contrast.
+   - Lightness: pale, mid, deep, or high-contrast.
+   - Saturation: muted, clean, vivid, gray-toned, or ceremonial.
+   - Cultural signal: historical, editorial, product, youthful, premium, festive, technical.
+   - Risk: cliche, low readability, too decorative, too flat, too commercial, too nostalgic.
+3. Detect conflicts. For example, "年轻又古典" needs a modern neutral base plus one traditional accent, not an all-antique palette.
+4. Choose 3 to 5 starting colors from the 742-color set, each with a role hypothesis.
+5. Name the avoid list as concrete color families, contrast levels, or usage patterns.
+6. Route the next step:
+   - Need actual color combinations: `xxd-palette-builder`
+   - Need placement on a layout: `xxd-palette-applier`
+   - Need UI variables: `xxd-ui-token`
+   - Need contrast repair: `xxd-accessible-color`
+   - Need long-term brand rules: `xxd-brand-system`
+   - Need charts: `xxd-data-viz`
+   - Need to repair existing work: `xxd-existing-design-audit`
+   - Need repeated content: `xxd-content-series`
+   - Need physical production: `xxd-print-packaging`
 
-## Output
+## Output Shape
 
-Use this structure:
+- Brief name: one project-facing phrase.
+- Design decision: 2 to 4 sentences explaining the color direction in plain Chinese.
+- Constraint table: mood word, translated color constraint, risk if misread.
+- Starting colors: role hypothesis, color name, HEX, why it belongs.
+- Avoid list: 2 to 4 concrete exclusions.
+- Next move: one recommended skill and what it should produce.
 
-- Brief name: one short project-facing phrase.
-- Visual position: 2 to 4 sentences in plain Chinese.
-- Color constraints: temperature, contrast, saturation, brightness, usage risk.
-- Starting colors: 3 to 5 rows with role, color name, HEX, reason.
-- Avoid: 2 to 4 concrete avoidances.
-- Next action: name the next skill and what it should produce.
-
-Keep it short. This skill defines direction; it does not produce a full palette unless the user explicitly asks for one.
+If the user only provides a mood word with no surface, state the missing surface and give a provisional brief instead of blocking.

@@ -1,57 +1,57 @@
 ---
 name: xxd-ui-token
-description: Convert Chinese traditional colors into practical UI design tokens. Use when a user asks for CSS variables, Tailwind theme colors, Figma tokens, light and dark mode mapping, semantic UI roles, component color rules, or developer handoff based on Chinese traditional colors.
+description: Convert Chinese traditional colors into practical UI design tokens. Use when a user asks for CSS variables, Tailwind theme colors, Figma variables, light and dark modes, semantic color roles, component states, or designer developer handoff based on Chinese traditional colors.
 ---
 
 # xxd-ui-token
 
-## Overview
+## Purpose
 
-Turn Chinese traditional colors into semantic UI tokens that designers and developers can actually use. This skill is for product interfaces, websites, tools, dashboards, and design systems.
+Use this skill when traditional colors need to enter a product interface or design system. The output must be usable by both designers and developers, not just look poetic.
 
-## Data Rules
+## Pain Points This Solves
+
+- Teams hand off HEX values without semantic roles, so developers hardcode colors inconsistently.
+- Primitive colors and component states get mixed together, making dark mode and future redesigns brittle.
+- Chinese traditional colors often need accessible, restrained UI mapping instead of decorative naming.
+
+## Data Contract
 
 - Use only project colors from `docs/chinese-color-master-list.md` and `docs/chinese-color-harmony.csv`.
-- Do not synthesize tints or alpha variants as standalone colors unless the user explicitly requests derived UI states.
-- When contrast is uncertain, route to `xxd-accessible-color` or calculate contrast before claiming a text/background pair is safe.
+- Do not synthesize tints or alpha variants as standalone source colors unless the user explicitly asks for derived states.
+- When contrast is uncertain, calculate it or route to `xxd-accessible-color` before claiming safety.
+- Keep traditional color names as metadata; token names should be semantic.
 
-## Token Model
+## Token Architecture
 
-Use semantic roles instead of decorative names:
+Create tokens in layers:
 
-- `color.bg.canvas`
-- `color.bg.surface`
-- `color.bg.subtle`
-- `color.text.primary`
-- `color.text.secondary`
-- `color.text.inverse`
-- `color.border.default`
-- `color.action.primary`
-- `color.action.hover`
-- `color.action.active`
-- `color.focus`
-- `color.accent`
-- `color.danger`, `color.warning`, `color.success`, `color.info` only when needed
+- Primitive reference: `color.ref.ruban`, `color.ref.yuebai`, or similar project-color aliases.
+- Semantic role: `color.bg.canvas`, `color.text.primary`, `color.action.primary`.
+- Component role: `button.primary.bg`, `input.border.focus`, `tag.selected.bg` only when requested.
+- Mode mapping: light and dark values point to project colors, not inverted values.
 
 ## Workflow
 
-1. Identify interface type: content site, SaaS, dashboard, creative tool, mobile app, or marketing page.
-2. Choose light-mode tokens first. Avoid large dark blocks unless the product needs strong editorial contrast.
-3. Create dark-mode equivalents using colors from the dataset, not inverted values.
-4. Define component usage for buttons, links, cards, inputs, selection, focus, and alerts.
-5. Output code in the requested format:
+1. Identify interface context: content site, SaaS, dashboard, tool, mobile app, marketing page, or documentation.
+2. Decide token scope:
+   - Starter theme: core background, text, action, border, focus.
+   - Product theme: states, alerts, selection, charts, overlays.
+   - Migration: map existing CSS/Figma colors to semantic tokens first.
+3. Build light mode around readability and white or pale canvas unless the product needs strong editorial contrast.
+4. Build dark mode as its own mapping using project colors; do not invert.
+5. Define state behavior for hover, active, selected, disabled, focus, success, warning, danger, and info only when needed.
+6. Output in the requested format:
    - CSS variables by default.
-   - Tailwind config if the user mentions Tailwind.
-   - Figma token JSON if the user mentions Figma or design tokens.
-6. Include a contrast warning list for any pair that needs verification.
+   - Tailwind config when Tailwind is named.
+   - Figma variables or token JSON when Figma/design tokens are named.
 
-## Output
+## Output Shape
 
-Default output:
+- Token table: token, light value, dark value, Chinese color name, source role.
+- Code block in the requested format.
+- Component map: button, link, surface, input, selection, focus, alerts.
+- Handoff notes: which tokens are stable, which are optional, and which pairs need contrast verification.
+- Migration notes when the user provides existing colors.
 
-- Token table: token, light value, dark value, Chinese color name, role.
-- CSS variables block.
-- Component map: button, link, card/surface, input, selection, focus.
-- Notes: accessibility risks, dark-mode risks, and where not to use accent colors.
-
-Do not name tokens after visual intent like `ancient-red` or `pretty-blue` unless also providing semantic aliases.
+Avoid names like `ancient-red` as final tokens unless they are only primitive references with semantic aliases above them.

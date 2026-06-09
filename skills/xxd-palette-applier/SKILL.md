@@ -1,46 +1,56 @@
 ---
 name: xxd-palette-applier
-description: Apply Chinese traditional color palettes to concrete design surfaces. Use when a user already has colors or a palette and asks where each color should go in a poster, webpage, landing page, card, packaging layout, PPT page, social cover, editorial layout, or visual system.
+description: Apply Chinese traditional color palettes to concrete design surfaces. Use when a user has colors but needs placement rules for a poster, webpage, landing page, app screen, card, packaging layout, PPT, social cover, editorial page, or visual system.
 ---
 
 # xxd-palette-applier
 
-## Overview
+## Purpose
 
-Convert a palette into placement rules. The goal is to remove the common gap between "these colors are good" and "I know how to use them in the layout."
+Use this skill after a palette exists. Its job is to decide where each color goes, how much area it gets, and what it is not allowed to do.
 
-## Data Rules
+## Pain Points This Solves
+
+- A palette looks good as swatches but fails once placed into a real layout.
+- Designers often overuse the most beautiful color, making CTA, title, decoration, and background compete.
+- Different surfaces need different placement logic; a poster rule should not be copied directly into a UI or PPT deck.
+
+## Data Contract
 
 - Use project colors from `docs/chinese-color-master-list.md` and `docs/chinese-color-harmony.csv`.
-- If the palette came from another source, map its HEX values to the nearest project colors before giving final recommendations.
-- Do not introduce extra colors unless the user asks for repair; if repair is needed, explain the replacement.
+- If a palette came from outside the project, map its HEX values to nearest traditional colors before final placement.
+- Do not add colors unless repairing a real failure; explain every replacement.
+- If the user provides a screenshot or layout description, diagnose the current hierarchy before suggesting placement.
 
-## Workflow
+## Surface-Specific Workflow
 
-1. Identify the surface: UI, poster, PPT, packaging, editorial, content cover, or landing page.
-2. Group the colors into roles:
-   - Ground: background and large quiet fields.
-   - Content: title, body, labels, captions.
-   - Action: button, link, CTA, selected state.
-   - Rhythm: dividers, blocks, secondary surfaces.
-   - Detail: ornament, number, badge, highlight.
-3. Define hierarchy. Assign the highest-contrast pair to the most important message.
-4. Define proportional use:
+1. Identify the surface and the primary reading path:
+   - Poster or cover: first glance, title, secondary text, signature/detail.
+   - Website or app: canvas, surface, text, action, state, focus.
+   - PPT or editorial: page rhythm, headline, body, callout, diagram.
+   - Packaging: front panel, product name, variant, legal text, seal, side panel.
+2. Convert colors into job roles:
+   - Ground: large quiet fields.
+   - Content: title, body, label, caption.
+   - Action: CTA, link, selected state, active object.
+   - Rhythm: section bands, dividers, cards, repeated structure.
+   - Detail: ornament, number, badge, stamp, small highlight.
+3. Set a hierarchy ladder. The strongest contrast belongs to the most important message, not the prettiest color.
+4. Assign area ratios:
    - Large field: 50% to 75%.
-   - Content and structure: 15% to 35%.
+   - Structure and content: 15% to 35%.
    - Accent: 3% to 10%.
-   - Point detail: under 3%.
-5. Provide layout-specific instructions. Do not stop at generic role names.
-6. Flag misuse: low contrast body text, too many accents, large-area vivid colors, or decorative colors competing with CTA.
+   - Detail: under 3%.
+5. Add placement constraints for the specific surface.
+6. List the misuse cases that would break the design.
 
-## Output
+## Output Shape
 
-Use this structure:
+- Surface diagnosis: what this layout needs from color.
+- Role map: role, color name, HEX, component or area, ratio.
+- Reading path: where the eye lands first, second, third.
+- Placement rules: surface-specific instructions, not generic color labels.
+- Misuse checklist: 3 concrete failures to avoid.
+- Follow-up: accessibility, token, brand, or print skill if needed.
 
-- Surface diagnosis: what this design surface needs from color.
-- Role map: table of role, color name, HEX, component/area, ratio.
-- Composition rule: where the eye should land first, second, third.
-- Interaction or print note when relevant.
-- Misuse checklist: 3 concrete things to avoid.
-
-If the user provides a screenshot or design file description, start with the current hierarchy problem before recommending placement.
+If the palette cannot safely support the requested layout, say which role is missing before inventing fixes.
