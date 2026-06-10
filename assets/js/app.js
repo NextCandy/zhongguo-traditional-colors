@@ -725,6 +725,18 @@ function bestContrastColor(colors, background, used, minimum = 3) {
   return ranked.find((item) => item.contrast >= minimum)?.color || ranked[0]?.color || null;
 }
 
+function firstReadableColor(colors, background, used, minimum = 4.5) {
+  return uniqueDisplayColors(colors).find((color) => (
+    !used.has(styleColorKey(color)) && styleColorContrast(color, background) >= minimum
+  )) || null;
+}
+
+function readableRelationKeysForBackground(background) {
+  return styleColorLuminance(background) < 0.36
+    ? ['lighter', 'neutral', 'same', 'analogous', 'temperatureContrast', 'grayTone']
+    : ['darker', 'neutral', 'grayTone', 'complementary', 'splitComplementary', 'triadic', 'temperatureContrast'];
+}
+
 function createStyleLabScheme(anchorImage = currentStyleAnchorImage, modeKey = currentStyleLabModeKey) {
   anchorImage ||= randomColorItems(1)[0] || images.find((image) => image.hex);
   if (!anchorImage) return null;
@@ -737,39 +749,40 @@ function createStyleLabScheme(anchorImage = currentStyleAnchorImage, modeKey = c
   const relationColors = modeColors.length
     ? modeColors
     : relationDisplayColors(harmony, ['accent', 'complementary', 'analogous', 'same']);
-  const used = new Set([styleColorKey(anchor)]);
+  const used = new Set();
 
-  const backgroundCandidates = [
-    ...relationDisplayColors(harmony, ['lighter', 'neutral', 'grayTone', 'same']),
-    ...sortedStyleColors(allColors, 'light'),
-  ];
-  const background = firstUnusedColor(
-    sortedStyleColors(backgroundCandidates, 'light'),
-    used,
-    (color) => styleColorLuminance(color) >= 0.58,
-  ) || sortedStyleColors(backgroundCandidates, 'light')[0] || anchor;
+  const background = anchor;
   used.add(styleColorKey(background));
 
+  const readableRelationKeys = readableRelationKeysForBackground(background);
   const coloredTextCandidates = styleColoredColors([
     ...relationColors,
-    ...relationDisplayColors(harmony, ['darker', 'complementary', 'splitComplementary', 'triadic', 'temperatureContrast']),
-    ...allColors,
+    ...relationDisplayColors(harmony, readableRelationKeys),
+    ...relationDisplayColors(harmony, ['darker', 'lighter', 'neutral', 'grayTone', 'same']),
   ]);
 
-  const title = bestContrastColor(coloredTextCandidates, background, used, 4.5) || bestContrastColor([
-    ...relationDisplayColors(harmony, ['darker', 'neutral', 'grayTone', 'complementary']),
-    ...sortedStyleColors(allColors, 'dark'),
-  ], background, used, 4.5) || anchor;
+  const titleCandidatePool = [
+    ...coloredTextCandidates,
+    ...relationDisplayColors(harmony, readableRelationKeys),
+    ...relationColors,
+    ...allColors,
+  ];
+  const title = firstReadableColor(titleCandidatePool, background, used, 4.5)
+    || firstReadableColor(titleCandidatePool, background, used, 3)
+    || bestContrastColor(titleCandidatePool, background, used, 0)
+    || anchor;
   used.add(styleColorKey(title));
 
-  const body = bestContrastColor([
-    ...styleColoredColors([
-      ...relationDisplayColors(harmony, ['darker', 'grayTone', 'neutral', 'same']),
-      ...relationColors,
-    ]),
+  const bodyCandidatePool = [
+    ...relationDisplayColors(harmony, readableRelationKeys),
+    ...styleColoredColors(relationColors),
     ...relationDisplayColors(harmony, ['darker', 'neutral', 'grayTone']),
-    ...sortedStyleColors(allColors, 'dark'),
-  ], background, used, 3) || title;
+    ...allColors,
+  ];
+  const body = firstReadableColor(bodyCandidatePool, background, used, 4.5)
+    || firstReadableColor(bodyCandidatePool, background, used, 3)
+    || bestContrastColor(bodyCandidatePool, background, used, 0)
+    || title;
   used.add(styleColorKey(body));
 
   const support = anchor;
