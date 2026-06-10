@@ -1105,6 +1105,164 @@ select:focus-visible,
   line-height: 1.78;
 }
 
+.style-lab-mode {
+  display: grid;
+  gap: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--line);
+}
+
+.style-mode-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+}
+
+.style-mode-button {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  min-height: 58px;
+  align-content: center;
+  padding: 10px 12px;
+  color: var(--ink);
+  text-align: left;
+  background: var(--paper);
+  border: 0;
+  cursor: pointer;
+  transition: background 160ms ease, color 160ms ease, transform 180ms var(--ease-out-quart);
+}
+
+.style-mode-button:hover,
+.style-mode-button:focus-visible,
+.style-mode-button[aria-pressed="true"] {
+  color: var(--hover-text);
+  background: var(--hover-bg);
+  outline: none;
+}
+
+.style-mode-button:hover,
+.style-mode-button:focus-visible {
+  transform: translateY(-1px);
+}
+
+.style-mode-button strong,
+.style-mode-button span {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.style-mode-button strong {
+  font-size: 0.86rem;
+  font-weight: 800;
+}
+
+.style-mode-button span {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.style-mode-button:hover span,
+.style-mode-button:focus-visible span,
+.style-mode-button[aria-pressed="true"] span {
+  color: color-mix(in srgb, var(--hover-text) 72%, transparent);
+}
+
+.style-mode-summary {
+  min-height: 3.4em;
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.82rem;
+  line-height: 1.65;
+}
+
+.style-mode-preview {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  background: var(--line);
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.style-mode-color {
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr);
+  gap: 4px 10px;
+  align-items: center;
+  min-width: 0;
+  min-height: 54px;
+  padding: 9px 10px;
+  color: var(--ink);
+  text-align: left;
+  background: var(--paper);
+  border: 0;
+  cursor: pointer;
+  transition: background 160ms ease, color 160ms ease, transform 180ms var(--ease-out-quart);
+}
+
+.style-mode-color:hover,
+.style-mode-color:focus-visible {
+  color: var(--hover-text);
+  background: var(--hover-bg);
+  outline: none;
+  transform: translateY(-1px);
+}
+
+.style-mode-color > span {
+  grid-row: span 2;
+  width: 20px;
+  height: 30px;
+  background: var(--mode-color);
+  border: 1px solid color-mix(in srgb, var(--ink) 18%, transparent);
+}
+
+.style-mode-color:hover > span,
+.style-mode-color:focus-visible > span {
+  border-color: color-mix(in srgb, var(--hover-text) 42%, transparent);
+}
+
+.style-mode-color strong,
+.style-mode-color em {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.style-mode-color strong {
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.style-mode-color em {
+  color: var(--muted);
+  font-family: var(--font-rounded);
+  font-size: 0.72rem;
+  font-style: normal;
+  font-weight: 500;
+}
+
+.style-mode-color:hover em,
+.style-mode-color:focus-visible em {
+  color: color-mix(in srgb, var(--hover-text) 78%, transparent);
+}
+
+.style-mode-empty {
+  grid-column: 1 / -1;
+  padding: 12px 0;
+  color: var(--muted);
+  background: var(--paper);
+  font-size: 0.78rem;
+  line-height: 1.6;
+}
+
 .style-lab-actions {
   display: grid;
   gap: 8px;
@@ -4133,6 +4291,10 @@ select:focus-visible,
     align-items: end;
   }
 
+  .style-lab-mode {
+    grid-column: 1 / -1;
+  }
+
   .style-lab-label {
     grid-column: 1;
   }
@@ -4143,7 +4305,7 @@ select:focus-visible,
 
   .style-lab-control > p {
     grid-column: 2;
-    grid-row: 1 / span 2;
+    grid-row: 2 / span 2;
   }
 
   .style-lab-actions {
@@ -4571,6 +4733,7 @@ select:focus-visible,
   }
 
   .style-lab-label,
+  .style-lab-mode,
   .style-lab-control > strong,
   .style-lab-control > p,
   .style-lab-actions,

@@ -35,7 +35,7 @@
       </a>
       <nav class="site-nav" id="site-nav" aria-label="主导航">
         <a href="#gallery">浏览色卡</a>
-        <a href="#style-lab">样式间</a>
+        <a href="#style-lab">配色应用</a>
         <button type="button" data-open-master-list aria-label="打开完整色值清单">完整清单</button>
         <a href="#download">下载 ZIP</a>
         <a href="#knowledge">怎么用</a>
@@ -161,24 +161,30 @@
 
       <section class="style-lab-section" id="style-lab" aria-labelledby="style-lab-title">
         <div class="section-heading">
-          <span class="section-kicker">样式间</span>
-          <h2 id="style-lab-title">把传统色放进真实封面排版</h2>
-          <p>五种常见内容封面样式，用同一组传统色自动套入背景、标题、辅助和点缀角色。适合快速判断一组颜色能不能落到真实内容里。</p>
+          <span class="section-kicker">配色应用</span>
+          <h2 id="style-lab-title">先选配色逻辑，再应用到真实封面</h2>
+          <p>这里直接读取已生成的配色关系数据。先选择同类、邻近、互补等模式，再把当前主色和关系色应用到封面样式里。</p>
         </div>
 
         <div class="style-lab-workbench">
-          <aside class="style-lab-control" aria-label="样式间控制台">
-            <span class="style-lab-label">当前配色</span>
+          <aside class="style-lab-control" aria-label="配色应用控制台">
+            <div class="style-lab-mode">
+              <span class="style-lab-label">01 选择配色逻辑</span>
+              <div class="style-mode-grid" data-style-mode-list aria-label="选择配色逻辑"></div>
+              <p class="style-mode-summary" data-style-mode-summary></p>
+              <div class="style-mode-preview" data-style-mode-colors aria-label="当前配色逻辑的关系色"></div>
+            </div>
+            <span class="style-lab-label">02 应用到当前主色</span>
             <strong data-style-anchor>正在读取色库</strong>
-            <p>换一组会同时更新下面五张样式卡。复制方案时会带走颜色角色、色名、HEX 和排版结构。</p>
+            <p>选择模式后会立即应用到右侧样式卡。换主色会保留当前配色逻辑，从同一套关系数据重新取色。</p>
             <div class="style-lab-actions">
               <button class="button button-primary" type="button" data-style-refresh>
                 <iconify-icon icon="lucide:shuffle" aria-hidden="true"></iconify-icon>
-                换一组配色
+                换主色
               </button>
               <button class="button button-secondary" type="button" data-style-copy-all>
                 <iconify-icon icon="lucide:copy" aria-hidden="true"></iconify-icon>
-                复制当前方案
+                复制应用方案
               </button>
               <button class="button button-secondary" type="button" data-style-copy-css>
                 <iconify-icon icon="lucide:braces" aria-hidden="true"></iconify-icon>

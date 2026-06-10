@@ -16,6 +16,9 @@ const styleStatus = document.querySelector('[data-style-status]');
 const styleAnchor = document.querySelector('[data-style-anchor]');
 const stylePalette = document.querySelector('[data-style-palette]');
 const styleReadiness = document.querySelector('[data-style-readiness]');
+const styleModeList = document.querySelector('[data-style-mode-list]');
+const styleModeSummary = document.querySelector('[data-style-mode-summary]');
+const styleModeColors = document.querySelector('[data-style-mode-colors]');
 const heroMosaic = document.querySelector('[data-hero-mosaic]');
 const searchInput = document.querySelector('[data-search]');
 const hueFilter = document.querySelector('[data-hue-filter]');
@@ -186,8 +189,81 @@ const HARMONY_RELATION_TYPES = [
 const STYLE_LAB_ROLES = [
   { key: 'background', label: '背景色', use: '铺底和留白', ratio: '70%' },
   { key: 'title', label: '标题色', use: '主标题和正文重点', ratio: '20%' },
-  { key: 'support', label: '辅助色', use: '说明、分隔和层次', ratio: '8%' },
-  { key: 'accent', label: '点缀色', use: '按钮、标签和视觉焦点', ratio: '2%' },
+  { key: 'support', label: '主色', use: '品牌、主视觉和系列识别', ratio: '8%' },
+  { key: 'accent', label: '关系色', use: '由所选配色逻辑推导', ratio: '2%' },
+];
+
+const STYLE_LAB_MODES = [
+  {
+    key: 'same',
+    label: '同类',
+    intent: '统一',
+    relationKeys: ['same'],
+    summary: '适合整套内容保持统一气质，风险最低。',
+  },
+  {
+    key: 'analogous',
+    label: '邻近',
+    intent: '柔和',
+    relationKeys: ['analogous'],
+    summary: '适合需要有变化但不跳脱的封面和系列图。',
+  },
+  {
+    key: 'complementary',
+    label: '互补',
+    intent: '强调',
+    relationKeys: ['complementary'],
+    summary: '适合标题、按钮、价格、日期等需要被看见的位置。',
+  },
+  {
+    key: 'splitComplementary',
+    label: '分裂互补',
+    intent: '稳对比',
+    relationKeys: ['splitComplementary'],
+    summary: '适合既要对比，又不希望画面过于生硬的内容。',
+  },
+  {
+    key: 'triadic',
+    label: '三角',
+    intent: '系列',
+    relationKeys: ['triadic'],
+    summary: '适合多张封面、活动系列、栏目包装和多色主题。',
+  },
+  {
+    key: 'tetradic',
+    label: '四角',
+    intent: '多层级',
+    relationKeys: ['tetradic'],
+    summary: '适合信息层级较多的海报、课程和专题页。',
+  },
+  {
+    key: 'temperatureContrast',
+    label: '冷暖',
+    intent: '情绪差',
+    relationKeys: ['temperatureContrast'],
+    summary: '适合制造冷暖情绪对照，比如温暖主体配冷静信息。',
+  },
+  {
+    key: 'lightDark',
+    label: '明暗',
+    intent: '层次',
+    relationKeys: ['lighter', 'darker'],
+    summary: '适合先解决背景、标题和可读性，再做少量点缀。',
+  },
+  {
+    key: 'grayTone',
+    label: '灰调',
+    intent: '降噪',
+    relationKeys: ['grayTone'],
+    summary: '适合长文、课件、资料型内容，降低颜色噪声。',
+  },
+  {
+    key: 'neutral',
+    label: '中性',
+    intent: '留白',
+    relationKeys: ['neutral'],
+    summary: '适合背景、边界、版式结构和克制的品牌表达。',
+  },
 ];
 
 const STYLE_LAB_TEMPLATES = [
@@ -254,6 +330,8 @@ const STYLE_LAB_TEMPLATES = [
 ];
 
 let currentStyleLabScheme;
+let currentStyleAnchorImage;
+let currentStyleLabModeKey = 'complementary';
 
 function formatBytes(bytes) {
   const units = ['B', 'KB', 'MB', 'GB'];
@@ -617,6 +695,14 @@ function relationDisplayColors(harmony, keys) {
   return uniqueDisplayColors(keys.flatMap((key) => harmony[key] || []));
 }
 
+function styleLabMode(key = currentStyleLabModeKey) {
+  return STYLE_LAB_MODES.find((mode) => mode.key === key) || STYLE_LAB_MODES[0];
+}
+
+function styleLabRelationColors(harmony, mode = styleLabMode()) {
+  return relationDisplayColors(harmony, mode.relationKeys);
+}
+
 function sortedStyleColors(colors, direction = 'light') {
   const multiplier = direction === 'dark' ? 1 : -1;
   return [...colors].sort((first, second) => (
@@ -643,13 +729,15 @@ function bestContrastColor(colors, background, used, minimum = 3) {
   return ranked.find((item) => item.contrast >= minimum)?.color || ranked[0]?.color || null;
 }
 
-function createStyleLabScheme() {
-  const anchorImage = randomColorItems(1)[0] || images.find((image) => image.hex);
+function createStyleLabScheme(anchorImage = currentStyleAnchorImage, modeKey = currentStyleLabModeKey) {
+  anchorImage ||= randomColorItems(1)[0] || images.find((image) => image.hex);
   if (!anchorImage) return null;
 
   const allColors = allDisplayColors();
   const anchor = displayColorFromImage(anchorImage);
   const harmony = harmonyForImage(anchorImage);
+  const mode = styleLabMode(modeKey);
+  const modeColors = styleLabRelationColors(harmony, mode);
   const used = new Set();
 
   const backgroundCandidates = [
@@ -669,22 +757,29 @@ function createStyleLabScheme() {
   ], background, used, 4.5) || anchor;
   used.add(styleColorKey(title));
 
-  const support = bestContrastColor([
-    ...relationDisplayColors(harmony, ['analogous', 'same', 'splitComplementary', 'grayTone']),
-    ...allColors,
-  ], background, used, 2.35) || title;
-  used.add(styleColorKey(support));
-
-  const accent = (!used.has(styleColorKey(anchor)) && styleColorContrast(anchor, background) >= 2.1)
+  const support = (!used.has(styleColorKey(anchor)) && styleColorContrast(anchor, background) >= 2)
     ? anchor
     : bestContrastColor([
-      ...relationDisplayColors(harmony, ['complementary', 'splitComplementary', 'triadic', 'temperatureContrast']),
+      ...modeColors,
+      ...relationDisplayColors(harmony, ['analogous', 'same', 'splitComplementary', 'grayTone']),
+      ...allColors,
+    ], background, used, 2.35) || title;
+  used.add(styleColorKey(support));
+
+  const accent = firstUnusedColor(modeColors, used, (color) => styleColorContrast(color, background) >= 1.25)
+    || firstUnusedColor(modeColors, used)
+    || bestContrastColor([
+      ...relationDisplayColors(harmony, ['accent', 'complementary', 'splitComplementary', 'triadic', 'temperatureContrast']),
       anchor,
       ...allColors,
-    ], background, used, 2.6) || support;
+    ], background, used, 2.1)
+    || support;
 
   return {
     anchor,
+    anchorImage,
+    mode,
+    modeColors: modeColors.slice(0, 4),
     roles: {
       background,
       title,
@@ -706,7 +801,10 @@ function styleLabSchemeText(scheme) {
 
 function styleTemplateCopyText(template, scheme) {
   return [
-    `样式名称：${template.label}`,
+    `应用样式：${template.label}`,
+    `配色逻辑：${scheme.mode.label}（${scheme.mode.intent}）`,
+    `主色：${scheme.anchor.name} ${scheme.anchor.hex}`,
+    `关系色：${styleLabModeColorText(scheme)}`,
     `适用场景：${template.scene}`,
     `建议尺寸：${template.size}`,
     `版式骨架：${template.layout}`,
@@ -722,8 +820,10 @@ function styleLabCopyText() {
   if (!currentStyleLabScheme) return '';
 
   return [
-    '中国传统色样式间',
+    '中国传统色配色应用方案',
     `主色来源：${currentStyleLabScheme.anchor.name} ${currentStyleLabScheme.anchor.hex}`,
+    `配色逻辑：${currentStyleLabScheme.mode.label}（${currentStyleLabScheme.mode.intent}）`,
+    `关系色：${styleLabModeColorText(currentStyleLabScheme)}`,
     `标题可读性：${styleLabContrastLabel(currentStyleLabScheme)}，适合直接放主标题；仍建议按实际字号复核。`,
     '',
     '当前配色角色：',
@@ -735,6 +835,12 @@ function styleLabCopyText() {
     'CSS 变量：',
     styleLabCssVariables(currentStyleLabScheme),
   ].join('\n');
+}
+
+function styleLabModeColorText(scheme) {
+  return scheme.modeColors.length
+    ? scheme.modeColors.map((color) => `${color.name} ${color.hex}`).join(' / ')
+    : '当前主色没有可用关系色，已使用色库兜底方案';
 }
 
 function styleLabContrastValue(scheme) {
@@ -749,10 +855,12 @@ function styleLabCssVariables(scheme) {
   const roleColor = (key) => scheme.roles[key];
 
   return [
+    `--ctc-mode: ${scheme.mode.key}; /* ${scheme.mode.label} */`,
+    `--ctc-anchor: ${scheme.anchor.hex}; /* ${scheme.anchor.name} */`,
     `--ctc-bg: ${roleColor('background').hex}; /* ${roleColor('background').name} */`,
     `--ctc-title: ${roleColor('title').hex}; /* ${roleColor('title').name} */`,
-    `--ctc-support: ${roleColor('support').hex}; /* ${roleColor('support').name} */`,
-    `--ctc-accent: ${roleColor('accent').hex}; /* ${roleColor('accent').name} */`,
+    `--ctc-main: ${roleColor('support').hex}; /* ${roleColor('support').name} */`,
+    `--ctc-relation: ${roleColor('accent').hex}; /* ${roleColor('accent').name} */`,
   ].join('\n');
 }
 
@@ -774,6 +882,47 @@ function styleLabReadinessMarkup(scheme) {
       <small>可交给开发落地</small>
     </span>
   `;
+}
+
+function styleLabModeMarkup(mode) {
+  const selected = mode.key === currentStyleLabModeKey;
+
+  return `
+    <button class="style-mode-button" type="button" data-style-mode="${escapeHtml(mode.key)}" aria-pressed="${selected ? 'true' : 'false'}">
+      <strong>${escapeHtml(mode.label)}</strong>
+      <span>${escapeHtml(mode.intent)}</span>
+    </button>
+  `;
+}
+
+function styleLabModeColorMarkup(color) {
+  const value = colorValue(color);
+  const label = `${color.name} ${value}`;
+
+  return `
+    <button class="style-mode-color" type="button" data-style-mode-color="${escapeHtml(color.id)}" aria-label="复制关系色 ${escapeHtml(label)}">
+      <span style="--mode-color: ${escapeHtml(color.hex)}" aria-hidden="true"></span>
+      <strong>${escapeHtml(color.name)}</strong>
+      <em>${escapeHtml(value)}</em>
+    </button>
+  `;
+}
+
+function renderStyleLabModes(scheme = currentStyleLabScheme) {
+  if (styleModeList) {
+    styleModeList.innerHTML = STYLE_LAB_MODES.map(styleLabModeMarkup).join('');
+  }
+
+  const mode = styleLabMode();
+  if (styleModeSummary) {
+    styleModeSummary.textContent = `${mode.label}：${mode.summary}`;
+  }
+
+  if (styleModeColors) {
+    styleModeColors.innerHTML = scheme?.modeColors?.length
+      ? scheme.modeColors.map(styleLabModeColorMarkup).join('')
+      : '<span class="style-mode-empty">当前主色没有可用关系色，已使用色库兜底方案</span>';
+  }
 }
 
 function styleLabCanvasMarkup(template) {
@@ -894,16 +1043,21 @@ function setStyleLabStatus(message) {
   styleStatus.dataset.visible = message ? 'true' : 'false';
 }
 
-function renderStyleLab(statusMessage = '') {
+function renderStyleLab(statusMessage = '', options = {}) {
   if (!styleLab) return;
 
-  const scheme = createStyleLabScheme();
+  if (options.newAnchor || !currentStyleAnchorImage) {
+    currentStyleAnchorImage = randomColorItems(1)[0] || images.find((image) => image.hex);
+  }
+
+  const scheme = createStyleLabScheme(currentStyleAnchorImage, currentStyleLabModeKey);
   if (!scheme) {
-    styleLab.innerHTML = '<div class="empty-state"><strong>样式间暂时无法生成</strong><span>没有读取到可用色值。</span></div>';
+    styleLab.innerHTML = '<div class="empty-state"><strong>配色应用暂时无法生成</strong><span>没有读取到可用色值。</span></div>';
     return;
   }
 
   currentStyleLabScheme = scheme;
+  currentStyleAnchorImage = scheme.anchorImage;
   if (styleAnchor) {
     styleAnchor.textContent = `${scheme.anchor.name} ${scheme.anchor.hex}`;
   }
@@ -915,10 +1069,11 @@ function renderStyleLab(statusMessage = '') {
   if (styleReadiness) {
     styleReadiness.innerHTML = styleLabReadinessMarkup(scheme);
   }
+  renderStyleLabModes(scheme);
   styleLab.innerHTML = STYLE_LAB_TEMPLATES
     .map((template, index) => styleTemplateMarkup(template, index, scheme))
     .join('');
-  setStyleLabStatus(statusMessage || '可复制整组方案，也可以只复制某一张样式卡。');
+  setStyleLabStatus(statusMessage || `已应用：${scheme.mode.label}配色逻辑`);
 }
 
 async function copyStyleTemplate(templateId) {
@@ -937,6 +1092,15 @@ async function copyStyleRole(roleKey) {
   const copyText = `${role.label}：${color.name} ${color.hex}`;
   await writeClipboard(copyText);
   setStyleLabStatus(`已复制：${copyText}`);
+}
+
+async function copyStyleModeColor(colorId) {
+  const color = currentStyleLabScheme?.modeColors.find((item) => item.id === colorId);
+  if (!color) return;
+
+  const copyText = `${color.name} ${colorValue(color)}`;
+  await writeClipboard(copyText);
+  setStyleLabStatus(`已复制关系色：${copyText}`);
 }
 
 async function copyStyleCssVariables() {
@@ -1853,7 +2017,7 @@ loadMoreButton?.addEventListener('click', () => {
   appendGalleryItems(shuffled ? 24 : 32);
 });
 styleRefreshButton?.addEventListener('click', () => {
-  renderStyleLab('已换成一组新的传统色方案');
+  renderStyleLab(`已换主色，并应用 ${styleLabMode().label} 配色逻辑`, { newAnchor: true });
 });
 styleCopyAllButton?.addEventListener('click', async () => {
   const copyText = styleLabCopyText();
@@ -1863,6 +2027,17 @@ styleCopyAllButton?.addEventListener('click', async () => {
   setStyleLabStatus('已复制当前整组方案');
 });
 styleCopyCssButton?.addEventListener('click', copyStyleCssVariables);
+styleModeList?.addEventListener('click', (event) => {
+  const modeButton = event.target.closest('[data-style-mode]');
+  if (!modeButton) return;
+
+  currentStyleLabModeKey = modeButton.dataset.styleMode;
+  renderStyleLab(`已应用：${styleLabMode().label}配色逻辑`);
+});
+styleModeColors?.addEventListener('click', (event) => {
+  const colorButton = event.target.closest('[data-style-mode-color]');
+  if (colorButton) copyStyleModeColor(colorButton.dataset.styleModeColor);
+});
 stylePalette?.addEventListener('click', (event) => {
   const roleButton = event.target.closest('[data-style-role]');
   if (roleButton) copyStyleRole(roleButton.dataset.styleRole);
