@@ -11,9 +11,11 @@ const gallery = document.querySelector('[data-gallery]');
 const styleLab = document.querySelector('[data-style-lab]');
 const styleRefreshButton = document.querySelector('[data-style-refresh]');
 const styleCopyAllButton = document.querySelector('[data-style-copy-all]');
+const styleCopyCssButton = document.querySelector('[data-style-copy-css]');
 const styleStatus = document.querySelector('[data-style-status]');
 const styleAnchor = document.querySelector('[data-style-anchor]');
 const stylePalette = document.querySelector('[data-style-palette]');
+const styleReadiness = document.querySelector('[data-style-readiness]');
 const heroMosaic = document.querySelector('[data-hero-mosaic]');
 const searchInput = document.querySelector('[data-search]');
 const hueFilter = document.querySelector('[data-hue-filter]');
@@ -182,10 +184,10 @@ const HARMONY_RELATION_TYPES = [
 ];
 
 const STYLE_LAB_ROLES = [
-  { key: 'background', label: '背景色', use: '铺底和留白' },
-  { key: 'title', label: '标题色', use: '主标题和正文重点' },
-  { key: 'support', label: '辅助色', use: '说明、分隔和层次' },
-  { key: 'accent', label: '点缀色', use: '按钮、标签和视觉焦点' },
+  { key: 'background', label: '背景色', use: '铺底和留白', ratio: '70%' },
+  { key: 'title', label: '标题色', use: '主标题和正文重点', ratio: '20%' },
+  { key: 'support', label: '辅助色', use: '说明、分隔和层次', ratio: '8%' },
+  { key: 'accent', label: '点缀色', use: '按钮、标签和视觉焦点', ratio: '2%' },
 ];
 
 const STYLE_LAB_TEMPLATES = [
@@ -193,6 +195,8 @@ const STYLE_LAB_TEMPLATES = [
     id: 'title-cover',
     label: '标题封面',
     scene: '公众号首图、作品集封面、系列开篇',
+    size: '3:4 / 1080x1440',
+    layout: '大标题 / 短副标题 / 底部信息',
     structure: '大标题靠左，短副标题承接，底部信息行收口，点缀色只做细线和角标。',
     overline: 'TRADITIONAL COLOR',
     title: '春山如黛',
@@ -203,6 +207,8 @@ const STYLE_LAB_TEMPLATES = [
     id: 'quote-card',
     label: '诗句短卡',
     scene: '摘录卡、诗词短句、社交媒体配图',
+    size: '4:5 / 1080x1350',
+    layout: '短句居中 / 注释下沉 / 大留白',
     structure: '短句居中偏上，译注或出处放在低权重位置，用大留白让颜色和文字一起呼吸。',
     overline: 'NOTE',
     title: '风过庭前，花影不语',
@@ -213,6 +219,8 @@ const STYLE_LAB_TEMPLATES = [
     id: 'course-cover',
     label: '课程封面',
     scene: '线上课程、知识付费封面、课件首页',
+    size: '16:9 / 1920x1080',
+    layout: '课程名 / 模块条 / 讲次信息',
     structure: '课程名做主视觉，编号和模块列表形成秩序，点缀色用于学习进度和重点提示。',
     overline: 'COURSE 03',
     title: '东方色彩课',
@@ -223,6 +231,8 @@ const STYLE_LAB_TEMPLATES = [
     id: 'event-poster',
     label: '活动海报',
     scene: '公开课、沙龙、直播预告、展览活动',
+    size: '9:16 / 1080x1920',
+    layout: '日期 / 活动名 / 行动信息',
     structure: '活动名和时间形成强主次，辅助信息沿边缘排布，点缀色负责行动入口。',
     overline: 'ONLINE TALK',
     title: '色彩公开课',
@@ -233,6 +243,8 @@ const STYLE_LAB_TEMPLATES = [
     id: 'column-header',
     label: '栏目头图',
     scene: '专栏封面、网站头图、视频栏目包装',
+    size: '2:1 / 1600x800',
+    layout: '栏目名 / 期数 / 固定署名',
     structure: '栏目名稳定出现，期数和短说明建立连续性，适合做一整套内容资产。',
     overline: 'ISSUE 24',
     title: '中国色札记',
@@ -683,7 +695,7 @@ function createStyleLabScheme() {
 }
 
 function styleLabRoleLine(role, color) {
-  return `${role.label}：${color.name} ${color.hex}（${role.use}）`;
+  return `${role.label}：${color.name} ${color.hex}（建议 ${role.ratio}，${role.use}）`;
 }
 
 function styleLabSchemeText(scheme) {
@@ -696,9 +708,13 @@ function styleTemplateCopyText(template, scheme) {
   return [
     `样式名称：${template.label}`,
     `适用场景：${template.scene}`,
+    `建议尺寸：${template.size}`,
+    `版式骨架：${template.layout}`,
     '配色角色：',
     styleLabSchemeText(scheme),
     `排版结构：${template.structure}`,
+    'CSS 变量：',
+    styleLabCssVariables(scheme),
   ].join('\n');
 }
 
@@ -708,13 +724,56 @@ function styleLabCopyText() {
   return [
     '中国传统色样式间',
     `主色来源：${currentStyleLabScheme.anchor.name} ${currentStyleLabScheme.anchor.hex}`,
+    `标题可读性：${styleLabContrastLabel(currentStyleLabScheme)}，适合直接放主标题；仍建议按实际字号复核。`,
     '',
     '当前配色角色：',
     styleLabSchemeText(currentStyleLabScheme),
     '',
     '样式卡：',
-    STYLE_LAB_TEMPLATES.map((template) => `- ${template.label}：${template.scene}；${template.structure}`).join('\n'),
+    STYLE_LAB_TEMPLATES.map((template) => `- ${template.label}：${template.scene}；${template.size}；${template.layout}`).join('\n'),
+    '',
+    'CSS 变量：',
+    styleLabCssVariables(currentStyleLabScheme),
   ].join('\n');
+}
+
+function styleLabContrastValue(scheme) {
+  return styleColorContrast(scheme.roles.title, scheme.roles.background);
+}
+
+function styleLabContrastLabel(scheme) {
+  return `${styleLabContrastValue(scheme).toFixed(1)}:1`;
+}
+
+function styleLabCssVariables(scheme) {
+  const roleColor = (key) => scheme.roles[key];
+
+  return [
+    `--ctc-bg: ${roleColor('background').hex}; /* ${roleColor('background').name} */`,
+    `--ctc-title: ${roleColor('title').hex}; /* ${roleColor('title').name} */`,
+    `--ctc-support: ${roleColor('support').hex}; /* ${roleColor('support').name} */`,
+    `--ctc-accent: ${roleColor('accent').hex}; /* ${roleColor('accent').name} */`,
+  ].join('\n');
+}
+
+function styleLabReadinessMarkup(scheme) {
+  const contrast = styleLabContrastValue(scheme);
+  const contrastLabel = contrast >= 7 ? '正文也稳' : '适合大标题';
+
+  return `
+    <span>
+      <strong>${escapeHtml(styleLabContrastLabel(scheme))}</strong>
+      <small>标题对比 · ${escapeHtml(contrastLabel)}</small>
+    </span>
+    <span>
+      <strong>70/20/8/2</strong>
+      <small>建议面积比例</small>
+    </span>
+    <span>
+      <strong>CSS</strong>
+      <small>可交给开发落地</small>
+    </span>
+  `;
 }
 
 function styleLabCanvasMarkup(template) {
@@ -778,7 +837,7 @@ function styleRoleSwatchMarkup(role, color) {
       <span class="style-role-swatch" style="--style-role-color: ${escapeHtml(color.hex)}" aria-hidden="true"></span>
       <span>
         <strong>${escapeHtml(role.label)}</strong>
-        <small>${escapeHtml(role.use)}</small>
+        <small>${escapeHtml(role.ratio)} · ${escapeHtml(role.use)}</small>
       </span>
       <em>${escapeHtml(color.name)} ${escapeHtml(color.hex)}</em>
     </button>
@@ -816,6 +875,11 @@ function styleTemplateMarkup(template, index, scheme) {
       <div class="style-template-canvas">
         ${styleLabCanvasMarkup(template)}
       </div>
+      <div class="style-template-brief">
+        <p><strong>用在</strong><span>${escapeHtml(template.scene)}</span></p>
+        <p><strong>尺寸</strong><span>${escapeHtml(template.size)}</span></p>
+        <p><strong>骨架</strong><span>${escapeHtml(template.layout)}</span></p>
+      </div>
       <footer class="style-template-roles">
         ${STYLE_LAB_ROLES.map((role) => styleTemplateRoleMarkup(role, roles[role.key])).join('')}
       </footer>
@@ -848,6 +912,9 @@ function renderStyleLab(statusMessage = '') {
       .map((role) => styleRoleSwatchMarkup(role, scheme.roles[role.key]))
       .join('');
   }
+  if (styleReadiness) {
+    styleReadiness.innerHTML = styleLabReadinessMarkup(scheme);
+  }
   styleLab.innerHTML = STYLE_LAB_TEMPLATES
     .map((template, index) => styleTemplateMarkup(template, index, scheme))
     .join('');
@@ -870,6 +937,13 @@ async function copyStyleRole(roleKey) {
   const copyText = `${role.label}：${color.name} ${color.hex}`;
   await writeClipboard(copyText);
   setStyleLabStatus(`已复制：${copyText}`);
+}
+
+async function copyStyleCssVariables() {
+  if (!currentStyleLabScheme) return;
+
+  await writeClipboard(styleLabCssVariables(currentStyleLabScheme));
+  setStyleLabStatus('已复制 CSS 变量');
 }
 
 function lookupDisplayColor(color) {
@@ -1788,6 +1862,7 @@ styleCopyAllButton?.addEventListener('click', async () => {
   await writeClipboard(copyText);
   setStyleLabStatus('已复制当前整组方案');
 });
+styleCopyCssButton?.addEventListener('click', copyStyleCssVariables);
 stylePalette?.addEventListener('click', (event) => {
   const roleButton = event.target.closest('[data-style-role]');
   if (roleButton) copyStyleRole(roleButton.dataset.styleRole);
