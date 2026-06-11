@@ -25,34 +25,10 @@
     <link rel="stylesheet" href="assets/css/styles.css?v=20260611-8">
     <script src="https://code.iconify.design/iconify-icon/3.0.0/iconify-icon.min.js" defer></script>
   </head>
-  <body>
+  <body data-current-page="home">
     <a class="skip-link" href="#gallery">跳到色卡列表</a>
 
-    <header class="site-header">
-      <a class="brand-mark" href="#top" aria-label="中国传统配色首页">
-        <span>色</span>
-        <strong>中国传统配色</strong>
-      </a>
-      <nav class="site-nav" id="site-nav" aria-label="主导航">
-        <a href="#gallery">浏览色卡</a>
-        <a href="style-lab.html">场景试色</a>
-        <a href="palettes.html">配色灵感</a>
-        <a href="skills.html">Skills</a>
-      </nav>
-      <div class="header-tools" aria-label="站点工具">
-        <button class="nav-menu-toggle" type="button" data-nav-toggle aria-controls="site-nav" aria-expanded="false">
-          <iconify-icon icon="lucide:menu" aria-hidden="true"></iconify-icon>
-          <span class="sr-only">展开导航</span>
-        </button>
-        <a class="nav-icon-link" href="https://github.com/nevertoday/zhongguo-traditional-colors" aria-label="打开 GitHub 仓库">
-          <iconify-icon icon="simple-icons:github" aria-hidden="true"></iconify-icon>
-        </a>
-        <button class="theme-toggle" type="button" data-theme-toggle aria-pressed="false">
-          <iconify-icon icon="lucide:moon" data-theme-icon aria-hidden="true"></iconify-icon>
-          <span class="sr-only" data-theme-label>暗色</span>
-        </button>
-      </div>
-    </header>
+    <div data-shared-header></div>
 
     <main id="top">
       <section class="hero-section" aria-labelledby="hero-title">
@@ -362,37 +338,7 @@
       </section>
     </main>
 
-    <footer class="site-footer">
-      <div class="footer-main">
-        <a class="footer-mark" href="#top" aria-label="回到页面顶部">
-          <span>色</span>
-          <strong>中国传统配色</strong>
-        </a>
-        <p>开放色彩资料。生产前请校色。</p>
-      </div>
-      <div class="footer-spectrum-panel">
-        <div class="footer-spectrum" aria-label="随机传统色色值，点击色块复制">
-          <button type="button" data-footer-color aria-label="复制随机传统色"></button>
-          <button type="button" data-footer-color aria-label="复制随机传统色"></button>
-          <button type="button" data-footer-color aria-label="复制随机传统色"></button>
-          <button type="button" data-footer-color aria-label="复制随机传统色"></button>
-          <button type="button" data-footer-color aria-label="复制随机传统色"></button>
-          <button type="button" data-footer-color aria-label="复制随机传统色"></button>
-          <button type="button" data-footer-color aria-label="复制随机传统色"></button>
-          <button type="button" data-footer-color aria-label="复制随机传统色"></button>
-          <button type="button" data-footer-color aria-label="复制随机传统色"></button>
-          <button type="button" data-footer-color aria-label="复制随机传统色"></button>
-          <button type="button" data-footer-color aria-label="复制随机传统色"></button>
-          <button type="button" data-footer-color aria-label="复制随机传统色"></button>
-        </div>
-        <span class="footer-copy-toast" data-footer-copy-status aria-live="polite"></span>
-      </div>
-      <div class="footer-meta" aria-label="站点版本信息">
-        <span>742 色入库</span>
-        <span>Version 2026</span>
-        <span>© 2026 xiaoxiaodong.ai</span>
-      </div>
-    </footer>
+    <div data-shared-footer></div>
 
     <nav class="scroll-rail" aria-label="页面滚动">
       <button class="scroll-control" type="button" data-scroll-up aria-label="滚动到上一个区块">
@@ -505,6 +451,7 @@
       <div class="master-color-list" data-master-color-list></div>
     </dialog>
 
+    <script src="assets/js/shared-chrome.js?v=20260611-1"></script>
     <script src="assets/data/images.js?v=20260610-6"></script>
     <script src="assets/data/harmonies.js?v=20260610-6"></script>
     <script src="assets/data/harmony-usage.js?v=20260610-6"></script>

@@ -1,7 +1,14 @@
 import { readFileSync } from 'node:fs';
 
 const pages = ['index.html', 'style-lab.html', 'palettes.html', 'skills.html'];
+const pageKeys = {
+  'index.html': 'home',
+  'style-lab.html': 'style-lab',
+  'palettes.html': 'palettes',
+  'skills.html': 'skills',
+};
 const expectedNavLabels = ['浏览色卡', '场景试色', '配色灵感', 'Skills'];
+const sharedChrome = readFileSync('assets/js/shared-chrome.js', 'utf8');
 const oldPaletteChrome = [
   'palette-header',
   'palette-brand',
@@ -15,39 +22,35 @@ function fail(message) {
   process.exitCode = 1;
 }
 
-function innerHtml(source, selector) {
-  const match = source.match(selector);
-  return match?.[1] || '';
-}
-
-function navLabels(source) {
-  const nav = innerHtml(source, /<nav class="site-nav" id="site-nav"[^>]*>([\s\S]*?)<\/nav>/);
-  return [...nav.matchAll(/<a\b[^>]*>([\s\S]*?)<\/a>/g)]
-    .map((match) => match[1].replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim());
-}
-
 for (const page of pages) {
   const source = readFileSync(page, 'utf8');
 
-  if (!source.includes('<header class="site-header">')) {
-    fail(`${page}: missing site-header`);
+  if (!source.includes('data-shared-header')) {
+    fail(`${page}: missing shared header placeholder`);
   }
-  if (!source.includes('class="site-nav" id="site-nav"')) {
-    fail(`${page}: missing shared site-nav`);
+  if (!source.includes('data-shared-footer')) {
+    fail(`${page}: missing shared footer placeholder`);
   }
-  if (!source.includes('<footer class="site-footer">')) {
-    fail(`${page}: missing site-footer`);
+  if (!source.includes('assets/js/shared-chrome.js')) {
+    fail(`${page}: missing shared chrome script`);
   }
-  if (!source.includes('data-theme-label')) {
-    fail(`${page}: missing shared theme label`);
+  const sharedScriptIndex = source.indexOf('assets/js/shared-chrome.js');
+  const pageScriptIndex = page === 'palettes.html'
+    ? source.indexOf('assets/js/palettes.js')
+    : source.indexOf('assets/js/app.js');
+  if (pageScriptIndex === -1) {
+    fail(`${page}: missing page script`);
+  } else if (sharedScriptIndex > pageScriptIndex) {
+    fail(`${page}: shared chrome script must load before page script`);
   }
-  if ((source.match(/data-footer-color/g) || []).length !== 12) {
-    fail(`${page}: footer spectrum should have 12 color buttons`);
+  if (!source.includes(`data-current-page="${pageKeys[page]}"`)) {
+    fail(`${page}: missing current page key ${pageKeys[page]}`);
   }
-
-  const labels = navLabels(source);
-  if (labels.join('|') !== expectedNavLabels.join('|')) {
-    fail(`${page}: nav labels differ: ${labels.join(' / ')}`);
+  if (source.includes('<header class="site-header">')) {
+    fail(`${page}: should not inline site-header`);
+  }
+  if (source.includes('<footer class="site-footer">')) {
+    fail(`${page}: should not inline site-footer`);
   }
 
   if (page === 'palettes.html') {
@@ -55,6 +58,27 @@ for (const page of pages) {
       if (source.includes(token)) fail(`${page}: still contains old ${token}`);
     }
   }
+}
+
+const labels = expectedNavLabels.filter((label) => sharedChrome.includes(`label: '${label}'`));
+if (labels.join('|') !== expectedNavLabels.join('|')) {
+  fail(`shared chrome nav labels differ: ${labels.join(' / ')}`);
+}
+
+if (!sharedChrome.includes('class="site-header"')) {
+  fail('shared chrome missing site-header');
+}
+if (!sharedChrome.includes('class="site-nav" id="site-nav"')) {
+  fail('shared chrome missing site-nav');
+}
+if (!sharedChrome.includes('data-theme-label')) {
+  fail('shared chrome missing theme label');
+}
+if (!sharedChrome.includes('class="site-footer"')) {
+  fail('shared chrome missing site-footer');
+}
+if (!sharedChrome.includes('Array.from({ length: 12 }')) {
+  fail('shared chrome footer spectrum should render 12 color buttons');
 }
 
 if (!process.exitCode) {
