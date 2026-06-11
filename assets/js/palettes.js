@@ -4,10 +4,13 @@ const imagesById = new Map(images.map((image) => [image.id, image]));
 
 const themeToggle = document.querySelector('[data-theme-toggle]');
 const themeIcon = document.querySelector('[data-theme-icon]');
+const themeLabel = document.querySelector('[data-theme-label]');
 const themeColorMeta = document.querySelector('[data-theme-color]');
-const paletteHeader = document.querySelector('.palette-header');
-const paletteNav = document.querySelector('#palette-nav');
+const siteHeader = document.querySelector('.site-header');
+const siteNav = document.querySelector('#site-nav');
 const navToggle = document.querySelector('[data-nav-toggle]');
+const footerColorButtons = document.querySelectorAll('[data-footer-color]');
+const footerCopyStatus = document.querySelector('[data-footer-copy-status]');
 const feedList = document.querySelector('[data-feed-list]');
 const relationList = document.querySelector('[data-relation-list]');
 const toneList = document.querySelector('[data-tone-list]');
@@ -67,6 +70,11 @@ const TONES = [
 ];
 
 const ROLE_LABELS = ['主色', '辅助', '强调', '承托'];
+const TITLE_TONE_MAP = [
+  { match: ['inspector', '当前', '选一组'], hues: ['blue', 'cyan', 'green', 'purple'] },
+  { match: ['palette', '配色', '灵感', '筛选'], hues: ['red', 'orange', 'yellow', 'green', 'cyan', 'blue', 'purple'] },
+  { match: ['footer', '开放', '资料'], hues: ['green', 'cyan', 'blue'] },
+];
 const STACK_PATTERNS = [
   [41, 26, 18, 15],
   [44, 24, 18, 14],
@@ -88,6 +96,7 @@ let selectedPaletteId = '';
 let favorites = readFavorites();
 let randomRanks = new Map();
 let toastTimer;
+let footerCopyTimer;
 let paletteAutoObserver;
 let palettePool;
 
@@ -173,6 +182,50 @@ function readableTextColor(hex) {
   return relativeLuminance(hex) > 0.54 ? '#111111' : '#f7f7f4';
 }
 
+function parseRgbColor(value) {
+  const match = value?.match(/rgba?\(([^)]+)\)/i);
+  if (!match) return null;
+
+  const numbers = match[1].match(/[\d.]+/g)?.map(Number) || [];
+  if (numbers.length < 3) return null;
+
+  return {
+    r: numbers[0],
+    g: numbers[1],
+    b: numbers[2],
+    a: numbers[3] ?? 1,
+  };
+}
+
+function cssColorToRgb(value) {
+  const hex = rgbFromHex(value?.trim());
+  if (hex) return { ...hex, a: 1 };
+  return parseRgbColor(value);
+}
+
+function relativeLuminanceFromRgb({ r, g, b }) {
+  return (0.2126 * luminanceChannel(r)) + (0.7152 * luminanceChannel(g)) + (0.0722 * luminanceChannel(b));
+}
+
+function contrastRatio(first, second) {
+  const lighter = Math.max(relativeLuminanceFromRgb(first), relativeLuminanceFromRgb(second));
+  const darker = Math.min(relativeLuminanceFromRgb(first), relativeLuminanceFromRgb(second));
+  return (lighter + 0.05) / (darker + 0.05);
+}
+
+function nearestBackgroundRgb(node) {
+  let current = node;
+  while (current && current !== document.documentElement) {
+    const background = cssColorToRgb(window.getComputedStyle(current).backgroundColor);
+    if (background && background.a > 0) return background;
+    current = current.parentElement;
+  }
+
+  return currentTheme() === 'dark'
+    ? { r: 17, g: 16, b: 14, a: 1 }
+    : { r: 247, g: 247, b: 244, a: 1 };
+}
+
 function hashString(value) {
   let hash = 0;
   for (let index = 0; index < value.length; index += 1) {
@@ -197,6 +250,118 @@ function imageToColor(image) {
 
 function colorFromId(id) {
   return imageToColor(imagesById.get(id));
+}
+
+function titleContextText(title) {
+  const section = title.closest('section, header, footer, main, article');
+  return [
+    title.id,
+    title.textContent,
+    section?.id,
+    section?.className,
+    title.closest('[aria-labelledby]')?.getAttribute('aria-labelledby'),
+  ]
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase();
+}
+
+function titlePreferredHues(title) {
+  const context = titleContextText(title);
+  const tone = TITLE_TONE_MAP.find((item) => item.match.some((keyword) => context.includes(keyword)));
+  return tone?.hues || ['red', 'orange', 'yellow', 'green', 'cyan', 'blue', 'purple'];
+}
+
+function rankedTitleColors(title) {
+  const background = nearestBackgroundRgb(title);
+  const targetIsDark = relativeLuminanceFromRgb(background) < 0.22;
+  const preferredHues = titlePreferredHues(title);
+
+  return images
+    .filter((image) => image.hex)
+    .map((image) => {
+      const rgb = rgbFromHex(image.hex);
+      if (!rgb) return null;
+
+      const ratio = contrastRatio(rgb, background);
+      const hue = hueFromHex(image.hex);
+      const hsl = hslFromRgb(rgb);
+      const hueIndex = preferredHues.indexOf(hue);
+      const hueScore = hueIndex === -1 ? 0 : 80 - (hueIndex * 12);
+      const contrastScore = Math.min(ratio, 12) * 10;
+      const saturationScore = hue === 'neutralHue'
+        ? (targetIsDark ? -18 : 3)
+        : Math.min(hsl.s, 76) / (targetIsDark ? 2.4 : 3);
+      const lightnessTarget = targetIsDark ? 72 : 34;
+      const lightnessBalance = 100 - Math.abs(hsl.l - lightnessTarget);
+      const blackSurfacePenalty = targetIsDark && hsl.l < 54 ? -120 : 0;
+      const washedOutPenalty = !targetIsDark && hsl.l > 58 ? -42 : 0;
+
+      return {
+        image,
+        hue,
+        ratio,
+        rankValue: hueScore + contrastScore + saturationScore + (lightnessBalance / 4) + blackSurfacePenalty + washedOutPenalty,
+      };
+    })
+    .filter(Boolean)
+    .filter((item) => item.ratio >= (targetIsDark ? 5.6 : 4.5))
+    .sort((first, second) => second.rankValue - first.rankValue);
+}
+
+function titleColorPalette(title) {
+  const preferredHues = titlePreferredHues(title);
+  const ranked = rankedTitleColors(title);
+  const semantic = ranked.filter((item) => preferredHues.includes(item.hue));
+  const source = semantic.length >= 4 ? semantic : ranked;
+  const seed = hashString(`${titleContextText(title)} ${currentTheme()}`);
+  const palette = [];
+  const used = new Set();
+
+  for (let offset = 0; offset < source.length && palette.length < 5; offset += 1) {
+    const item = source[(seed + (offset * 17)) % source.length];
+    if (!item || used.has(item.image.hex)) continue;
+    used.add(item.image.hex);
+    palette.push(item.image);
+  }
+
+  return palette;
+}
+
+function activateTitleColor(title) {
+  title.dataset.titleText = title.textContent.trim();
+  const palette = titleColorPalette(title);
+  if (!palette.length) return;
+
+  const previousIndex = Number.parseInt(title.dataset.titleHoverIndex || '-1', 10);
+  const nextIndex = Number.isNaN(previousIndex) ? 0 : (previousIndex + 1) % palette.length;
+  const color = palette[nextIndex];
+  const baseColor = window.getComputedStyle(title).color;
+
+  title.dataset.titleHoverIndex = String(nextIndex);
+  title.style.setProperty('--title-base-color', baseColor);
+  title.style.setProperty('--title-hover-color', color.hex);
+  title.dataset.titleHoverColor = `${colorName(color)} ${color.hex}`;
+  title.classList.add('title-color-active');
+}
+
+function clearTitleColor(title) {
+  title.classList.remove('title-color-active');
+}
+
+function bindTitleColorHover(root = document) {
+  root.querySelectorAll('h1, h2, h3').forEach((title) => {
+    if (title.dataset.titleColorBound === 'true') return;
+
+    const titleText = title.textContent.trim();
+    title.dataset.titleText = titleText;
+    title.dataset.titleColorBound = 'true';
+    title.setAttribute('aria-label', titleText);
+    title.addEventListener('pointerenter', () => activateTitleColor(title));
+    title.addEventListener('pointerleave', () => clearTitleColor(title));
+    title.addEventListener('focus', () => activateTitleColor(title));
+    title.addEventListener('blur', () => clearTitleColor(title));
+  });
 }
 
 function uniqueColors(colors) {
@@ -339,6 +504,15 @@ function randomInt(max) {
   return Math.floor(Math.random() * max);
 }
 
+function randomColorItems(count) {
+  const pool = images.filter((image) => image.hex);
+  for (let index = pool.length - 1; index > 0; index -= 1) {
+    const swapIndex = randomInt(index + 1);
+    [pool[index], pool[swapIndex]] = [pool[swapIndex], pool[index]];
+  }
+  return pool.slice(0, count);
+}
+
 function shuffledPaletteRanks(palettes) {
   const ids = palettes.map((palette) => palette.id);
   for (let index = ids.length - 1; index > 0; index -= 1) {
@@ -392,14 +566,15 @@ function setTheme(theme) {
   }
   themeToggle?.setAttribute('aria-pressed', String(nextTheme === 'dark'));
   themeToggle?.setAttribute('aria-label', nextTheme === 'dark' ? '切换到亮色模式' : '切换到暗色模式');
+  if (themeLabel) themeLabel.textContent = nextTheme === 'dark' ? '亮色' : '暗色';
   themeIcon?.setAttribute('icon', nextTheme === 'dark' ? 'lucide:sun' : 'lucide:moon');
   themeColorMeta?.setAttribute('content', nextTheme === 'dark' ? '#11100e' : '#f7f7f4');
 }
 
 function setMobileNavOpen(open) {
-  if (!paletteHeader || !navToggle) return;
+  if (!siteHeader || !navToggle) return;
 
-  paletteHeader.dataset.navOpen = open ? 'true' : 'false';
+  siteHeader.dataset.navOpen = open ? 'true' : 'false';
   navToggle.setAttribute('aria-expanded', String(open));
   navToggle.setAttribute('aria-label', open ? '收起导航' : '展开导航');
   navToggle.querySelector('iconify-icon')?.setAttribute('icon', open ? 'lucide:x' : 'lucide:menu');
@@ -407,6 +582,25 @@ function setMobileNavOpen(open) {
 
 function closeMobileNav() {
   setMobileNavOpen(false);
+}
+
+function buildFooterSpectrum() {
+  if (!footerColorButtons.length) return;
+
+  const colors = randomColorItems(footerColorButtons.length);
+  footerColorButtons.forEach((button, index) => {
+    const image = colors[index];
+    if (!image) return;
+
+    const name = colorName(image);
+    const hex = image.hex;
+    const copyText = `${name} ${hex}`;
+    button.style.setProperty('--spectrum-color', hex);
+    button.style.setProperty('--spectrum-index', String(randomInt(9) + 1));
+    button.dataset.footerCopyValue = copyText;
+    button.title = `复制 ${copyText}`;
+    button.setAttribute('aria-label', `复制 ${name} 色值 ${hex}`);
+  });
 }
 
 function optionButtonMarkup(item, type, selectedKey) {
@@ -628,6 +822,7 @@ function renderInspector(palette) {
       </div>
     </div>
   `;
+  bindTitleColorHover(inspector);
 }
 
 function rerender(resetVisible = true) {
@@ -676,18 +871,40 @@ function bindOptionClicks(container, selector, callback) {
 }
 
 setTheme(currentTheme());
+buildFooterSpectrum();
 renderOptions();
 renderGrid();
+bindTitleColorHover();
 
 themeToggle?.addEventListener('click', () => {
   setTheme(currentTheme() === 'dark' ? 'light' : 'dark');
 });
 navToggle?.addEventListener('click', () => {
-  const open = paletteHeader?.dataset.navOpen === 'true';
+  const open = siteHeader?.dataset.navOpen === 'true';
   setMobileNavOpen(!open);
 });
-paletteNav?.addEventListener('click', (event) => {
-  if (event.target.closest('a')) closeMobileNav();
+siteNav?.addEventListener('click', (event) => {
+  if (event.target.closest('a, button')) closeMobileNav();
+});
+footerColorButtons.forEach((button) => {
+  button.addEventListener('click', async () => {
+    const copyText = button.dataset.footerCopyValue;
+    if (!copyText) return;
+
+    await writeClipboard(copyText);
+    button.dataset.copied = 'true';
+    if (footerCopyStatus) {
+      window.clearTimeout(footerCopyTimer);
+      footerCopyStatus.textContent = `已复制：${copyText}`;
+      footerCopyStatus.dataset.visible = 'true';
+      footerCopyTimer = window.setTimeout(() => {
+        footerCopyStatus.dataset.visible = 'false';
+      }, 1600);
+    }
+    window.setTimeout(() => {
+      delete button.dataset.copied;
+    }, 1000);
+  });
 });
 
 bindOptionClicks(feedList, '[data-feed]', (button) => {
