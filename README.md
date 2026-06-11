@@ -10,6 +10,7 @@
 
 - [在线浏览色卡](https://nevertoday.github.io/zhongguo-traditional-colors/)
 - [中国色配色灵感](https://nevertoday.github.io/zhongguo-traditional-colors/palettes.html)
+- [中国色文字卡片](https://nevertoday.github.io/zhongguo-traditional-colors/uses.html)
 - [直接下载完整 ZIP](https://github.com/nevertoday/zhongguo-traditional-colors/releases/latest/download/zhongguo-traditional-colors-images.zip)
 - [查看 Release](https://github.com/nevertoday/zhongguo-traditional-colors/releases/tag/v0.1.0)
 - [原始 742 色清单](docs/chinese-color-master-list.md)

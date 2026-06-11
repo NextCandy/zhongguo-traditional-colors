@@ -3,6 +3,7 @@
     { key: 'home', label: '浏览色卡', href: 'index.html#gallery' },
     { key: 'style-lab', label: '场景试色', href: 'style-lab.html' },
     { key: 'palettes', label: '配色灵感', href: 'palettes.html' },
+    { key: 'uses', label: '用途卡片', href: 'uses.html' },
     { key: 'skills', label: 'Skills', href: 'skills.html' },
   ];
 
@@ -12,6 +13,7 @@
     const path = window.location.pathname.split('/').pop() || 'index.html';
     if (path === 'style-lab.html') return 'style-lab';
     if (path === 'palettes.html') return 'palettes';
+    if (path === 'uses.html') return 'uses';
     if (path === 'skills.html') return 'skills';
     return 'home';
   }

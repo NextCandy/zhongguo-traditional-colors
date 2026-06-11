@@ -1,0 +1,509 @@
+const images = window.TRADITIONAL_COLOR_IMAGES || [];
+const harmonies = window.TRADITIONAL_COLOR_HARMONIES || {};
+const imagesById = new Map(images.map((image) => [image.id, image]));
+
+const themeToggle = document.querySelector('[data-theme-toggle]');
+const themeIcon = document.querySelector('[data-theme-icon]');
+const themeLabel = document.querySelector('[data-theme-label]');
+const themeColorMeta = document.querySelector('[data-theme-color]');
+const siteHeader = document.querySelector('.site-header');
+const siteNav = document.querySelector('#site-nav');
+const navToggle = document.querySelector('[data-nav-toggle]');
+const footerColorButtons = document.querySelectorAll('[data-footer-color]');
+const footerCopyStatus = document.querySelector('[data-footer-copy-status]');
+const searchInput = document.querySelector('[data-use-search]');
+const biasInput = document.querySelector('[data-use-bias]');
+const shuffleButton = document.querySelector('[data-use-shuffle]');
+const copyButton = document.querySelector('[data-use-copy]');
+const grid = document.querySelector('[data-use-grid]');
+const resultCount = document.querySelector('[data-use-count]');
+const loadMoreButton = document.querySelector('[data-use-load-more]');
+const toast = document.querySelector('[data-toast]');
+
+const STEP = 32;
+const CONNECTOR_PATTERN = /\s*(?:&|\+|with|and|on|配|和)\s*/i;
+const TYPE_TESTS = {
+  all: () => true,
+  warm: (color) => color.temperature === '暖',
+  cold: (color) => color.temperature === '冷',
+  cool: (color) => color.temperature === '冷',
+  light: (color) => color.hsl.l >= 72,
+  dark: (color) => color.hsl.l <= 38,
+  pastel: (color) => color.hsl.s <= 50 && color.hsl.l >= 66,
+  pale: (color) => color.hsl.s <= 42 && color.hsl.l >= 72,
+  deep: (color) => color.hsl.l <= 34 && color.hsl.s >= 24,
+  muted: (color) => color.hsl.s <= 34,
+  rich: (color) => color.hsl.s >= 52 && color.hsl.l <= 62,
+  bright: (color) => color.hsl.s >= 62 && color.hsl.l >= 46,
+  neon: (color) => color.hsl.s >= 80 && color.hsl.l >= 48,
+  red: (color) => color.hue === 'red',
+  orange: (color) => color.hue === 'orange',
+  yellow: (color) => color.hue === 'yellow',
+  green: (color) => color.hue === 'green',
+  cyan: (color) => color.hue === 'cyan',
+  blue: (color) => color.hue === 'blue',
+  violet: (color) => color.hue === 'purple',
+  purple: (color) => color.hue === 'purple',
+  magenta: (color) => color.hue === 'purple' || color.hue === 'red',
+  neutral: (color) => color.hue === 'neutral',
+  暖色: (color) => color.temperature === '暖',
+  冷色: (color) => color.temperature === '冷',
+  浅色: (color) => color.hsl.l >= 72,
+  深色: (color) => color.hsl.l <= 38,
+  红: (color) => color.hue === 'red',
+  橙: (color) => color.hue === 'orange',
+  黄: (color) => color.hue === 'yellow',
+  绿: (color) => color.hue === 'green',
+  青: (color) => color.hue === 'cyan',
+  蓝: (color) => color.hue === 'blue',
+  紫: (color) => color.hue === 'purple',
+  灰: (color) => color.hue === 'neutral',
+};
+
+let visibleCount = STEP;
+let selectedId = '';
+let randomRanks = new Map();
+let toastTimer;
+let footerCopyTimer;
+let navResizeFrame;
+let autoObserver;
+
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, (character) => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;',
+  })[character]);
+}
+
+function colorName(image) {
+  return image?.file?.replace(/\.[^.]+$/, '').replace(/^\d{3}-/, '') || '';
+}
+
+function rgbFromHex(hex) {
+  const match = hex?.match(/^#?([0-9a-f]{6})$/i);
+  if (!match) return null;
+  const value = match[1];
+  return {
+    r: Number.parseInt(value.slice(0, 2), 16),
+    g: Number.parseInt(value.slice(2, 4), 16),
+    b: Number.parseInt(value.slice(4, 6), 16),
+  };
+}
+
+function hslFromRgb({ r, g, b }) {
+  const red = r / 255;
+  const green = g / 255;
+  const blue = b / 255;
+  const max = Math.max(red, green, blue);
+  const min = Math.min(red, green, blue);
+  const delta = max - min;
+  let hue = 0;
+  let saturation = 0;
+  const lightness = (max + min) / 2;
+
+  if (delta !== 0) {
+    saturation = delta / (1 - Math.abs((2 * lightness) - 1));
+    if (max === red) hue = ((green - blue) / delta) % 6;
+    if (max === green) hue = (blue - red) / delta + 2;
+    if (max === blue) hue = (red - green) / delta + 4;
+    hue *= 60;
+    if (hue < 0) hue += 360;
+  }
+
+  return {
+    h: Math.round(hue),
+    s: Math.round(saturation * 100),
+    l: Math.round(lightness * 100),
+  };
+}
+
+function hueFromHsl(hsl) {
+  if (hsl.s < 12) return 'neutral';
+  if (hsl.h < 15 || hsl.h >= 345) return 'red';
+  if (hsl.h < 45) return 'orange';
+  if (hsl.h < 75) return 'yellow';
+  if (hsl.h < 155) return 'green';
+  if (hsl.h < 195) return 'cyan';
+  if (hsl.h < 255) return 'blue';
+  if (hsl.h < 315) return 'purple';
+  return 'red';
+}
+
+function luminanceChannel(value) {
+  const channel = value / 255;
+  return channel <= 0.03928 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4;
+}
+
+function relativeLuminance(hex) {
+  const rgb = rgbFromHex(hex);
+  if (!rgb) return 0;
+  return (0.2126 * luminanceChannel(rgb.r)) + (0.7152 * luminanceChannel(rgb.g)) + (0.0722 * luminanceChannel(rgb.b));
+}
+
+function contrastRatio(firstHex, secondHex) {
+  const first = relativeLuminance(firstHex);
+  const second = relativeLuminance(secondHex);
+  const lighter = Math.max(first, second);
+  const darker = Math.min(first, second);
+  return (lighter + 0.05) / (darker + 0.05);
+}
+
+function colorFromImage(image) {
+  const harmony = harmonies[image.id] || {};
+  const hsl = harmony.hsl || hslFromRgb(rgbFromHex(image.hex));
+  return {
+    id: image.id,
+    name: colorName(image),
+    hex: image.hex,
+    hsl,
+    hue: hueFromHsl(hsl),
+    temperature: harmony.temperature || '',
+    searchText: `${image.id} ${colorName(image)} ${image.hex}`.toLowerCase(),
+  };
+}
+
+function colorFromId(id) {
+  const image = imagesById.get(id);
+  return image?.hex ? colorFromImage(image) : null;
+}
+
+function colorPool() {
+  return images.filter((image) => image.hex).map(colorFromImage);
+}
+
+function tokens(value) {
+  return value.toLowerCase().trim().split(/\s+/).filter(Boolean);
+}
+
+function colorMatches(color, query) {
+  const value = query.trim().toLowerCase();
+  if (!value || value === 'all' || value === '全部') return true;
+  return tokens(value).every((token) => {
+    const test = TYPE_TESTS[token];
+    if (test) return test(color);
+    return color.searchText.includes(token);
+  });
+}
+
+function parsedSearch() {
+  const value = searchInput?.value.trim() || '';
+  const parts = value.split(CONNECTOR_PATTERN).map((part) => part.trim()).filter(Boolean);
+  return {
+    raw: value,
+    first: parts[0] || '',
+    second: parts[1] || '',
+  };
+}
+
+function partnerIds(color) {
+  const harmony = harmonies[color.id] || {};
+  return [
+    ...(harmony.complementary || []),
+    ...(harmony.splitComplementary || []),
+    ...(harmony.analogous || []),
+    ...(harmony.secondary || []),
+    ...(harmony.accent || []),
+    ...(harmony.neutral || []),
+  ];
+}
+
+function pairCandidates(color, secondQuery) {
+  const source = partnerIds(color).map(colorFromId).filter(Boolean);
+  const pool = source.length ? source : colorPool();
+  const filtered = secondQuery ? pool.filter((item) => colorMatches(item, secondQuery)) : pool;
+  const fallback = secondQuery && !filtered.length
+    ? colorPool().filter((item) => colorMatches(item, secondQuery))
+    : filtered;
+  return fallback.filter((item) => item.id !== color.id);
+}
+
+function biasScore(background, text) {
+  const bias = Number.parseInt(biasInput?.value || '50', 10);
+  const contrast = Math.min(contrastRatio(background.hex, text.hex), 12) * 20;
+  const backgroundBias = 100 - Math.abs(background.hsl.l - (bias > 50 ? 78 : 28));
+  const textBias = 100 - Math.abs(text.hsl.l - (bias > 50 ? 24 : 82));
+  return contrast + backgroundBias + textBias;
+}
+
+function cardId(background, text) {
+  return `${background.id}-${text.id}`;
+}
+
+function allCards() {
+  const search = parsedSearch();
+  return colorPool()
+    .filter((background) => colorMatches(background, search.first))
+    .flatMap((background) => pairCandidates(background, search.second)
+      .sort((first, second) => biasScore(background, second) - biasScore(background, first))
+      .slice(0, 3)
+      .map((text) => ({
+        id: cardId(background, text),
+        background,
+        text,
+        ratio: contrastRatio(background.hex, text.hex),
+      })))
+    .filter((card) => card.ratio >= 2.2)
+    .sort((first, second) => (randomRanks.get(first.id) ?? 0) - (randomRanks.get(second.id) ?? 0));
+}
+
+function shuffleOrder() {
+  const pool = colorPool();
+  randomRanks = new Map();
+  pool.forEach((background) => {
+    pool.forEach((text) => {
+      if (background.id !== text.id) randomRanks.set(cardId(background, text), Math.random());
+    });
+  });
+}
+
+function cardMarkup(card, index) {
+  const contrastLabel = card.ratio >= 4.5 ? '清晰' : '谨慎';
+  return `
+    <article class="use-pair-card" tabindex="0" data-use-card="${escapeHtml(card.id)}" aria-selected="${card.id === selectedId ? 'true' : 'false'}" style="--pair-bg: ${escapeHtml(card.background.hex)}; --pair-text: ${escapeHtml(card.text.hex)};">
+      <div class="use-pair-actions">
+        <button type="button" data-use-color="${escapeHtml(card.background.id)}" aria-label="复制背景色 ${escapeHtml(card.background.name)} ${escapeHtml(card.background.hex)}">背景</button>
+        <button type="button" data-use-color="${escapeHtml(card.text.id)}" aria-label="复制文字色 ${escapeHtml(card.text.name)} ${escapeHtml(card.text.hex)}">文字</button>
+      </div>
+      <div class="use-pair-type">
+        <h3>${escapeHtml(card.background.name)}</h3>
+        <h4>& ${escapeHtml(card.text.name)} —</h4>
+        <p>${escapeHtml(card.background.name)}作背景，${escapeHtml(card.text.name)}作文字；这组中国色适合先看标题、正文和卡片信息。</p>
+      </div>
+      <footer class="use-pair-meta">
+        <span>${String(index + 1).padStart(2, '0')}</span>
+        <strong>${escapeHtml(card.background.hex)} / ${escapeHtml(card.text.hex)}</strong>
+        <em>${contrastLabel} ${card.ratio.toFixed(1)}:1</em>
+      </footer>
+    </article>
+  `;
+}
+
+function findCard(id) {
+  return allCards().find((card) => card.id === id) || allCards()[0] || null;
+}
+
+function renderGrid() {
+  if (!grid) return;
+  const cards = allCards();
+  const visible = cards.slice(0, visibleCount);
+  if (!selectedId || !cards.some((card) => card.id === selectedId)) {
+    selectedId = visible[0]?.id || '';
+  }
+
+  grid.innerHTML = visible.length
+    ? visible.map(cardMarkup).join('')
+    : '<div class="empty-state"><strong>没有找到卡片</strong><span>试试“月白”“冷色”“深色 & 黄”或 HEX。</span></div>';
+
+  if (resultCount) {
+    resultCount.textContent = `已显示 ${visible.length.toLocaleString('zh-CN')} / ${cards.length.toLocaleString('zh-CN')} 张文字卡片`;
+  }
+  if (loadMoreButton) {
+    const autoLoadSupported = 'IntersectionObserver' in window;
+    loadMoreButton.hidden = autoLoadSupported || visible.length >= cards.length;
+  }
+  setupAutoLoad();
+}
+
+function setupAutoLoad() {
+  if (!grid || !loadMoreButton || !('IntersectionObserver' in window)) return;
+  const trigger = loadMoreButton.closest('.palette-more') || loadMoreButton;
+  autoObserver?.disconnect();
+  autoObserver = new IntersectionObserver((entries) => {
+    const cards = allCards();
+    const shouldLoad = entries.some((entry) => entry.isIntersecting) && visibleCount < cards.length;
+    if (shouldLoad) appendCards(STEP);
+  }, { rootMargin: '520px 0px' });
+  autoObserver.observe(trigger);
+}
+
+function appendCards(count) {
+  const cards = allCards();
+  const currentVisible = Math.min(visibleCount, cards.length);
+  const nextVisible = Math.min(currentVisible + count, cards.length);
+  if (nextVisible <= currentVisible) return;
+  visibleCount = nextVisible;
+  renderGrid();
+}
+
+function rerender(resetVisible = true) {
+  if (resetVisible) visibleCount = STEP;
+  renderGrid();
+}
+
+function cardText(card) {
+  return [
+    `${card.background.name} & ${card.text.name}`,
+    `背景：${card.background.hex}`,
+    `文字：${card.text.hex}`,
+    `对比：${card.ratio.toFixed(1)}:1`,
+  ].join('\n');
+}
+
+async function writeClipboard(text) {
+  try {
+    await navigator.clipboard.writeText(text);
+  } catch (error) {
+    const input = document.createElement('textarea');
+    input.value = text;
+    document.body.append(input);
+    input.select();
+    document.execCommand('copy');
+    input.remove();
+  }
+}
+
+function showToast(message) {
+  if (!toast) return;
+  window.clearTimeout(toastTimer);
+  toast.textContent = message;
+  toast.dataset.visible = 'true';
+  toastTimer = window.setTimeout(() => {
+    toast.dataset.visible = 'false';
+  }, 1600);
+}
+
+async function copyColor(id) {
+  const color = colorFromId(id);
+  if (!color) return;
+  await writeClipboard(`${color.name} ${color.hex}`);
+  showToast(`已复制：${color.name} ${color.hex}`);
+}
+
+async function copyCard(id = selectedId) {
+  const card = findCard(id);
+  if (!card) return;
+  selectedId = card.id;
+  await writeClipboard(cardText(card));
+  showToast(`已复制：${card.background.name} & ${card.text.name}`);
+  renderGrid();
+}
+
+function currentTheme() {
+  return document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
+}
+
+function setTheme(theme) {
+  const nextTheme = theme === 'dark' ? 'dark' : 'light';
+  document.documentElement.dataset.theme = nextTheme;
+  try {
+    localStorage.setItem('theme', nextTheme);
+  } catch (error) {
+    document.documentElement.dataset.theme = nextTheme;
+  }
+  themeToggle?.setAttribute('aria-pressed', String(nextTheme === 'dark'));
+  themeToggle?.setAttribute('aria-label', nextTheme === 'dark' ? '切换到亮色模式' : '切换到暗色模式');
+  themeIcon?.setAttribute('icon', nextTheme === 'dark' ? 'lucide:sun' : 'lucide:moon');
+  if (themeLabel) themeLabel.textContent = nextTheme === 'dark' ? '亮色' : '暗色';
+  themeColorMeta?.setAttribute('content', nextTheme === 'dark' ? '#11100e' : '#f7f7f4');
+}
+
+function setMobileNavOpen(open) {
+  if (!siteHeader || !navToggle) return;
+  siteHeader.dataset.navOpen = String(open);
+  navToggle.setAttribute('aria-expanded', String(open));
+}
+
+function closeMobileNav() {
+  setMobileNavOpen(false);
+}
+
+function queueMobileNavState() {
+  window.cancelAnimationFrame(navResizeFrame);
+  navResizeFrame = window.requestAnimationFrame(() => {
+    if (window.matchMedia('(min-width: 721px)').matches) closeMobileNav();
+  });
+}
+
+function buildFooterSpectrum() {
+  if (!footerColorButtons.length) return;
+  const pool = [...images].filter((image) => image.hex);
+  footerColorButtons.forEach((button, index) => {
+    const image = pool[(Math.floor(Math.random() * pool.length) + index * 37) % pool.length];
+    const name = colorName(image);
+    const copyText = `${name} ${image.hex}`;
+    button.style.setProperty('--footer-color', image.hex);
+    button.dataset.footerCopyValue = copyText;
+    button.title = `复制 ${copyText}`;
+  });
+}
+
+setTheme(currentTheme());
+shuffleOrder();
+buildFooterSpectrum();
+rerender();
+
+themeToggle?.addEventListener('click', () => {
+  setTheme(currentTheme() === 'dark' ? 'light' : 'dark');
+});
+navToggle?.addEventListener('click', () => {
+  const open = siteHeader?.dataset.navOpen === 'true';
+  setMobileNavOpen(!open);
+});
+siteNav?.addEventListener('click', (event) => {
+  if (event.target.closest('a, button')) closeMobileNav();
+});
+window.addEventListener('resize', queueMobileNavState);
+window.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape') closeMobileNav();
+});
+
+footerColorButtons.forEach((button) => {
+  button.addEventListener('click', async () => {
+    const copyText = button.dataset.footerCopyValue;
+    if (!copyText) return;
+    await writeClipboard(copyText);
+    button.dataset.copied = 'true';
+    if (footerCopyStatus) {
+      window.clearTimeout(footerCopyTimer);
+      footerCopyStatus.textContent = `已复制：${copyText}`;
+      footerCopyStatus.dataset.visible = 'true';
+      footerCopyTimer = window.setTimeout(() => {
+        footerCopyStatus.dataset.visible = 'false';
+      }, 1600);
+    }
+    window.setTimeout(() => {
+      delete button.dataset.copied;
+    }, 1000);
+  });
+});
+
+searchInput?.addEventListener('input', () => rerender());
+biasInput?.addEventListener('input', () => rerender());
+
+shuffleButton?.addEventListener('click', () => {
+  shuffleOrder();
+  rerender();
+});
+
+copyButton?.addEventListener('click', () => copyCard());
+
+loadMoreButton?.addEventListener('click', () => {
+  appendCards(STEP);
+});
+
+grid?.addEventListener('click', (event) => {
+  const colorButton = event.target.closest('[data-use-color]');
+  if (colorButton) {
+    event.stopPropagation();
+    copyColor(colorButton.dataset.useColor);
+    return;
+  }
+
+  const card = event.target.closest('[data-use-card]');
+  if (card) {
+    selectedId = card.dataset.useCard;
+    renderGrid();
+  }
+});
+
+grid?.addEventListener('keydown', (event) => {
+  if (event.key !== 'Enter' && event.key !== ' ') return;
+  const card = event.target.closest('[data-use-card]');
+  if (!card) return;
+  event.preventDefault();
+  selectedId = card.dataset.useCard;
+  renderGrid();
+});
