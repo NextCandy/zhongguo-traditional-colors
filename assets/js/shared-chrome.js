@@ -49,7 +49,7 @@
           <iconify-icon icon="lucide:menu" aria-hidden="true"></iconify-icon>
           <span class="sr-only">展开导航</span>
         </button>
-        <a class="nav-icon-link" href="https://github.com/nevertoday/zhongguo-traditional-colors" aria-label="打开 GitHub 仓库">
+        <a class="nav-icon-link" href="https://github.com/nevertoday/zhongguo-traditional-colors" target="_blank" rel="noopener" aria-label="新标签页打开 GitHub 仓库">
           <iconify-icon icon="simple-icons:github" aria-hidden="true"></iconify-icon>
         </a>
         <button class="theme-toggle" type="button" data-theme-toggle aria-pressed="false">
