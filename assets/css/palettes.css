@@ -143,7 +143,7 @@ iconify-icon {
 .palette-nav {
   display: flex;
   justify-content: center;
-  gap: clamp(10px, 2vw, 22px);
+  gap: clamp(8px, 1.5vw, 18px);
   min-width: 0;
 }
 
@@ -163,6 +163,13 @@ iconify-icon {
   outline: none;
 }
 
+.palette-tools {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+  justify-content: flex-end;
+}
+
 .theme-button {
   display: grid;
   width: 40px;
@@ -172,6 +179,7 @@ iconify-icon {
   background: transparent;
   border: 0;
   cursor: pointer;
+  text-decoration: none;
 }
 
 .theme-button:hover,
@@ -179,6 +187,10 @@ iconify-icon {
   color: var(--hover-text);
   background: var(--hover-bg);
   outline: none;
+}
+
+.palette-menu-toggle {
+  display: none;
 }
 
 .palette-shell {
@@ -769,18 +781,76 @@ iconify-icon {
 @media (max-width: 860px) {
   .palette-header {
     grid-template-columns: 1fr auto;
+    gap: 12px;
+    min-height: 62px;
+    padding: 12px 20px;
+  }
+
+  .palette-brand {
+    min-width: 0;
   }
 
   .palette-brand strong {
-    display: none;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .palette-tools {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .palette-menu-toggle {
+    display: grid;
+  }
+
+  .theme-button {
+    width: 32px;
+    height: 32px;
   }
 
   .palette-nav {
     grid-column: 1 / -1;
-    order: 2;
-    justify-content: flex-start;
-    overflow-x: auto;
-    padding-bottom: 10px;
+    grid-row: 2;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+    width: 100%;
+    max-height: 0;
+    overflow: hidden;
+    padding-top: 0;
+    border-top: 0 solid transparent;
+    border-bottom: 0 solid transparent;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-4px);
+    transition: max-height 260ms var(--ease-out-quart), opacity 180ms ease, padding-top 220ms ease, transform 220ms var(--ease-out-quart), border-color 180ms ease;
+  }
+
+  .palette-header[data-nav-open="true"] .palette-nav {
+    max-height: 390px;
+    padding-top: 12px;
+    border-top-width: 1px;
+    border-top-color: var(--line);
+    border-bottom-width: 1px;
+    border-bottom-color: var(--line);
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+
+  .palette-nav a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 46px;
+    padding: 12px 8px;
+    border-bottom: 1px solid color-mix(in srgb, var(--line) 70%, transparent);
+  }
+
+  .palette-nav > :last-child {
+    border-bottom: 0;
   }
 
   .palette-shell {

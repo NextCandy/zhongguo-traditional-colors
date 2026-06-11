@@ -5,6 +5,9 @@ const imagesById = new Map(images.map((image) => [image.id, image]));
 const themeToggle = document.querySelector('[data-theme-toggle]');
 const themeIcon = document.querySelector('[data-theme-icon]');
 const themeColorMeta = document.querySelector('[data-theme-color]');
+const paletteHeader = document.querySelector('.palette-header');
+const paletteNav = document.querySelector('#palette-nav');
+const navToggle = document.querySelector('[data-nav-toggle]');
 const feedList = document.querySelector('[data-feed-list]');
 const relationList = document.querySelector('[data-relation-list]');
 const toneList = document.querySelector('[data-tone-list]');
@@ -382,6 +385,19 @@ function setTheme(theme) {
   themeColorMeta?.setAttribute('content', nextTheme === 'dark' ? '#11100e' : '#f7f7f4');
 }
 
+function setMobileNavOpen(open) {
+  if (!paletteHeader || !navToggle) return;
+
+  paletteHeader.dataset.navOpen = open ? 'true' : 'false';
+  navToggle.setAttribute('aria-expanded', String(open));
+  navToggle.setAttribute('aria-label', open ? '收起导航' : '展开导航');
+  navToggle.querySelector('iconify-icon')?.setAttribute('icon', open ? 'lucide:x' : 'lucide:menu');
+}
+
+function closeMobileNav() {
+  setMobileNavOpen(false);
+}
+
 function optionButtonMarkup(item, type, selectedKey) {
   const icon = item.icon || item.short || '';
   return `
@@ -647,6 +663,13 @@ renderGrid();
 
 themeToggle?.addEventListener('click', () => {
   setTheme(currentTheme() === 'dark' ? 'light' : 'dark');
+});
+navToggle?.addEventListener('click', () => {
+  const open = paletteHeader?.dataset.navOpen === 'true';
+  setMobileNavOpen(!open);
+});
+paletteNav?.addEventListener('click', (event) => {
+  if (event.target.closest('a')) closeMobileNav();
 });
 
 bindOptionClicks(feedList, '[data-feed]', (button) => {
