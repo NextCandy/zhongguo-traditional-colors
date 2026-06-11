@@ -1381,12 +1381,45 @@ h3::before {
   top: 69px;
   z-index: 12;
   display: grid;
-  grid-template-columns: minmax(280px, 1fr) minmax(170px, 220px) auto auto;
+  grid-template-columns: minmax(280px, 1fr) auto minmax(170px, 220px) auto auto;
   gap: 8px;
   align-items: center;
   padding: 10px 0;
   background: var(--paper);
   border-bottom: 1px solid var(--line);
+}
+
+.use-modebar {
+  display: inline-flex;
+  align-items: center;
+  min-height: 48px;
+  padding: 0 8px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+}
+
+.use-modebar button {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  color: color-mix(in srgb, #3868b8 82%, var(--ink));
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+
+.use-modebar button[aria-pressed="true"],
+.use-modebar button:hover,
+.use-modebar button:focus-visible {
+  color: var(--hover-text);
+  background: var(--hover-bg);
+  outline: none;
+}
+
+.use-modebar iconify-icon {
+  width: 18px;
+  height: 18px;
 }
 
 .use-bias {
@@ -1498,6 +1531,148 @@ h3::before {
   margin-top: 26px;
   font-size: clamp(1.02rem, 1.55vw, 1.28rem);
   line-height: 1.72;
+}
+
+.use-pair-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 420px;
+  margin: -18px;
+  border: 1px solid color-mix(in srgb, var(--pair-text) 18%, transparent);
+}
+
+.use-pair-split section {
+  display: grid;
+  align-content: center;
+  gap: 14px;
+  min-width: 0;
+  padding: 28px;
+}
+
+.use-pair-split section:first-child {
+  color: var(--pair-text);
+  background: var(--pair-bg);
+}
+
+.use-pair-split section:last-child {
+  color: var(--pair-bg);
+  background: var(--pair-text);
+}
+
+.use-pair-split span,
+.use-pair-split small {
+  font-family: var(--font-rounded);
+  font-size: 0.75rem;
+  font-weight: 850;
+}
+
+.use-pair-split h3 {
+  margin: 0;
+  color: currentColor;
+  font-size: clamp(2rem, 4vw, 3.4rem);
+  line-height: 1;
+}
+
+.use-pair-scale {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  align-items: end;
+  gap: 10px;
+  min-height: 380px;
+}
+
+.use-pair-scale span {
+  height: var(--step);
+  min-height: 42px;
+  background: color-mix(in srgb, var(--pair-text) var(--step), var(--pair-bg));
+  border: 1px solid color-mix(in srgb, var(--pair-text) 16%, transparent);
+}
+
+.use-pair-image {
+  position: relative;
+  min-height: 390px;
+  overflow: hidden;
+  background:
+    linear-gradient(160deg, color-mix(in srgb, var(--pair-bg) 88%, var(--pair-text)) 0 54%, var(--pair-bg) 54%),
+    var(--pair-bg);
+}
+
+.use-pair-image i,
+.use-pair-image b,
+.use-pair-image span {
+  position: absolute;
+  display: block;
+}
+
+.use-pair-image i {
+  right: 12%;
+  top: 12%;
+  width: 84px;
+  height: 84px;
+  background: var(--pair-text);
+}
+
+.use-pair-image b {
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 46%;
+  background: color-mix(in srgb, var(--pair-text) 72%, var(--pair-bg));
+  clip-path: polygon(0 58%, 24% 24%, 45% 48%, 66% 12%, 100% 58%, 100% 100%, 0 100%);
+}
+
+.use-pair-image span {
+  left: 10%;
+  bottom: 18%;
+  width: 42%;
+  height: 18%;
+  background: color-mix(in srgb, var(--pair-bg) 48%, var(--pair-text));
+}
+
+.use-pair-palette {
+  display: grid;
+  grid-template-rows: 42fr 24fr 18fr 16fr;
+  min-height: 390px;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--pair-text) 14%, transparent);
+}
+
+.use-pair-palette span:nth-child(1) {
+  background: var(--pair-bg);
+}
+
+.use-pair-palette span:nth-child(2) {
+  background: color-mix(in srgb, var(--pair-bg) 72%, var(--pair-text));
+}
+
+.use-pair-palette span:nth-child(3) {
+  background: color-mix(in srgb, var(--pair-text) 74%, var(--pair-bg));
+}
+
+.use-pair-palette span:nth-child(4) {
+  background: var(--pair-text);
+}
+
+.use-pair-caption {
+  align-self: end;
+  max-width: 520px;
+  padding-top: 22px;
+}
+
+.use-pair-caption h3,
+.use-pair-caption p {
+  margin: 0;
+  color: currentColor;
+}
+
+.use-pair-caption h3 {
+  font-size: clamp(1.7rem, 3vw, 2.8rem);
+  line-height: 1.04;
+}
+
+.use-pair-caption p {
+  margin-top: 10px;
+  line-height: 1.6;
 }
 
 .use-pair-meta {
@@ -1619,6 +1794,10 @@ h3::before {
   .use-searchbar {
     position: static;
     grid-template-columns: 1fr;
+  }
+
+  .use-modebar {
+    justify-content: center;
   }
 
   .use-workspace--simple .use-grid {
@@ -1766,6 +1945,17 @@ h3::before {
   .use-pair-card {
     min-height: 520px;
     padding: 28px;
+  }
+
+  .use-pair-split {
+    grid-template-columns: 1fr;
+    min-height: 360px;
+  }
+
+  .use-pair-scale,
+  .use-pair-image,
+  .use-pair-palette {
+    min-height: 320px;
   }
 
   .use-pair-actions {

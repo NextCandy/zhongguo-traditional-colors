@@ -12,6 +12,7 @@ const navToggle = document.querySelector('[data-nav-toggle]');
 const footerColorButtons = document.querySelectorAll('[data-footer-color]');
 const footerCopyStatus = document.querySelector('[data-footer-copy-status]');
 const searchInput = document.querySelector('[data-use-search]');
+const modebar = document.querySelector('[data-use-modebar]');
 const biasInput = document.querySelector('[data-use-bias]');
 const shuffleButton = document.querySelector('[data-use-shuffle]');
 const copyButton = document.querySelector('[data-use-copy]');
@@ -22,6 +23,13 @@ const toast = document.querySelector('[data-toast]');
 
 const STEP = 32;
 const CONNECTOR_PATTERN = /\s*(?:&|\+|with|and|on|配|和)\s*/i;
+const MODES = [
+  { key: 'type', label: '文字', icon: 'lucide:type' },
+  { key: 'split', label: '分栏', icon: 'lucide:columns-2' },
+  { key: 'scale', label: '阶梯', icon: 'lucide:bar-chart-3' },
+  { key: 'image', label: '图像', icon: 'lucide:image' },
+  { key: 'palette', label: '色板', icon: 'lucide:rows-3' },
+];
 const TYPE_TESTS = {
   all: () => true,
   warm: (color) => color.temperature === '暖',
@@ -62,6 +70,7 @@ const TYPE_TESTS = {
 
 let visibleCount = STEP;
 let selectedId = '';
+let currentMode = 'type';
 let randomRanks = new Map();
 let toastTimer;
 let footerCopyTimer;
@@ -261,23 +270,93 @@ function shuffleOrder() {
 
 function cardMarkup(card, index) {
   const contrastLabel = card.ratio >= 4.5 ? '清晰' : '谨慎';
+  const modeBody = modeMarkup(card);
   return `
-    <article class="use-pair-card" tabindex="0" data-use-card="${escapeHtml(card.id)}" aria-selected="${card.id === selectedId ? 'true' : 'false'}" style="--pair-bg: ${escapeHtml(card.background.hex)}; --pair-text: ${escapeHtml(card.text.hex)};">
+    <article class="use-pair-card use-pair-card--${escapeHtml(currentMode)}" tabindex="0" data-use-card="${escapeHtml(card.id)}" aria-selected="${card.id === selectedId ? 'true' : 'false'}" style="--pair-bg: ${escapeHtml(card.background.hex)}; --pair-text: ${escapeHtml(card.text.hex)};">
       <div class="use-pair-actions">
         <button type="button" data-use-color="${escapeHtml(card.background.id)}" aria-label="复制背景色 ${escapeHtml(card.background.name)} ${escapeHtml(card.background.hex)}">背景</button>
         <button type="button" data-use-color="${escapeHtml(card.text.id)}" aria-label="复制文字色 ${escapeHtml(card.text.name)} ${escapeHtml(card.text.hex)}">文字</button>
       </div>
-      <div class="use-pair-type">
-        <h3>${escapeHtml(card.background.name)}</h3>
-        <h4>& ${escapeHtml(card.text.name)} —</h4>
-        <p>${escapeHtml(card.background.name)}作背景，${escapeHtml(card.text.name)}作文字；这组中国色适合先看标题、正文和卡片信息。</p>
-      </div>
+      ${modeBody}
       <footer class="use-pair-meta">
         <span>${String(index + 1).padStart(2, '0')}</span>
         <strong>${escapeHtml(card.background.hex)} / ${escapeHtml(card.text.hex)}</strong>
         <em>${contrastLabel} ${card.ratio.toFixed(1)}:1</em>
       </footer>
     </article>
+  `;
+}
+
+function modeMarkup(card) {
+  if (currentMode === 'split') {
+    return `
+      <div class="use-pair-split">
+        <section>
+          <span>Background</span>
+          <h3>${escapeHtml(card.background.name)}</h3>
+          <small>${escapeHtml(card.background.hex)}</small>
+        </section>
+        <section>
+          <span>Text</span>
+          <h3>${escapeHtml(card.text.name)}</h3>
+          <small>${escapeHtml(card.text.hex)}</small>
+        </section>
+      </div>
+    `;
+  }
+
+  if (currentMode === 'scale') {
+    return `
+      <div class="use-pair-scale" aria-hidden="true">
+        <span style="--step: 10%"></span>
+        <span style="--step: 26%"></span>
+        <span style="--step: 42%"></span>
+        <span style="--step: 58%"></span>
+        <span style="--step: 74%"></span>
+        <span style="--step: 90%"></span>
+      </div>
+      <div class="use-pair-caption">
+        <h3>${escapeHtml(card.background.name)} / ${escapeHtml(card.text.name)}</h3>
+        <p>用阶梯看明度过渡和信息层级。</p>
+      </div>
+    `;
+  }
+
+  if (currentMode === 'image') {
+    return `
+      <div class="use-pair-image" aria-hidden="true">
+        <i></i>
+        <b></b>
+        <span></span>
+      </div>
+      <div class="use-pair-caption">
+        <h3>${escapeHtml(card.background.name)}</h3>
+        <p>${escapeHtml(card.text.name)} 作为图像上的文字色。</p>
+      </div>
+    `;
+  }
+
+  if (currentMode === 'palette') {
+    return `
+      <div class="use-pair-palette" aria-hidden="true">
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+      <div class="use-pair-caption">
+        <h3>${escapeHtml(card.background.name)} & ${escapeHtml(card.text.name)}</h3>
+        <p>用色板条先看面积比例。</p>
+      </div>
+    `;
+  }
+
+  return `
+    <div class="use-pair-type">
+      <h3>${escapeHtml(card.background.name)}</h3>
+      <h4>& ${escapeHtml(card.text.name)} —</h4>
+      <p>${escapeHtml(card.background.name)}作背景，${escapeHtml(card.text.name)}作文字；这组中国色适合先看标题、正文和卡片信息。</p>
+    </div>
   `;
 }
 
@@ -298,7 +377,8 @@ function renderGrid() {
     : '<div class="empty-state"><strong>没有找到卡片</strong><span>试试“月白”“冷色”“深色 & 黄”或 HEX。</span></div>';
 
   if (resultCount) {
-    resultCount.textContent = `已显示 ${visible.length.toLocaleString('zh-CN')} / ${cards.length.toLocaleString('zh-CN')} 张文字卡片`;
+    const mode = MODES.find((item) => item.key === currentMode);
+    resultCount.textContent = `已显示 ${visible.length.toLocaleString('zh-CN')} / ${cards.length.toLocaleString('zh-CN')} 张${mode?.label || '文字'}卡片`;
   }
   if (loadMoreButton) {
     const autoLoadSupported = 'IntersectionObserver' in window;
@@ -328,8 +408,19 @@ function appendCards(count) {
   renderGrid();
 }
 
+function renderModebar() {
+  if (!modebar) return;
+  modebar.innerHTML = MODES.map((mode) => `
+    <button type="button" data-use-mode="${escapeHtml(mode.key)}" aria-pressed="${mode.key === currentMode ? 'true' : 'false'}" title="${escapeHtml(mode.label)}">
+      <iconify-icon icon="${escapeHtml(mode.icon)}" aria-hidden="true"></iconify-icon>
+      <span class="sr-only">${escapeHtml(mode.label)}</span>
+    </button>
+  `).join('');
+}
+
 function rerender(resetVisible = true) {
   if (resetVisible) visibleCount = STEP;
+  renderModebar();
   renderGrid();
 }
 
@@ -472,6 +563,13 @@ footerColorButtons.forEach((button) => {
 
 searchInput?.addEventListener('input', () => rerender());
 biasInput?.addEventListener('input', () => rerender());
+
+modebar?.addEventListener('click', (event) => {
+  const button = event.target.closest('[data-use-mode]');
+  if (!button) return;
+  currentMode = button.dataset.useMode;
+  rerender(false);
+});
 
 shuffleButton?.addEventListener('click', () => {
   shuffleOrder();
