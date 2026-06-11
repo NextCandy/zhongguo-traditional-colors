@@ -42,6 +42,12 @@ const RELATIONS = [
   { key: 'neutral', label: '中性', short: '秩序', use: '正文、分割线、底色' },
 ];
 
+const RELATION_FILTERS = [
+  { key: 'all', label: '全部', short: '00', use: '浏览所有配色关系' },
+  ...RELATIONS,
+];
+const PALETTE_RELATION_KEYS = RELATIONS.map((relation) => relation.key);
+
 const TONES = [
   { key: 'all', label: '全部', icon: '00' },
   { key: 'warm', label: '暖色', icon: '暖' },
@@ -75,7 +81,7 @@ const PALETTE_LIMIT_STEP = 36;
 const FAVORITE_STORAGE_KEY = 'zhongguoPaletteFavorites';
 
 let currentFeed = 'new';
-let currentRelation = 'curated';
+let currentRelation = 'all';
 let currentTone = 'all';
 let visibleCount = PALETTE_LIMIT_STEP;
 let selectedPaletteId = '';
@@ -83,6 +89,7 @@ let favorites = readFavorites();
 let randomRanks = new Map();
 let toastTimer;
 let paletteAutoObserver;
+let palettePool;
 
 function escapeHtml(value) {
   return String(value ?? '').replace(/[&<>"']/g, (character) => ({
@@ -201,7 +208,7 @@ function uniqueColors(colors) {
   });
 }
 
-function relationInfo(key = currentRelation) {
+function relationInfo(key = 'curated') {
   return RELATIONS.find((item) => item.key === key) || RELATIONS[0];
 }
 
@@ -220,7 +227,7 @@ function fallbackIds(harmony) {
   ];
 }
 
-function paletteColorsFor(image, relationKey = currentRelation) {
+function paletteColorsFor(image, relationKey = 'curated') {
   const harmony = harmonies[image.id];
   const anchor = imageToColor(image);
   if (!anchor) return [];
@@ -236,11 +243,11 @@ function paletteColorsFor(image, relationKey = currentRelation) {
   ]).slice(0, 4);
 }
 
-function paletteId(image, relationKey = currentRelation) {
+function paletteId(image, relationKey = 'curated') {
   return `${image.id}-${relationKey}`;
 }
 
-function paletteFromImage(image, relationKey = currentRelation) {
+function paletteFromImage(image, relationKey = 'curated') {
   const harmony = harmonies[image.id];
   const colors = paletteColorsFor(image, relationKey);
   if (colors.length < 4) return null;
@@ -262,10 +269,13 @@ function paletteFromImage(image, relationKey = currentRelation) {
 }
 
 function allPalettes() {
-  return images
-    .filter((image) => image.hex && harmonies[image.id])
-    .map((image) => paletteFromImage(image, currentRelation))
-    .filter(Boolean);
+  if (!palettePool) {
+    palettePool = images
+      .filter((image) => image.hex && harmonies[image.id])
+      .flatMap((image) => PALETTE_RELATION_KEYS.map((relationKey) => paletteFromImage(image, relationKey)))
+      .filter(Boolean);
+  }
+  return palettePool;
 }
 
 function matchesTone(palette) {
@@ -293,6 +303,7 @@ function paletteSearchText(palette) {
 function filteredPalettes(options = {}) {
   const query = searchInput?.value.trim().toLowerCase() || '';
   let palettes = allPalettes()
+    .filter((palette) => currentRelation === 'all' || palette.relationKey === currentRelation)
     .filter(matchesTone)
     .filter((palette) => (query ? paletteSearchText(palette).includes(query) : true));
 
@@ -410,7 +421,7 @@ function optionButtonMarkup(item, type, selectedKey) {
 
 function renderOptions() {
   if (feedList) feedList.innerHTML = FEEDS.map((item) => optionButtonMarkup(item, 'feed', currentFeed)).join('');
-  if (relationList) relationList.innerHTML = RELATIONS.map((item) => optionButtonMarkup(item, 'relation', currentRelation)).join('');
+  if (relationList) relationList.innerHTML = RELATION_FILTERS.map((item) => optionButtonMarkup(item, 'relation', currentRelation)).join('');
   if (toneList) toneList.innerHTML = TONES.map((item) => optionButtonMarkup(item, 'tone', currentTone)).join('');
 }
 
