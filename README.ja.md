@@ -9,6 +9,7 @@
 ## クイックリンク
 
 - [オンラインギャラリーを見る](https://nevertoday.github.io/zhongguo-traditional-colors/)
+- [中国色パレットボードを見る](https://nevertoday.github.io/zhongguo-traditional-colors/palettes.html)
 - [完全 ZIP をダウンロード](https://github.com/nevertoday/zhongguo-traditional-colors/releases/latest/download/zhongguo-traditional-colors-images.zip)
 - [Release を見る](https://github.com/nevertoday/zhongguo-traditional-colors/releases/tag/v0.1.0)
 - [元の 742 色リスト](docs/chinese-color-master-list.md)

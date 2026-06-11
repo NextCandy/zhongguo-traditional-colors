@@ -9,6 +9,7 @@ It contains 742 high-resolution Chinese traditional color cards, aligned with th
 ## Quick Links
 
 - [Browse the online gallery](https://nevertoday.github.io/zhongguo-traditional-colors/)
+- [Open the Chinese color palette board](https://nevertoday.github.io/zhongguo-traditional-colors/palettes.html)
 - [Download the complete ZIP](https://github.com/nevertoday/zhongguo-traditional-colors/releases/latest/download/zhongguo-traditional-colors-images.zip)
 - [View the Release](https://github.com/nevertoday/zhongguo-traditional-colors/releases/tag/v0.1.0)
 - [Original 742-color list](docs/chinese-color-master-list.md)
