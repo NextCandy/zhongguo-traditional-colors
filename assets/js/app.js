@@ -1234,8 +1234,9 @@ function styleTemplateMarkup(scene, scheme) {
       <header class="style-template-meta">
         <span>${escapeHtml(scheme.intent.label)}</span>
         <strong>${escapeHtml(scene.label)}场景预览</strong>
-        <button type="button" data-style-copy="${escapeHtml(scene.key)}" aria-label="复制 ${escapeHtml(scene.label)} 场景配色方案">
+        <button type="button" data-style-copy="${escapeHtml(scene.key)}" aria-label="复制 ${escapeHtml(scene.label)} 场景配色方案" title="复制 ${escapeHtml(scene.label)} 场景配色方案">
           <iconify-icon icon="lucide:copy" aria-hidden="true"></iconify-icon>
+          <span class="sr-only">复制</span>
         </button>
       </header>
       <div class="style-template-canvas">
@@ -1535,6 +1536,21 @@ async function copyStyleTemplate(sceneKey) {
 
   await writeClipboard(styleSceneCopyText(scene, currentStyleLabScheme));
   setStyleLabStatus(`已复制：${scene.label}方案`);
+  return scene;
+}
+
+function setStyleTemplateCopyState(button, scene) {
+  if (!button || !scene) return;
+
+  window.clearTimeout(button._styleCopyTimer);
+  button.dataset.copied = 'true';
+  button.setAttribute('aria-label', `已复制 ${scene.label} 场景配色方案`);
+  button.innerHTML = '<iconify-icon icon="lucide:check" aria-hidden="true"></iconify-icon><span>已复制</span>';
+  button._styleCopyTimer = window.setTimeout(() => {
+    delete button.dataset.copied;
+    button.setAttribute('aria-label', `复制 ${scene.label} 场景配色方案`);
+    button.innerHTML = '<iconify-icon icon="lucide:copy" aria-hidden="true"></iconify-icon><span class="sr-only">复制</span>';
+  }, 1400);
 }
 
 async function copyStyleRole(roleKey) {
@@ -2854,7 +2870,9 @@ styleLab?.addEventListener('click', (event) => {
 
   const copyButton = event.target.closest('[data-style-copy]');
   if (copyButton) {
-    copyStyleTemplate(copyButton.dataset.styleCopy);
+    copyStyleTemplate(copyButton.dataset.styleCopy).then((scene) => {
+      setStyleTemplateCopyState(copyButton, scene);
+    });
   }
 });
 
