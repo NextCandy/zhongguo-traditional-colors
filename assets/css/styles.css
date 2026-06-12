@@ -1182,7 +1182,8 @@ body[data-no-gradient-logic] .studio-direction:focus-visible {
   transition: transform 180ms var(--ease-out-quart), background 180ms ease, border-color 180ms ease, color 180ms ease;
 }
 
-.card-button:hover {
+.card-button:hover,
+.card-button[aria-pressed="true"] {
   color: var(--hover-text);
   background: var(--hover-bg);
   border-color: var(--hover-bg);
@@ -2052,15 +2053,20 @@ body[data-no-gradient-logic] .studio-direction:focus-visible {
 
 .style-template-meta button[data-copied="true"] {
   width: 82px;
-  color: var(--hover-text);
-  background: var(--hover-bg);
-  border-color: var(--hover-bg);
   font-size: 0.76rem;
   font-weight: 850;
 }
 
+.style-template-meta button[data-copied="true"],
+.style-template-meta button[aria-pressed="true"] {
+  color: var(--hover-text);
+  background: var(--hover-bg);
+  border-color: var(--hover-bg);
+}
+
 .style-template-meta button:hover,
-.style-template-meta button:focus-visible {
+.style-template-meta button:focus-visible,
+.style-template-meta button[aria-pressed="true"] {
   color: var(--hover-text);
   background: var(--hover-bg);
   border-color: var(--hover-bg);

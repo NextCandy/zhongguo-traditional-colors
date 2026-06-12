@@ -1567,6 +1567,7 @@ h3::before {
 
 .use-pair-actions button:hover,
 .use-pair-actions button:focus-visible,
+.use-pair-actions button[aria-pressed="true"],
 .use-pair-actions button[data-copied="true"] {
   outline: none;
   opacity: 0.86;

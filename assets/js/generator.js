@@ -52,6 +52,7 @@
   function bindEvents() {
     document.querySelector('[data-generator-generate]')?.addEventListener('click', () => generate());
     document.querySelector('[data-copy-palette]')?.addEventListener('click', () => copyExport('text'));
+    document.querySelector('[data-favorite-generator]')?.addEventListener('click', (event) => toggleGeneratorFavorite(event.currentTarget));
     document.querySelector('[data-generator-rotate]')?.addEventListener('click', rotatePalette);
     document.querySelector('[data-generator-reverse]')?.addEventListener('click', reversePalette);
     document.querySelector('[data-generator-unlock]')?.addEventListener('click', unlockAll);
@@ -397,6 +398,39 @@
     const first = palette[0];
     if (!hint || !first) return;
     hint.textContent = `${methodLabels[method]}生成 · 起点 ${first.name} · ${lockedCount ? `已锁定 ${lockedCount} 色` : '按空格生成新方案'}`;
+    updateGeneratorFavoriteButton();
+  }
+
+  function generatorFavoriteId() {
+    return `generator:${method}:${palette.map((color) => color.cleanHex.replace('#', '')).join('-')}`;
+  }
+
+  function generatorFavoriteItem() {
+    return {
+      id: generatorFavoriteId(),
+      type: 'generator',
+      title: `${methodLabels[method]}生成方案`,
+      subtitle: palette.map((color) => color.name).join(' / '),
+      colors: palette.map((color) => ({ name: color.name, hex: color.cleanHex })),
+      href: exportPayload('url'),
+      text: exportPayload('text'),
+    };
+  }
+
+  function updateGeneratorFavoriteButton() {
+    const button = document.querySelector('[data-favorite-generator]');
+    if (!button || !window.ZH_FAVORITES || !palette.length) return;
+    const active = window.ZH_FAVORITES.has(generatorFavoriteId());
+    button.setAttribute('aria-pressed', String(active));
+    button.setAttribute('aria-label', active ? '取消收藏当前生成方案' : '收藏当前生成方案');
+  }
+
+  function toggleGeneratorFavorite(button) {
+    if (!window.ZH_FAVORITES || !palette.length) return;
+    const result = window.ZH_FAVORITES.toggle(generatorFavoriteItem());
+    updateGeneratorFavoriteButton();
+    showToast(result.active ? '已收藏生成方案' : '已取消收藏生成方案');
+    button?.setAttribute('aria-pressed', String(result.active));
   }
 
   function anchorFromSearch() {

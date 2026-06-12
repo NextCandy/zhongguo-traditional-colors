@@ -1,12 +1,13 @@
 import { readFileSync } from 'node:fs';
 
-const pages = ['index.html', 'style-lab.html', 'generator.html', 'palettes.html', 'uses.html', 'skills.html'];
+const pages = ['index.html', 'style-lab.html', 'generator.html', 'palettes.html', 'uses.html', 'favorites.html', 'skills.html'];
 const pageKeys = {
   'index.html': 'home',
   'style-lab.html': 'style-lab',
   'generator.html': 'generator',
   'palettes.html': 'palettes',
   'uses.html': 'uses',
+  'favorites.html': 'favorites',
   'skills.html': 'skills',
 };
 const pageScripts = {
@@ -15,9 +16,10 @@ const pageScripts = {
   'generator.html': 'assets/js/generator.js',
   'palettes.html': 'assets/js/palettes.js',
   'uses.html': 'assets/js/uses.js',
+  'favorites.html': 'assets/js/favorites.js',
   'skills.html': 'assets/js/app.js',
 };
-const expectedNavLabels = ['浏览色卡', '场景试色', '配色生成', '配色灵感', '用途卡片', 'Skills'];
+const expectedNavLabels = ['浏览色卡', '场景试色', '配色生成', '配色灵感', '用途卡片', '收藏', 'Skills'];
 const sharedChrome = readFileSync('assets/js/shared-chrome.js', 'utf8');
 const oldPaletteChrome = [
   'palette-header',

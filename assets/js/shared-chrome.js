@@ -5,6 +5,7 @@
     { key: 'generator', label: '配色生成', href: 'generator.html' },
     { key: 'palettes', label: '配色灵感', href: 'palettes.html' },
     { key: 'uses', label: '用途卡片', href: 'uses.html' },
+    { key: 'favorites', label: '收藏', href: 'favorites.html' },
     { key: 'skills', label: 'Skills', href: 'skills.html' },
   ];
 
@@ -16,6 +17,7 @@
     if (path === 'generator.html') return 'generator';
     if (path === 'palettes.html') return 'palettes';
     if (path === 'uses.html') return 'uses';
+    if (path === 'favorites.html') return 'favorites';
     if (path === 'skills.html') return 'skills';
     return 'home';
   }

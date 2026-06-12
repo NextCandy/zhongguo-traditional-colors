@@ -1221,6 +1221,8 @@ function styleTemplateRoleMarkup(role, color) {
 
 function styleTemplateMarkup(scene, scheme) {
   const roles = scheme.roles;
+  const favoriteId = styleFavoriteId(scene, scheme);
+  const favoriteActive = window.ZH_FAVORITES?.has(favoriteId);
   const customProperties = [
     `--sample-bg: ${roles.background.hex}`,
     `--sample-title: ${roles.title.hex}`,
@@ -1238,6 +1240,10 @@ function styleTemplateMarkup(scene, scheme) {
         <button type="button" data-style-copy="${escapeHtml(scene.key)}" aria-label="复制 ${escapeHtml(scene.label)} 场景配色方案" title="复制 ${escapeHtml(scene.label)} 场景配色方案">
           <iconify-icon icon="lucide:copy" aria-hidden="true"></iconify-icon>
           <span class="sr-only">复制</span>
+        </button>
+        <button type="button" data-style-favorite="${escapeHtml(scene.key)}" aria-pressed="${favoriteActive ? 'true' : 'false'}" aria-label="${favoriteActive ? '取消收藏' : '收藏'} ${escapeHtml(scene.label)} 场景配色方案" title="${favoriteActive ? '取消收藏' : '收藏'}">
+          <iconify-icon icon="lucide:heart" aria-hidden="true"></iconify-icon>
+          <span class="sr-only">收藏</span>
         </button>
       </header>
       <div class="style-template-canvas">
@@ -1261,6 +1267,38 @@ function setStyleLabStatus(message) {
 
   styleStatus.textContent = message;
   styleStatus.dataset.visible = message ? 'true' : 'false';
+}
+
+function colorFavoriteItem(image) {
+  const title = colorTitle(image);
+  const value = colorValue(image);
+  return {
+    id: `color:${image.id}`,
+    type: 'color',
+    title,
+    subtitle: `${image.id} · ${value}`,
+    colors: [{ hex: image.hex }],
+    href: 'index.html#gallery',
+    text: `${title} ${value}`,
+  };
+}
+
+function styleFavoriteId(scene, scheme = currentStyleLabScheme) {
+  if (!scene || !scheme) return '';
+  return `style:${scene.key}:${scheme.intent.key}:${STYLE_LAB_ROLES.map((role) => scheme.roles[role.key]?.hex || '').join('-')}`;
+}
+
+function styleFavoriteItem(scene, scheme = currentStyleLabScheme) {
+  const colors = STYLE_LAB_ROLES.map((role) => scheme.roles[role.key]).filter(Boolean);
+  return {
+    id: styleFavoriteId(scene, scheme),
+    type: 'style',
+    title: `${scene.label}场景 · ${scheme.intent.label}`,
+    subtitle: `${scheme.anchor.name} 起稿 · ${colors.map((color) => color.name).join(' / ')}`,
+    colors,
+    href: 'style-lab.html',
+    text: styleSceneCopyText(scene, scheme),
+  };
 }
 
 function renderStyleLab(statusMessage = '', options = {}) {
@@ -2341,6 +2379,8 @@ function cardMarkup(image) {
   const hex = image.hex || '';
   const displayTitle = hex ? `${title} · ${hex}` : title;
   const copyValue = colorValue(image);
+  const favoriteItem = colorFavoriteItem(image);
+  const favoriteActive = window.ZH_FAVORITES?.has(favoriteItem.id);
   const formatOptions = COLOR_VALUE_TYPES.map((type) => (
     `<option value="${type.value}"${type.value === selectedColorValueType ? ' selected' : ''}>${type.label}</option>`
   )).join('');
@@ -2369,6 +2409,9 @@ function cardMarkup(image) {
         <span class="card-actions">
           <button class="card-button" type="button" data-open-color-preview="${image.id}" aria-label="查看 ${title} 配色关系">
             <iconify-icon icon="lucide:palette" aria-hidden="true"></iconify-icon>
+          </button>
+          <button class="card-button" type="button" data-favorite-color="${image.id}" aria-pressed="${favoriteActive ? 'true' : 'false'}" aria-label="${favoriteActive ? '取消收藏' : '收藏'} ${title}">
+            <iconify-icon icon="lucide:heart" aria-hidden="true"></iconify-icon>
           </button>
           <a class="card-button" href="${url}" download aria-label="下载 ${title}">
             <iconify-icon icon="lucide:download" aria-hidden="true"></iconify-icon>
@@ -2885,6 +2928,17 @@ styleLab?.addEventListener('click', (event) => {
     copyStyleTemplate(copyButton.dataset.styleCopy).then((scene) => {
       setStyleTemplateCopyState(copyButton, scene);
     });
+    return;
+  }
+
+  const favoriteButton = event.target.closest('[data-style-favorite]');
+  if (favoriteButton) {
+    const scene = STYLE_LAB_SCENES.find((item) => item.key === favoriteButton.dataset.styleFavorite);
+    if (!scene || !currentStyleLabScheme || !window.ZH_FAVORITES) return;
+    const result = window.ZH_FAVORITES.toggle(styleFavoriteItem(scene));
+    favoriteButton.setAttribute('aria-pressed', String(result.active));
+    favoriteButton.setAttribute('aria-label', `${result.active ? '取消收藏' : '收藏'} ${scene.label} 场景配色方案`);
+    setStyleLabStatus(result.active ? `已收藏：${scene.label}场景` : `已取消收藏：${scene.label}场景`);
   }
 });
 
@@ -2898,6 +2952,16 @@ gallery?.addEventListener('click', (event) => {
   const copyButton = event.target.closest('[data-copy-color]');
   if (copyButton) {
     copyHex(copyButton);
+    return;
+  }
+
+  const favoriteButton = event.target.closest('[data-favorite-color]');
+  if (favoriteButton) {
+    const image = images.find((item) => item.id === favoriteButton.dataset.favoriteColor);
+    if (!image || !window.ZH_FAVORITES) return;
+    const result = window.ZH_FAVORITES.toggle(colorFavoriteItem(image));
+    favoriteButton.setAttribute('aria-pressed', String(result.active));
+    favoriteButton.setAttribute('aria-label', `${result.active ? '取消收藏' : '收藏'} ${colorTitle(image)}`);
   }
 });
 gallery?.addEventListener('change', (event) => {

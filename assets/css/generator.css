@@ -57,6 +57,7 @@
 }
 
 .generator-method button[aria-pressed="true"],
+.generator-actions button[aria-pressed="true"],
 .generator-method button:hover,
 .generator-method button:focus-visible,
 .generator-actions button:hover,

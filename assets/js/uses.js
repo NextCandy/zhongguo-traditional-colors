@@ -332,12 +332,17 @@ function shuffleOrder() {
 function cardMarkup(card, index) {
   const contrastLabel = card.ratio >= 4.5 ? '清晰' : '谨慎';
   const modeBody = modeMarkup(card);
+  const favoriteActive = window.ZH_FAVORITES?.has(`use:${card.id}`);
   return `
     <article class="use-pair-card use-pair-card--${escapeHtml(currentMode)}" tabindex="0" data-use-card="${escapeHtml(card.id)}" aria-selected="${card.id === selectedId ? 'true' : 'false'}" style="--pair-bg: ${escapeHtml(card.background.hex)}; --pair-text: ${escapeHtml(card.text.hex)};">
       <div class="use-pair-actions">
         <button type="button" data-use-copy-card="${escapeHtml(card.id)}" aria-label="复制 ${escapeHtml(card.background.name)} 和 ${escapeHtml(card.text.name)} 整组配色">
           <iconify-icon icon="lucide:copy" aria-hidden="true"></iconify-icon>
           复制方案
+        </button>
+        <button type="button" data-use-favorite="${escapeHtml(card.id)}" aria-pressed="${favoriteActive ? 'true' : 'false'}" aria-label="${favoriteActive ? '取消收藏' : '收藏'} ${escapeHtml(card.background.name)} 和 ${escapeHtml(card.text.name)}">
+          <iconify-icon icon="lucide:heart" aria-hidden="true"></iconify-icon>
+          收藏
         </button>
         <button type="button" data-use-remix="${escapeHtml(card.background.id)}" aria-label="以 ${escapeHtml(card.background.name)} 重新生成配色">
           <iconify-icon icon="lucide:shuffle" aria-hidden="true"></iconify-icon>
@@ -507,6 +512,18 @@ function cardText(card) {
     `对比：${card.ratio.toFixed(1)}:1`,
     `建议：${card.background.name}作背景，${card.text.name}作标题、正文或按钮文字。`,
   ].join('\n');
+}
+
+function useFavoriteItem(card) {
+  return {
+    id: `use:${card.id}`,
+    type: 'use',
+    title: `${card.background.name} & ${card.text.name}`,
+    subtitle: `${card.background.hex} 背景 / ${card.text.hex} 文字 · 对比 ${card.ratio.toFixed(1)}:1`,
+    colors: [card.background, card.text],
+    href: `uses.html?pair=${encodeURIComponent(card.id)}`,
+    text: cardText(card),
+  };
 }
 
 async function writeClipboard(text) {
@@ -700,6 +717,17 @@ grid?.addEventListener('click', (event) => {
   if (remixButton) {
     event.stopPropagation();
     remixFromColor(remixButton.dataset.useRemix);
+    return;
+  }
+
+  const favoriteButton = event.target.closest('[data-use-favorite]');
+  if (favoriteButton) {
+    event.stopPropagation();
+    const card = findCard(favoriteButton.dataset.useFavorite);
+    if (!card || !window.ZH_FAVORITES) return;
+    const result = window.ZH_FAVORITES.toggle(useFavoriteItem(card));
+    favoriteButton.setAttribute('aria-pressed', String(result.active));
+    setUseActionState(favoriteButton, result.active ? '已收藏' : '收藏');
     return;
   }
 

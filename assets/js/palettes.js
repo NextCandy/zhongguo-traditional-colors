@@ -691,6 +691,18 @@ function favoritePaletteText(palette) {
   ].join('\n');
 }
 
+function unifiedPaletteFavoriteItem(palette) {
+  return {
+    id: `palette:${palette.id}`,
+    type: 'palette',
+    title: `${palette.anchor.name} · ${palette.relationLabel}`,
+    subtitle: `${palette.relationShort} · ${palette.use}`,
+    colors: palette.colors.map((color) => ({ name: color.name, hex: color.hex })),
+    href: `palettes.html?palette=${encodeURIComponent(palette.id)}`,
+    text: favoritePaletteText(palette),
+  };
+}
+
 function uint16(value) {
   const bytes = new Uint8Array(2);
   const view = new DataView(bytes.buffer);
@@ -883,7 +895,7 @@ function paletteColorLabelMarkup(color, index) {
 }
 
 function paletteCardMarkup(palette) {
-  const favorite = favorites.has(palette.id);
+  const favorite = favorites.has(palette.id) || window.ZH_FAVORITES?.has(`palette:${palette.id}`);
   const selected = palette.id === selectedPaletteId;
   const favoriteLabel = favorite ? '<span>已收藏</span>' : '';
 
@@ -1051,11 +1063,14 @@ function selectPalette(id) {
 }
 
 function toggleFavorite(id) {
+  const palette = findPalette(id);
   if (favorites.has(id)) {
     favorites.delete(id);
+    if (palette) window.ZH_FAVORITES?.remove(`palette:${palette.id}`);
     showToast('已取消收藏');
   } else {
     favorites.add(id);
+    if (palette) window.ZH_FAVORITES?.upsert(unifiedPaletteFavoriteItem(palette));
     showToast('已加入收藏');
   }
   saveFavorites();
