@@ -1060,7 +1060,7 @@ body[data-no-gradient-logic] .studio-direction:focus-visible {
 
 .gallery-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 20px;
 }
 
@@ -4152,7 +4152,7 @@ body[data-no-gradient-logic] .skills-list::before {
 
 .open-steps {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 1px;
   background: var(--line);
 }
@@ -5680,7 +5680,7 @@ body[data-no-gradient-logic] .skills-list::before {
 
 .master-color-list {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   max-height: 58vh;
   padding: 12px clamp(26px, 4vw, 38px) 18px;
   overflow: auto;

@@ -503,7 +503,7 @@ h3::before {
 
 .palette-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
   gap: 30px 24px;
 }
 
@@ -1504,7 +1504,7 @@ h3::before {
 
 .use-workspace--simple .use-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(520px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(440px, 1fr));
   gap: 20px;
 }
 
