@@ -522,6 +522,7 @@ h3::before {
 }
 
 .palette-stack {
+  --palette-radius: 8px;
   container-type: inline-size;
   position: relative;
   display: grid;
@@ -531,6 +532,7 @@ h3::before {
   overflow: hidden;
   background: var(--panel);
   border: 1px solid var(--line);
+  border-radius: var(--palette-radius);
   box-shadow: none;
   transition: border-color 160ms ease, transform 220ms var(--ease-out-quart), box-shadow 200ms ease;
 }
@@ -552,14 +554,24 @@ h3::before {
   text-align: left;
 }
 
+.palette-swatch:first-child {
+  border-radius: calc(var(--palette-radius) - 1px) calc(var(--palette-radius) - 1px) 0 0;
+}
+
+.palette-swatch:last-of-type {
+  border-radius: 0 0 calc(var(--palette-radius) - 1px) calc(var(--palette-radius) - 1px);
+}
+
 .palette-color-list {
   position: absolute;
   inset: 0;
   display: grid;
   grid-template-rows: var(--stack-0, 41fr) var(--stack-1, 26fr) var(--stack-2, 18fr) var(--stack-3, 15fr);
+  overflow: hidden;
+  border-radius: calc(var(--palette-radius) - 1px);
   pointer-events: none;
   opacity: 0;
-  transition: opacity 160ms ease;
+  transition: opacity 220ms ease;
 }
 
 .palette-color-label {
@@ -571,8 +583,8 @@ h3::before {
   color: var(--label-text);
   overflow: visible;
   opacity: 0;
-  transform: translateY(-8px);
-  transition: opacity 190ms ease, transform 220ms var(--ease-out-quart);
+  transform: translate3d(-5px, 4px, 0);
+  transition: opacity 260ms ease, transform 300ms var(--ease-out-expo);
   transition-delay: 0ms;
 }
 
@@ -607,8 +619,8 @@ h3::before {
 .palette-card:hover .palette-color-label,
 .palette-card:focus-within .palette-color-label {
   opacity: 1;
-  transform: translateY(0);
-  transition-delay: calc(var(--label-index) * 55ms);
+  transform: translate3d(0, 0, 0);
+  transition-delay: calc(var(--label-index) * 34ms);
 }
 
 @media (hover: none) {
