@@ -1,6 +1,7 @@
 (() => {
   const pages = [
     { key: 'home', label: '浏览色卡', href: 'index.html#gallery' },
+    { key: 'dictionary', label: '色彩字典', href: 'dictionary.html' },
     { key: 'style-lab', label: '场景试色', href: 'style-lab.html' },
     { key: 'generator', label: '配色生成', href: 'generator.html' },
     { key: 'palettes', label: '配色灵感', href: 'palettes.html' },
@@ -9,10 +10,29 @@
     { key: 'skills', label: 'Skills', href: 'skills.html' },
   ];
 
+  const brandHoverColors = [
+    { name: '月白', hex: '#F9F4DC' },
+    { name: '佛手黄', hex: '#FED71A' },
+    { name: '香叶红', hex: '#F07C82' },
+    { name: '银朱', hex: '#ED5126' },
+    { name: '竹绿', hex: '#1BA784' },
+    { name: '美蝶绿', hex: '#12AA9C' },
+    { name: '晴山蓝', hex: '#8EC3E6' },
+    { name: '釉蓝', hex: '#1781B5' },
+    { name: '花青', hex: '#1661AB' },
+    { name: '玫瑰紫', hex: '#BA2F7B' },
+    { name: '绛紫', hex: '#8B2671' },
+    { name: '枣红', hex: '#7C1823' },
+    { name: '赭罗', hex: '#9A8878' },
+    { name: '茶褐', hex: '#5C3719' },
+    { name: '玛瑙灰', hex: '#CFCCC9' },
+  ];
+
   const currentPage = document.body?.dataset.currentPage || pageKeyFromPath();
 
   function pageKeyFromPath() {
     const path = window.location.pathname.split('/').pop() || 'index.html';
+    if (path === 'dictionary.html') return 'dictionary';
     if (path === 'style-lab.html') return 'style-lab';
     if (path === 'generator.html') return 'generator';
     if (path === 'palettes.html') return 'palettes';
@@ -88,10 +108,58 @@
 
   document.querySelector('[data-shared-header]')?.replaceWith(template(headerMarkup()));
   document.querySelector('[data-shared-footer]')?.replaceWith(template(footerMarkup()));
+  bindBrandColorHover(document.querySelector('.brand-mark'));
 
   function template(markup) {
     const element = document.createElement('template');
     element.innerHTML = markup.trim();
     return element.content;
+  }
+
+  function rgbFromHex(hex) {
+    const match = hex?.match(/^#?([0-9a-f]{6})$/i);
+    if (!match) return null;
+    const value = Number.parseInt(match[1], 16);
+    return {
+      r: (value >> 16) & 255,
+      g: (value >> 8) & 255,
+      b: value & 255,
+    };
+  }
+
+  function relativeLuminance(hex) {
+    const rgb = rgbFromHex(hex);
+    if (!rgb) return 0;
+    const [r, g, b] = [rgb.r, rgb.g, rgb.b].map((channel) => {
+      const value = channel / 255;
+      return value <= 0.03928 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
+    });
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  }
+
+  function randomBrandColors() {
+    const pool = [...brandHoverColors];
+    for (let index = pool.length - 1; index > 0; index -= 1) {
+      const swapIndex = Math.floor(Math.random() * (index + 1));
+      [pool[index], pool[swapIndex]] = [pool[swapIndex], pool[index]];
+    }
+    return pool.slice(0, 3);
+  }
+
+  function setBrandHoverColors(brand) {
+    const colors = randomBrandColors();
+    const averageLuminance = colors.reduce((total, color) => total + relativeLuminance(color.hex), 0) / colors.length;
+    brand.style.setProperty('--brand-hover-a', colors[0].hex);
+    brand.style.setProperty('--brand-hover-b', colors[1].hex);
+    brand.style.setProperty('--brand-hover-c', colors[2].hex);
+    brand.style.setProperty('--brand-hover-ink', averageLuminance > 0.56 ? '#111111' : '#f7f7f4');
+    brand.dataset.brandColors = colors.map((color) => `${color.name} ${color.hex}`).join(' / ');
+  }
+
+  function bindBrandColorHover(brand) {
+    if (!brand) return;
+    setBrandHoverColors(brand);
+    brand.addEventListener('pointerenter', () => setBrandHoverColors(brand));
+    brand.addEventListener('focus', () => setBrandHoverColors(brand));
   }
 })();

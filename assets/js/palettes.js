@@ -897,7 +897,6 @@ function paletteColorLabelMarkup(color, index) {
 function paletteCardMarkup(palette) {
   const favorite = favorites.has(palette.id) || window.ZH_FAVORITES?.has(`palette:${palette.id}`);
   const selected = palette.id === selectedPaletteId;
-  const favoriteLabel = favorite ? '<span>已收藏</span>' : '';
 
   return `
     <article class="palette-card" tabindex="0" data-palette-id="${escapeHtml(palette.id)}" aria-selected="${selected ? 'true' : 'false'}">
@@ -906,12 +905,13 @@ function paletteCardMarkup(palette) {
         <div class="palette-color-list" aria-hidden="true">
           ${palette.colors.map(paletteColorLabelMarkup).join('')}
         </div>
-      </div>
-      <footer class="palette-card-footer">
         <button class="favorite-button" type="button" data-favorite="${escapeHtml(palette.id)}" aria-pressed="${favorite ? 'true' : 'false'}" aria-label="${favorite ? '取消收藏' : '收藏'} ${escapeHtml(palette.anchor.name)} 配色">
           <iconify-icon icon="lucide:heart" aria-hidden="true"></iconify-icon>
-          ${favoriteLabel}
+          <span class="sr-only">${favorite ? '已收藏' : '收藏'}</span>
         </button>
+      </div>
+      <footer class="palette-card-footer">
+        <span>${escapeHtml(palette.anchor.name)} · ${escapeHtml(palette.relationLabel)}</span>
         <button class="copy-palette-button" type="button" data-copy-palette="${escapeHtml(palette.id)}">
           <iconify-icon icon="lucide:copy" aria-hidden="true"></iconify-icon>
           整组
@@ -919,6 +919,28 @@ function paletteCardMarkup(palette) {
       </footer>
     </article>
   `;
+}
+
+function setFavoriteButtonState(button, active, feedback = false, palette = null) {
+  if (!button) return;
+  window.clearTimeout(button._favoriteTimer);
+  const labelText = palette?.anchor?.name ? `${palette.anchor.name} 配色` : '配色';
+  button.setAttribute('aria-pressed', String(active));
+  button.setAttribute('aria-label', `${active ? '取消收藏' : '收藏'} ${labelText}`);
+  button.title = active ? '取消收藏' : '收藏';
+  const icon = button.querySelector('iconify-icon');
+  const label = button.querySelector('.sr-only');
+  icon?.setAttribute('icon', feedback ? (active ? 'lucide:check' : 'lucide:heart-off') : 'lucide:heart');
+  if (label) label.textContent = active ? '已收藏' : '收藏';
+  if (!feedback) {
+    delete button.dataset.feedback;
+    return;
+  }
+  button.dataset.feedback = 'true';
+  button._favoriteTimer = window.setTimeout(() => {
+    delete button.dataset.feedback;
+    icon?.setAttribute('icon', 'lucide:heart');
+  }, 1300);
 }
 
 function currentPaletteList() {
@@ -1062,8 +1084,9 @@ function selectPalette(id) {
   renderGrid();
 }
 
-function toggleFavorite(id) {
+function toggleFavorite(id, button) {
   const palette = findPalette(id);
+  const active = !favorites.has(id);
   if (favorites.has(id)) {
     favorites.delete(id);
     if (palette) window.ZH_FAVORITES?.remove(`palette:${palette.id}`);
@@ -1074,7 +1097,12 @@ function toggleFavorite(id) {
     showToast('已加入收藏');
   }
   saveFavorites();
-  rerender(false);
+  updateFavoriteExportButton();
+  if (currentFeed === 'collection') {
+    rerender(false);
+    return;
+  }
+  setFavoriteButtonState(button, active, true, palette);
 }
 
 function bindOptionClicks(container, selector, callback) {
@@ -1170,7 +1198,7 @@ paletteGrid?.addEventListener('click', (event) => {
   const favoriteButton = event.target.closest('[data-favorite]');
   if (favoriteButton) {
     event.stopPropagation();
-    toggleFavorite(favoriteButton.dataset.favorite);
+    toggleFavorite(favoriteButton.dataset.favorite, favoriteButton);
     return;
   }
 

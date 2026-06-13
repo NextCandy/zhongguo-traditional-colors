@@ -22,7 +22,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700&family=Noto+Serif+SC:wght@600;700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/styles.css?v=20260612-12">
+    <link rel="stylesheet" href="assets/css/styles.css?v=20260613-4">
     <script src="https://code.iconify.design/iconify-icon/3.0.0/iconify-icon.min.js" defer></script>
   </head>
   <body data-current-page="style-lab">
@@ -44,15 +44,20 @@
               <span class="style-lab-label">01 选择中国色</span>
               <button class="style-anchor-card" type="button" data-style-anchor-button aria-label="切换当前中国色">
                 <span class="style-anchor-swatch" data-style-anchor-swatch aria-hidden="true"></span>
-                <span>
+                <span class="style-anchor-copy">
+                  <em>当前中国色</em>
                   <strong data-style-anchor>正在读取色库</strong>
                   <small data-style-anchor-meta>默认随机一个传统色</small>
+                </span>
+                <span class="style-anchor-action" aria-hidden="true">
+                  <iconify-icon icon="lucide:replace" aria-hidden="true"></iconify-icon>
+                  更换
                 </span>
               </button>
               <label class="style-color-search">
                 <span class="sr-only">搜索并切换当前中国色</span>
                 <iconify-icon icon="lucide:search" aria-hidden="true"></iconify-icon>
-                <input type="search" data-style-color-search list="style-color-options" placeholder="搜索色名 / 编号 / HEX" autocomplete="off">
+                <input type="search" data-style-color-search list="style-color-options" placeholder="输入色名 / 编号 / HEX，回车切换" autocomplete="off">
                 <datalist id="style-color-options" data-style-color-options></datalist>
               </label>
               <label class="style-format-select">
@@ -72,6 +77,10 @@
                 <button class="button button-secondary" type="button" data-style-copy-all>
                   <iconify-icon icon="lucide:copy" aria-hidden="true"></iconify-icon>
                   复制方案
+                </button>
+                <button class="button button-secondary style-scheme-favorite" type="button" data-style-scheme-favorite aria-pressed="false" aria-label="收藏当前试色方案" title="收藏当前试色方案">
+                  <iconify-icon icon="lucide:heart" aria-hidden="true"></iconify-icon>
+                  <span data-style-scheme-favorite-label>收藏方案</span>
                 </button>
                 <button class="button button-secondary" type="button" data-style-copy-css>
                   <iconify-icon icon="lucide:braces" aria-hidden="true"></iconify-icon>
@@ -146,11 +155,11 @@
       </div>
     </dialog>
 
-    <script src="assets/js/shared-chrome.js?v=20260612-3"></script>
+    <script src="assets/js/shared-chrome.js?v=20260613-1"></script>
     <script src="assets/js/favorites-store.js?v=20260612-1"></script>
     <script src="assets/data/images.js?v=20260610-6"></script>
     <script src="assets/data/harmonies.js?v=20260610-6"></script>
     <script src="assets/data/harmony-usage.js?v=20260610-6"></script>
-    <script src="assets/js/app.js?v=20260612-7"></script>
+    <script src="assets/js/app.js?v=20260613-3"></script>
   </body>
 </html>

@@ -335,14 +335,14 @@ function cardMarkup(card, index) {
   const favoriteActive = window.ZH_FAVORITES?.has(`use:${card.id}`);
   return `
     <article class="use-pair-card use-pair-card--${escapeHtml(currentMode)}" tabindex="0" data-use-card="${escapeHtml(card.id)}" aria-selected="${card.id === selectedId ? 'true' : 'false'}" style="--pair-bg: ${escapeHtml(card.background.hex)}; --pair-text: ${escapeHtml(card.text.hex)};">
+      <button class="use-favorite-button" type="button" data-use-favorite="${escapeHtml(card.id)}" aria-pressed="${favoriteActive ? 'true' : 'false'}" aria-label="${favoriteActive ? '取消收藏' : '收藏'} ${escapeHtml(card.background.name)} 和 ${escapeHtml(card.text.name)}" title="${favoriteActive ? '取消收藏' : '收藏'}">
+        <iconify-icon icon="lucide:heart" aria-hidden="true"></iconify-icon>
+        <span class="sr-only">${favoriteActive ? '已收藏' : '收藏'}</span>
+      </button>
       <div class="use-pair-actions">
         <button type="button" data-use-copy-card="${escapeHtml(card.id)}" aria-label="复制 ${escapeHtml(card.background.name)} 和 ${escapeHtml(card.text.name)} 整组配色">
           <iconify-icon icon="lucide:copy" aria-hidden="true"></iconify-icon>
           复制方案
-        </button>
-        <button type="button" data-use-favorite="${escapeHtml(card.id)}" aria-pressed="${favoriteActive ? 'true' : 'false'}" aria-label="${favoriteActive ? '取消收藏' : '收藏'} ${escapeHtml(card.background.name)} 和 ${escapeHtml(card.text.name)}">
-          <iconify-icon icon="lucide:heart" aria-hidden="true"></iconify-icon>
-          收藏
         </button>
         <button type="button" data-use-remix="${escapeHtml(card.background.id)}" aria-label="以 ${escapeHtml(card.background.name)} 重新生成配色">
           <iconify-icon icon="lucide:shuffle" aria-hidden="true"></iconify-icon>
@@ -581,10 +581,28 @@ function setUseActionState(button, label) {
   window.clearTimeout(button._useActionTimer);
   const original = button.innerHTML;
   button.dataset.copied = 'true';
-  button.innerHTML = `<iconify-icon icon="lucide:check" aria-hidden="true"></iconify-icon>${escapeHtml(label)}`;
+  const compact = button.classList.contains('use-favorite-button');
+  button.innerHTML = compact
+    ? `<iconify-icon icon="lucide:check" aria-hidden="true"></iconify-icon><span class="sr-only">${escapeHtml(label)}</span>`
+    : `<iconify-icon icon="lucide:check" aria-hidden="true"></iconify-icon>${escapeHtml(label)}`;
   button._useActionTimer = window.setTimeout(() => {
     delete button.dataset.copied;
     button.innerHTML = original;
+  }, 1300);
+}
+
+function setUseFavoriteState(button, active, card) {
+  if (!button || !card) return;
+
+  window.clearTimeout(button._useActionTimer);
+  button.setAttribute('aria-pressed', String(active));
+  button.setAttribute('aria-label', `${active ? '取消收藏' : '收藏'} ${card.background.name} 和 ${card.text.name}`);
+  button.title = active ? '取消收藏' : '收藏';
+  button.dataset.feedback = 'true';
+  button.innerHTML = `<iconify-icon icon="${active ? 'lucide:check' : 'lucide:heart-off'}" aria-hidden="true"></iconify-icon><span class="sr-only">${active ? '已收藏' : '已取消'}</span>`;
+  button._useActionTimer = window.setTimeout(() => {
+    delete button.dataset.feedback;
+    button.innerHTML = `<iconify-icon icon="lucide:heart" aria-hidden="true"></iconify-icon><span class="sr-only">${active ? '已收藏' : '收藏'}</span>`;
   }, 1300);
 }
 
@@ -726,8 +744,7 @@ grid?.addEventListener('click', (event) => {
     const card = findCard(favoriteButton.dataset.useFavorite);
     if (!card || !window.ZH_FAVORITES) return;
     const result = window.ZH_FAVORITES.toggle(useFavoriteItem(card));
-    favoriteButton.setAttribute('aria-pressed', String(result.active));
-    setUseActionState(favoriteButton, result.active ? '已收藏' : '收藏');
+    setUseFavoriteState(favoriteButton, result.active, card);
     return;
   }
 

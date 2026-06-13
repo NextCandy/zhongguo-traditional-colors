@@ -175,6 +175,10 @@ h3::before {
   align-items: center;
   gap: 12px;
   text-decoration: none;
+  --brand-hover-a: #2bae85;
+  --brand-hover-b: #1781b5;
+  --brand-hover-c: #f07c82;
+  --brand-hover-ink: #f7f7f4;
 }
 
 .brand-mark span {
@@ -185,11 +189,37 @@ h3::before {
   color: var(--inverse);
   background: var(--ink);
   font-weight: 600;
+  transition: background 260ms var(--ease-out-quart), color 180ms ease, transform 220ms var(--ease-out-quart);
 }
 
 .brand-mark strong {
   font-size: 0.95rem;
   font-weight: 600;
+  transition: color 180ms ease, background-position 380ms var(--ease-out-quart);
+}
+
+.brand-mark:hover span,
+.brand-mark:focus-visible span {
+  color: var(--brand-hover-ink);
+  background: linear-gradient(135deg, var(--brand-hover-a), var(--brand-hover-b) 54%, var(--brand-hover-c));
+  transform: translateY(-1px);
+}
+
+.brand-mark:focus-visible {
+  outline: 1px solid color-mix(in srgb, var(--ink) 28%, transparent);
+  outline-offset: 4px;
+}
+
+@supports ((background-clip: text) or (-webkit-background-clip: text)) {
+  .brand-mark:hover strong,
+  .brand-mark:focus-visible strong {
+    color: transparent;
+    background: linear-gradient(90deg, var(--brand-hover-a), var(--brand-hover-b), var(--brand-hover-c));
+    background-size: 180% 100%;
+    background-position: 100% 50%;
+    -webkit-background-clip: text;
+    background-clip: text;
+  }
 }
 
 .site-nav {
@@ -202,6 +232,7 @@ h3::before {
 
 .site-nav a,
 .site-nav button {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -213,16 +244,50 @@ h3::before {
   cursor: pointer;
   font-weight: 500;
   text-decoration: none;
+  transition: color 180ms ease, background 180ms ease;
+}
+
+.site-nav a::after,
+.site-nav button::after {
+  position: absolute;
+  right: clamp(8px, 0.75vw, 12px);
+  bottom: 5px;
+  left: clamp(8px, 0.75vw, 12px);
+  height: 1px;
+  background: currentColor;
+  opacity: 0;
+  content: "";
+  transform: scaleX(0.35);
+  transform-origin: center;
+  transition: opacity 180ms ease, transform 220ms var(--ease-out-quart);
 }
 
 .site-nav a:hover,
 .site-nav a:focus-visible,
-.site-nav a[aria-current="page"],
 .site-nav button:hover,
 .site-nav button:focus-visible {
-  color: var(--hover-text);
-  background: var(--hover-bg);
+  color: var(--ink);
+  background: color-mix(in srgb, var(--ink) 5%, transparent);
   outline: none;
+}
+
+.site-nav a[aria-current="page"] {
+  color: var(--ink);
+  background: transparent;
+  font-weight: 650;
+}
+
+.site-nav a:hover::after,
+.site-nav a:focus-visible::after,
+.site-nav a[aria-current="page"]::after,
+.site-nav button:hover::after,
+.site-nav button:focus-visible::after {
+  opacity: 0.52;
+  transform: scaleX(1);
+}
+
+.site-nav a[aria-current="page"]::after {
+  opacity: 0.7;
 }
 
 .site-nav iconify-icon,
@@ -266,9 +331,9 @@ h3::before {
 .theme-toggle:focus-visible,
 .nav-menu-toggle:hover,
 .nav-menu-toggle:focus-visible {
-  color: var(--hover-text);
-  background: var(--hover-bg);
-  border-color: var(--hover-bg);
+  color: var(--ink);
+  background: color-mix(in srgb, var(--ink) 6%, transparent);
+  border-color: color-mix(in srgb, var(--ink) 18%, transparent);
   outline: none;
   opacity: 1;
   transform: translateY(-1px);
@@ -536,23 +601,23 @@ h3::before {
   height: auto;
   overflow: hidden;
   background: var(--panel);
-  border: 1px solid var(--line);
+  border: 1px solid color-mix(in srgb, var(--line) 46%, transparent);
   border-radius: var(--palette-radius);
   box-shadow: none;
-  transition: border-color 160ms ease, border-radius 260ms var(--ease-out-expo), transform 220ms var(--ease-out-quart), box-shadow 200ms ease;
+  transition: border-color 220ms ease, border-radius 320ms var(--ease-out-expo), transform 220ms var(--ease-out-quart), box-shadow 200ms ease;
 }
 
 .palette-card:hover .palette-stack,
 .palette-card:focus-within .palette-stack {
   --palette-radius: 8px;
   --palette-inner-radius: 7px;
-  border-color: var(--line-strong);
+  border-color: color-mix(in srgb, var(--line) 72%, transparent);
   box-shadow: var(--shadow-soft);
   transform: translateY(-2px);
 }
 
 .palette-card[aria-selected="true"] .palette-stack {
-  border-color: var(--line-strong);
+  border-color: color-mix(in srgb, var(--line) 72%, transparent);
   box-shadow: var(--shadow-soft);
   transform: translateY(-2px);
 }
@@ -571,8 +636,18 @@ h3::before {
   border-radius: var(--palette-inner-radius) var(--palette-inner-radius) 0 0;
 }
 
-.palette-swatch:last-of-type {
+.palette-swatch:has(+ .palette-color-list) {
   border-radius: 0 0 var(--palette-inner-radius) var(--palette-inner-radius);
+}
+
+.palette-card:hover .palette-swatch:first-child,
+.palette-card:focus-within .palette-swatch:first-child {
+  border-radius: 7px 7px 0 0;
+}
+
+.palette-card:hover .palette-swatch:has(+ .palette-color-list),
+.palette-card:focus-within .palette-swatch:has(+ .palette-color-list) {
+  border-radius: 0 0 7px 7px;
 }
 
 .palette-color-list {
@@ -596,7 +671,7 @@ h3::before {
   color: var(--label-text);
   overflow: visible;
   opacity: 0;
-  transform: translate3d(-5px, 4px, 0);
+  transform: translateY(-8px);
   transition: opacity 260ms ease, transform 300ms var(--ease-out-expo);
   transition-delay: 0ms;
 }
@@ -626,6 +701,7 @@ h3::before {
 
 .palette-card:hover .palette-color-list,
 .palette-card:focus-within .palette-color-list {
+  border-radius: 7px;
   opacity: 1;
 }
 
@@ -633,12 +709,17 @@ h3::before {
 .palette-card:focus-within .palette-color-label {
   opacity: 1;
   transform: translate3d(0, 0, 0);
-  transition-delay: calc(var(--label-index) * 34ms);
+  transition-delay: calc(var(--label-index) * 55ms);
 }
 
 @media (hover: none) {
   .palette-color-list,
   .palette-color-label {
+    opacity: 1;
+    transform: none;
+  }
+
+  .favorite-button {
     opacity: 1;
     transform: none;
   }
@@ -652,7 +733,16 @@ h3::before {
   padding-top: 12px;
 }
 
-.favorite-button,
+.palette-card-footer span {
+  overflow: hidden;
+  min-width: 0;
+  color: var(--ink-soft);
+  font-size: 0.78rem;
+  font-weight: 750;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .copy-palette-button {
   display: inline-flex;
   gap: 6px;
@@ -667,7 +757,35 @@ h3::before {
   font-weight: 750;
 }
 
+.favorite-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  color: var(--ink);
+  background: color-mix(in srgb, var(--solid) 76%, transparent);
+  border: 1px solid color-mix(in srgb, var(--ink) 18%, transparent);
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity 160ms ease, transform 180ms var(--ease-out-quart), background 160ms ease, border-color 160ms ease;
+}
+
+.palette-card:hover .favorite-button,
+.palette-card:focus-within .favorite-button,
+.favorite-button[data-feedback="true"],
+.favorite-button[aria-pressed="true"] {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 .favorite-button[aria-pressed="true"],
+.favorite-button[data-feedback="true"],
 .favorite-button:hover,
 .favorite-button:focus-visible,
 .copy-palette-button:hover,
@@ -1544,10 +1662,46 @@ h3::before {
 .use-pair-actions {
   position: absolute;
   top: 12px;
-  right: 12px;
+  right: 56px;
   display: flex;
   gap: 4px;
   z-index: 2;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-4px);
+  transition: opacity 180ms ease, transform 200ms var(--ease-out-quart);
+}
+
+.use-favorite-button {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  color: var(--pair-bg);
+  background: var(--pair-text);
+  border: 0;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-4px);
+  transition: opacity 160ms ease, transform 160ms var(--ease-out-quart);
+}
+
+.use-pair-card:hover .use-pair-actions,
+.use-pair-card:focus-within .use-pair-actions,
+.use-pair-card:hover .use-favorite-button,
+.use-pair-card:focus-within .use-favorite-button,
+.use-favorite-button[aria-pressed="true"],
+.use-favorite-button[data-feedback="true"],
+.use-favorite-button[data-copied="true"] {
+  opacity: 0.86;
+  pointer-events: auto;
+  transform: translateY(0);
 }
 
 .use-pair-actions button {
@@ -1568,13 +1722,28 @@ h3::before {
 .use-pair-actions button:hover,
 .use-pair-actions button:focus-visible,
 .use-pair-actions button[aria-pressed="true"],
-.use-pair-actions button[data-copied="true"] {
+.use-pair-actions button[data-copied="true"],
+.use-favorite-button:hover,
+.use-favorite-button:focus-visible,
+.use-favorite-button[aria-pressed="true"],
+.use-favorite-button[data-feedback="true"],
+.use-favorite-button[data-copied="true"] {
   outline: none;
   opacity: 0.86;
   transform: translateY(-1px);
 }
 
-.use-pair-actions iconify-icon {
+@media (hover: none) {
+  .use-pair-actions,
+  .use-favorite-button {
+    opacity: 0.86;
+    pointer-events: auto;
+    transform: none;
+  }
+}
+
+.use-pair-actions iconify-icon,
+.use-favorite-button iconify-icon {
   width: 14px;
   height: 14px;
 }
@@ -1948,7 +2117,7 @@ h3::before {
   }
 
   .site-header[data-nav-open="true"] .site-nav {
-    max-height: 390px;
+    max-height: 450px;
     padding-top: 12px;
     border-top-width: 1px;
     border-top-color: var(--line);
@@ -2029,8 +2198,11 @@ h3::before {
     min-height: 320px;
   }
 
-  .use-pair-actions {
-    opacity: 1;
+  .use-pair-actions,
+  .use-favorite-button {
+    opacity: 0.86;
+    pointer-events: auto;
+    transform: none;
   }
 
   .use-pair-meta {

@@ -13,6 +13,8 @@ const styleLab = document.querySelector('[data-style-lab]');
 const styleRefreshButton = document.querySelector('[data-style-refresh]');
 const styleCopyAllButton = document.querySelector('[data-style-copy-all]');
 const styleCopyCssButton = document.querySelector('[data-style-copy-css]');
+const styleSchemeFavoriteButton = document.querySelector('[data-style-scheme-favorite]');
+const styleSchemeFavoriteLabel = document.querySelector('[data-style-scheme-favorite-label]');
 const styleStatus = document.querySelector('[data-style-status]');
 const styleAnchor = document.querySelector('[data-style-anchor]');
 const stylePalette = document.querySelector('[data-style-palette]');
@@ -1033,7 +1035,7 @@ function renderStyleAnchor(scheme) {
     styleAnchorButton.setAttribute('aria-label', `切换当前中国色，当前为 ${scheme.anchor.name} ${anchorValue}`);
   }
   if (styleColorSearch) {
-    styleColorSearch.value = styleColorOptionValue(scheme.anchorImage);
+    styleColorSearch.value = '';
   }
   if (styleFormatSelect) {
     styleFormatSelect.value = selectedColorValueType;
@@ -1198,23 +1200,10 @@ function styleRoleSwatchMarkup(role, color) {
     <button class="style-palette-role" type="button" data-style-role="${role.key}" aria-label="替换 ${escapeHtml(label)}" title="替换 ${escapeHtml(label)}">
       <span class="style-role-swatch" style="--style-role-color: ${escapeHtml(color.hex)}" aria-hidden="true"></span>
       <span>
-        <strong>${escapeHtml(role.label)}</strong>
+        <strong>${escapeHtml(role.label)} <b>${escapeHtml(role.ratio)}</b></strong>
         <small data-style-role-value>${escapeHtml(color.name)} ${escapeHtml(value)}</small>
-        <em>点击替换</em>
+        <em>${escapeHtml(role.use)}</em>
       </span>
-    </button>
-  `;
-}
-
-function styleTemplateRoleMarkup(role, color) {
-  const value = colorValue(color);
-  const label = `${role.label} ${color.name} ${value}`;
-
-  return `
-    <button class="style-template-role" type="button" data-style-template-role="${escapeHtml(role.key)}" aria-label="替换 ${escapeHtml(label)}">
-      <i style="--style-role-color: ${escapeHtml(color.hex)}" aria-hidden="true"></i>
-      <b>${escapeHtml(role.label)}</b>
-      <em data-style-template-value>${escapeHtml(color.name)} ${escapeHtml(value)}</em>
     </button>
   `;
 }
@@ -1255,9 +1244,6 @@ function styleTemplateMarkup(scene, scheme) {
         <p><strong>骨架</strong><span>${escapeHtml(scene.layout)}</span></p>
         <p><strong>倾向</strong><span>${escapeHtml(scheme.intent.summary)}</span></p>
       </div>
-      <footer class="style-template-roles">
-        ${STYLE_LAB_ROLES.map((role) => styleTemplateRoleMarkup(role, roles[role.key])).join('')}
-      </footer>
     </article>
   `;
 }
@@ -1301,6 +1287,82 @@ function styleFavoriteItem(scene, scheme = currentStyleLabScheme) {
   };
 }
 
+function styleSchemeFavoriteId(scheme = currentStyleLabScheme) {
+  if (!scheme) return '';
+  return `style-scheme:${scheme.intent.key}:${STYLE_LAB_ROLES.map((role) => scheme.roles[role.key]?.hex || '').join('-')}`;
+}
+
+function styleSchemeFavoriteItem(scheme = currentStyleLabScheme) {
+  const colors = STYLE_LAB_ROLES.map((role) => scheme.roles[role.key]).filter(Boolean);
+  return {
+    id: styleSchemeFavoriteId(scheme),
+    type: 'style',
+    title: `${scheme.scene.label}试色方案 · ${scheme.intent.label}`,
+    subtitle: `${scheme.anchor.name} 起稿 · ${colors.map((color) => color.name).join(' / ')}`,
+    colors,
+    href: 'style-lab.html',
+    text: styleLabCopyText(),
+  };
+}
+
+function setStyleSchemeFavoriteFeedback(label, icon = 'lucide:check') {
+  if (!styleSchemeFavoriteButton) return;
+
+  window.clearTimeout(styleSchemeFavoriteButton._styleFavoriteTimer);
+  const iconNode = styleSchemeFavoriteButton.querySelector('iconify-icon');
+  iconNode?.setAttribute('icon', icon);
+  if (styleSchemeFavoriteLabel) styleSchemeFavoriteLabel.textContent = label;
+  styleSchemeFavoriteButton.dataset.feedback = 'true';
+  styleSchemeFavoriteButton._styleFavoriteTimer = window.setTimeout(() => {
+    delete styleSchemeFavoriteButton.dataset.feedback;
+    updateStyleSchemeFavoriteButton();
+  }, 1300);
+}
+
+function setColorFavoriteState(button, active, image) {
+  if (!button || !image) return;
+
+  window.clearTimeout(button._favoriteTimer);
+  button.setAttribute('aria-pressed', String(active));
+  button.setAttribute('aria-label', `${active ? '取消收藏' : '收藏'} ${colorTitle(image)}`);
+  button.title = active ? '取消收藏' : '收藏';
+  button.dataset.feedback = 'true';
+  button.querySelector('iconify-icon')?.setAttribute('icon', active ? 'lucide:check' : 'lucide:heart-off');
+  const label = button.querySelector('.sr-only');
+  if (label) label.textContent = active ? '已收藏' : '已取消';
+  button._favoriteTimer = window.setTimeout(() => {
+    delete button.dataset.feedback;
+    button.querySelector('iconify-icon')?.setAttribute('icon', 'lucide:heart');
+    if (label) label.textContent = active ? '已收藏' : '收藏';
+  }, 1300);
+}
+
+function updateStyleSchemeFavoriteButton(scheme = currentStyleLabScheme) {
+  if (!styleSchemeFavoriteButton || !window.ZH_FAVORITES || !scheme) return;
+  const active = window.ZH_FAVORITES.has(styleSchemeFavoriteId(scheme));
+  const iconNode = styleSchemeFavoriteButton.querySelector('iconify-icon');
+  styleSchemeFavoriteButton.setAttribute('aria-pressed', String(active));
+  styleSchemeFavoriteButton.setAttribute('aria-label', active ? '取消收藏当前试色方案' : '收藏当前试色方案');
+  styleSchemeFavoriteButton.title = active ? '取消收藏当前试色方案' : '收藏当前试色方案';
+  iconNode?.setAttribute('icon', 'lucide:heart');
+  if (styleSchemeFavoriteLabel) styleSchemeFavoriteLabel.textContent = active ? '已收藏' : '收藏方案';
+}
+
+function setStyleTemplateFavoriteState(button, active, scene) {
+  if (!button || !scene) return;
+
+  window.clearTimeout(button._styleFavoriteTimer);
+  button.setAttribute('aria-pressed', String(active));
+  button.setAttribute('aria-label', `${active ? '取消收藏' : '收藏'} ${scene.label} 场景配色方案`);
+  button.title = active ? '取消收藏' : '收藏';
+  button.dataset.feedback = 'true';
+  button.innerHTML = `<iconify-icon icon="${active ? 'lucide:check' : 'lucide:heart-off'}" aria-hidden="true"></iconify-icon><span>${active ? '已收藏' : '已取消'}</span>`;
+  button._styleFavoriteTimer = window.setTimeout(() => {
+    delete button.dataset.feedback;
+    button.innerHTML = `<iconify-icon icon="lucide:heart" aria-hidden="true"></iconify-icon><span class="sr-only">收藏</span>`;
+  }, 1300);
+}
+
 function renderStyleLab(statusMessage = '', options = {}) {
   if (!styleLab) return;
 
@@ -1331,6 +1393,7 @@ function renderStyleLab(statusMessage = '', options = {}) {
   }
   renderStyleLabModes(scheme);
   styleLab.innerHTML = styleTemplateMarkup(scheme.scene, scheme);
+  updateStyleSchemeFavoriteButton(scheme);
   setStyleLabStatus(statusMessage || `${scheme.anchor.name} · ${scheme.scene.label} · ${scheme.intent.label}`);
 }
 
@@ -2412,6 +2475,7 @@ function cardMarkup(image) {
           </button>
           <button class="card-button" type="button" data-favorite-color="${image.id}" aria-pressed="${favoriteActive ? 'true' : 'false'}" aria-label="${favoriteActive ? '取消收藏' : '收藏'} ${title}">
             <iconify-icon icon="lucide:heart" aria-hidden="true"></iconify-icon>
+            <span class="sr-only">${favoriteActive ? '已收藏' : '收藏'}</span>
           </button>
           <a class="card-button" href="${url}" download aria-label="下载 ${title}">
             <iconify-icon icon="lucide:download" aria-hidden="true"></iconify-icon>
@@ -2898,6 +2962,13 @@ styleCopyAllButton?.addEventListener('click', async () => {
   setStyleLabStatus('已复制整组方案');
 });
 styleCopyCssButton?.addEventListener('click', copyStyleCssVariables);
+styleSchemeFavoriteButton?.addEventListener('click', () => {
+  if (!currentStyleLabScheme || !window.ZH_FAVORITES) return;
+  const result = window.ZH_FAVORITES.toggle(styleSchemeFavoriteItem(currentStyleLabScheme));
+  updateStyleSchemeFavoriteButton(currentStyleLabScheme);
+  setStyleSchemeFavoriteFeedback(result.active ? '已收藏' : '已取消', result.active ? 'lucide:check' : 'lucide:heart-off');
+  setStyleLabStatus(result.active ? '已收藏当前试色方案' : '已取消收藏当前试色方案');
+});
 styleSceneList?.addEventListener('click', (event) => {
   const sceneButton = event.target.closest('[data-style-scene]');
   if (!sceneButton) return;
@@ -2917,12 +2988,6 @@ stylePalette?.addEventListener('click', (event) => {
   if (roleButton) openStyleRoleColorPicker(roleButton.dataset.styleRole);
 });
 styleLab?.addEventListener('click', (event) => {
-  const roleButton = event.target.closest('[data-style-template-role]');
-  if (roleButton) {
-    openStyleRoleColorPicker(roleButton.dataset.styleTemplateRole);
-    return;
-  }
-
   const copyButton = event.target.closest('[data-style-copy]');
   if (copyButton) {
     copyStyleTemplate(copyButton.dataset.styleCopy).then((scene) => {
@@ -2936,8 +3001,7 @@ styleLab?.addEventListener('click', (event) => {
     const scene = STYLE_LAB_SCENES.find((item) => item.key === favoriteButton.dataset.styleFavorite);
     if (!scene || !currentStyleLabScheme || !window.ZH_FAVORITES) return;
     const result = window.ZH_FAVORITES.toggle(styleFavoriteItem(scene));
-    favoriteButton.setAttribute('aria-pressed', String(result.active));
-    favoriteButton.setAttribute('aria-label', `${result.active ? '取消收藏' : '收藏'} ${scene.label} 场景配色方案`);
+    setStyleTemplateFavoriteState(favoriteButton, result.active, scene);
     setStyleLabStatus(result.active ? `已收藏：${scene.label}场景` : `已取消收藏：${scene.label}场景`);
   }
 });
@@ -2960,8 +3024,8 @@ gallery?.addEventListener('click', (event) => {
     const image = images.find((item) => item.id === favoriteButton.dataset.favoriteColor);
     if (!image || !window.ZH_FAVORITES) return;
     const result = window.ZH_FAVORITES.toggle(colorFavoriteItem(image));
-    favoriteButton.setAttribute('aria-pressed', String(result.active));
-    favoriteButton.setAttribute('aria-label', `${result.active ? '取消收藏' : '收藏'} ${colorTitle(image)}`);
+    setColorFavoriteState(favoriteButton, result.active, image);
+    if (galleryStatus) galleryStatus.textContent = result.active ? `已收藏：${colorTitle(image)}` : `已取消收藏：${colorTitle(image)}`;
   }
 });
 gallery?.addEventListener('change', (event) => {

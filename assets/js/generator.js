@@ -3,6 +3,7 @@
   const harmonies = window.TRADITIONAL_COLOR_HARMONIES || {};
   const board = document.querySelector('[data-generator-board]');
   const searchInput = document.querySelector('[data-generator-search]');
+  const searchSuggestions = document.querySelector('[data-generator-search-suggestions]');
   const hint = document.querySelector('[data-generator-hint]');
   const toast = document.querySelector('[data-generator-toast]');
   const colorDialog = document.querySelector('[data-color-dialog]');
@@ -50,6 +51,7 @@
   }
 
   function bindEvents() {
+    document.querySelector('[data-generator-replace-all]')?.addEventListener('click', (event) => replaceWholePalette(event.currentTarget));
     document.querySelector('[data-generator-generate]')?.addEventListener('click', () => generate());
     document.querySelector('[data-copy-palette]')?.addEventListener('click', () => copyExport('text'));
     document.querySelector('[data-favorite-generator]')?.addEventListener('click', (event) => toggleGeneratorFavorite(event.currentTarget));
@@ -75,7 +77,13 @@
       });
     });
 
+    searchInput?.addEventListener('input', renderSearchSuggestions);
+    searchInput?.addEventListener('focus', renderSearchSuggestions);
     searchInput?.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        hideSearchSuggestions();
+        return;
+      }
       if (event.key !== 'Enter') return;
       event.preventDefault();
       const anchor = anchorFromSearch();
@@ -83,7 +91,17 @@
         showToast('没有找到这个中国色');
         return;
       }
+      hideSearchSuggestions();
       generate(anchor);
+    });
+    searchSuggestions?.addEventListener('click', (event) => {
+      const button = event.target.closest('[data-generator-search-pick]');
+      if (!button) return;
+      pickSearchSuggestion(button.dataset.generatorSearchPick);
+    });
+    document.addEventListener('click', (event) => {
+      if (event.target.closest('.generator-search-wrap')) return;
+      hideSearchSuggestions();
     });
 
     colorDialogSearch?.addEventListener('input', renderColorDialog);
@@ -167,6 +185,18 @@
     updateUrl();
   }
 
+  function replaceWholePalette(button) {
+    const currentIds = new Set(palette.map((color) => color.id));
+    const anchorIds = replacementAnchorIds(currentIds);
+    const anchorId = anchorIds[0] || randomColorNotIn(currentIds).id;
+    palette = buildFreshPalette(anchorId, method, currentIds);
+    locked = locked.map(() => false);
+    render();
+    updateUrl();
+    setActionFeedback(button);
+    showToast('已整组替换');
+  }
+
   function buildPalette(anchorId, nextMethod, previous = [], lockedState = []) {
     const anchor = colorById.get(anchorId) || randomColor();
     const lockedIds = new Set(previous.filter((_, index) => lockedState[index]).map((item) => item.id));
@@ -181,6 +211,39 @@
       cursor += 1;
       return colorById.get(id) || randomColor();
     });
+  }
+
+  function buildFreshPalette(anchorId, nextMethod, excludedIds = new Set()) {
+    const anchor = colorById.get(anchorId) || randomColorNotIn(excludedIds);
+    const relatedToCurrent = palette.flatMap((color) => candidateIds(color.id, nextMethod));
+    const sequence = uniqueIds([
+      anchor.id,
+      ...candidateIds(anchor.id, nextMethod),
+      ...relatedToCurrent,
+      ...shuffle(colors.map((item) => item.id)),
+    ]).filter((id) => colorById.has(id) && !excludedIds.has(id));
+    const selected = new Set();
+    let cursor = 0;
+
+    return roles.map(() => {
+      while (cursor < sequence.length && selected.has(sequence[cursor])) cursor += 1;
+      const id = sequence[cursor] || randomColorNotIn(new Set([...excludedIds, ...selected])).id;
+      selected.add(id);
+      cursor += 1;
+      return colorById.get(id) || randomColorNotIn(excludedIds);
+    });
+  }
+
+  function replacementAnchorIds(currentIds) {
+    return uniqueIds([
+      ...shuffle(palette.flatMap((color) => [
+        ...candidateIds(color.id, method),
+        ...candidateIds(color.id, 'analogous'),
+        ...candidateIds(color.id, 'complementary'),
+        ...candidateIds(color.id, 'neutral'),
+      ])),
+      ...shuffle(colors.map((color) => color.id)),
+    ]).filter((id) => colorById.has(id) && !currentIds.has(id));
   }
 
   function candidateIds(anchorId, nextMethod) {
@@ -282,6 +345,45 @@
     });
   }
 
+  function renderSearchSuggestions() {
+    if (!searchSuggestions || !searchInput) return;
+    const query = normalizeQuery(searchInput.value);
+    if (!query) {
+      hideSearchSuggestions();
+      return;
+    }
+
+    const matches = rankedColorMatches(query, 8);
+    searchSuggestions.hidden = false;
+    searchInput.setAttribute('aria-expanded', 'true');
+    searchSuggestions.innerHTML = matches.length
+      ? matches.map((color) => `
+        <button type="button" class="generator-search-option" data-generator-search-pick="${color.id}" style="--suggest-color:${color.cleanHex}; --suggest-ink:${readableText(color.cleanHex)}">
+          <span class="generator-search-effect" aria-hidden="true"></span>
+          <span class="generator-search-copy">
+            <strong>${escapeHtml(color.name)}</strong>
+            <small>${color.id} · ${color.cleanHex} · ${escapeHtml(searchEffectLabel(color))}</small>
+          </span>
+        </button>
+      `).join('')
+      : '<p class="generator-search-empty">没有匹配的传统色</p>';
+  }
+
+  function hideSearchSuggestions() {
+    if (!searchSuggestions || !searchInput) return;
+    searchSuggestions.hidden = true;
+    searchInput.setAttribute('aria-expanded', 'false');
+  }
+
+  function pickSearchSuggestion(id) {
+    const color = colorById.get(id);
+    if (!color || !searchInput) return;
+    searchInput.value = color.name;
+    hideSearchSuggestions();
+    generate(color.id);
+    showToast(`已以 ${color.name} 为起点`);
+  }
+
   function openView() {
     if (!viewBody) return;
     viewBody.innerHTML = palette.map((color, index) => {
@@ -336,6 +438,15 @@
     locked = locked.map(() => false);
     render();
     showToast('已解锁全部颜色');
+  }
+
+  function setActionFeedback(button) {
+    if (!button) return;
+    window.clearTimeout(button._feedbackTimer);
+    button.dataset.feedback = 'true';
+    button._feedbackTimer = window.setTimeout(() => {
+      delete button.dataset.feedback;
+    }, 900);
   }
 
   function pickInlineSuggestion(button) {
@@ -397,7 +508,7 @@
     const lockedCount = locked.filter(Boolean).length;
     const first = palette[0];
     if (!hint || !first) return;
-    hint.textContent = `${methodLabels[method]}生成 · 起点 ${first.name} · ${lockedCount ? `已锁定 ${lockedCount} 色` : '按空格生成新方案'}`;
+    hint.textContent = `${methodLabels[method]}生成 · 起点 ${first.name} · ${lockedCount ? `已锁定 ${lockedCount} 色；生成保留，换整组清空` : '空格生成；换整组替换全部'}`;
     updateGeneratorFavoriteButton();
   }
 
@@ -423,12 +534,26 @@
     const active = window.ZH_FAVORITES.has(generatorFavoriteId());
     button.setAttribute('aria-pressed', String(active));
     button.setAttribute('aria-label', active ? '取消收藏当前生成方案' : '收藏当前生成方案');
+    button.title = active ? '取消收藏当前生成方案' : '收藏当前生成方案';
+    button.querySelector('iconify-icon')?.setAttribute('icon', 'lucide:heart');
+  }
+
+  function setGeneratorFavoriteFeedback(button, active) {
+    if (!button) return;
+    window.clearTimeout(button._favoriteTimer);
+    button.dataset.feedback = 'true';
+    button.querySelector('iconify-icon')?.setAttribute('icon', active ? 'lucide:check' : 'lucide:heart-off');
+    button._favoriteTimer = window.setTimeout(() => {
+      delete button.dataset.feedback;
+      updateGeneratorFavoriteButton();
+    }, 1300);
   }
 
   function toggleGeneratorFavorite(button) {
     if (!window.ZH_FAVORITES || !palette.length) return;
     const result = window.ZH_FAVORITES.toggle(generatorFavoriteItem());
     updateGeneratorFavoriteButton();
+    setGeneratorFavoriteFeedback(button, result.active);
     showToast(result.active ? '已收藏生成方案' : '已取消收藏生成方案');
     button?.setAttribute('aria-pressed', String(result.active));
   }
@@ -438,12 +563,66 @@
     if (!query) return null;
     const exactHex = normalizeHex(query);
     if (exactHex && colorByHex.has(exactHex)) return colorByHex.get(exactHex).id;
-    const match = colors.find((color) => searchableText(color).includes(query));
+    const match = rankedColorMatches(query, 1)[0];
     return match?.id || null;
+  }
+
+  function rankedColorMatches(query, limit = 8) {
+    const normalized = normalizeQuery(query);
+    if (!normalized) return [];
+    const exactHex = normalizeHex(normalized);
+
+    return colors
+      .map((color) => ({
+        color,
+        score: colorMatchScore(color, normalized, exactHex),
+      }))
+      .filter((item) => item.score > 0)
+      .sort((first, second) => second.score - first.score || Number(first.color.id) - Number(second.color.id))
+      .slice(0, limit)
+      .map((item) => item.color);
+  }
+
+  function colorMatchScore(color, query, exactHex) {
+    const name = normalizeQuery(color.name);
+    const id = normalizeQuery(color.id);
+    const hex = color.cleanHex.replace('#', '').toLowerCase();
+    const text = searchableText(color);
+
+    if (exactHex && color.cleanHex === exactHex) return 1200;
+    if (name === query || id === query || hex === query) return 1100;
+    if (name.startsWith(query) || hex.startsWith(query) || id.startsWith(query)) return 880;
+    if (name.includes(query)) return 760 - Math.max(0, name.indexOf(query));
+    if (hex.includes(query) || id.includes(query)) return 660 - Math.max(0, text.indexOf(query));
+    const fuzzyName = fuzzySequenceScore(name, query);
+    if (fuzzyName) return 460 + fuzzyName;
+    const fuzzyText = fuzzySequenceScore(text, query);
+    return fuzzyText ? 260 + fuzzyText : 0;
+  }
+
+  function fuzzySequenceScore(text, query) {
+    if (!text || !query) return 0;
+    let cursor = 0;
+    let firstIndex = -1;
+    let lastIndex = -1;
+    for (const character of query) {
+      const index = text.indexOf(character, cursor);
+      if (index === -1) return 0;
+      if (firstIndex === -1) firstIndex = index;
+      lastIndex = index;
+      cursor = index + 1;
+    }
+    const spread = Math.max(1, lastIndex - firstIndex + 1);
+    return Math.max(1, 180 - spread - firstIndex);
   }
 
   function randomColor() {
     return colors[Math.floor(Math.random() * colors.length)];
+  }
+
+  function randomColorNotIn(disallowed = new Set()) {
+    const pool = colors.filter((color) => !disallowed.has(color.id));
+    return pool[Math.floor(Math.random() * pool.length)] || randomColor();
   }
 
   function ids(value) {
@@ -476,6 +655,27 @@
 
   function searchableText(color) {
     return `${color.id} ${color.name} ${color.cleanHex} ${color.cleanHex.replace('#', '')}`.toLowerCase();
+  }
+
+  function searchEffectLabel(color) {
+    const harmony = harmonies[color.id] || {};
+    const rgb = hexToRgb(color.cleanHex);
+    const hsl = harmony.hsl || rgbToHsl(rgb.r, rgb.g, rgb.b);
+    const family = harmony.hueFamily || hueFamilyFromHsl(hsl);
+    const tone = hsl.l >= 82 ? '高明度' : hsl.l <= 28 ? '低明度' : hsl.s >= 72 ? '高饱和' : hsl.s <= 18 ? '灰调' : '中明度';
+    return [family, tone].filter(Boolean).join(' · ');
+  }
+
+  function hueFamilyFromHsl(hsl) {
+    if (!hsl || hsl.s < 12) return '中性色';
+    if (hsl.h < 15 || hsl.h >= 345) return '红色系';
+    if (hsl.h < 45) return '橙色系';
+    if (hsl.h < 75) return '黄色系';
+    if (hsl.h < 155) return '绿色系';
+    if (hsl.h < 195) return '青色系';
+    if (hsl.h < 255) return '蓝色系';
+    if (hsl.h < 315) return '紫色系';
+    return '红色系';
   }
 
   function readableText(hex) {
